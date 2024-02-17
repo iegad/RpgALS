@@ -66,7 +66,7 @@ void UALSCharacterAnimInstance::NativeBeginPlay()
 	}
 }
 
-void UALSCharacterAnimInstance::NativeThreadSafeUpdateAnimation(float DeltaSeconds)
+void UALSCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	if (!Character || DeltaSeconds == 0.0f)
 	{

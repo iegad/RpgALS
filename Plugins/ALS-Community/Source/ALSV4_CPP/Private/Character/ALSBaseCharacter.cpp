@@ -1292,7 +1292,9 @@ void AALSBaseCharacter::SprintAction_Implementation(bool bValue)
 
 void AALSBaseCharacter::AimAction_Implementation(bool bValue)
 {
-	if (bValue)
+	UE_LOG(LogTemp, Warning, TEXT(" -------------- AimAction -------------- "));
+
+	if (GetRotationMode() != EALSRotationMode::Aiming)
 	{
 		// AimAction: Hold "AimAction" to enter the aiming mode, release to revert back the desired rotation mode.
 		SetRotationMode(EALSRotationMode::Aiming);

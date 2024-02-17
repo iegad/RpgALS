@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "ALSLibrary.h"
+
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/PlayerController.h"
@@ -26,12 +28,13 @@ public:
 
 	virtual void SetupInputComponent() override;
 
-	virtual void BindActions(UInputMappingContext* Context);
-
 protected:
 	void SetupInputs();
 
 	void SetupCamera();
+
+	UFUNCTION(BlueprintCallable)
+	void SetGlobalTimeDilationLocal(float Dilation);
 
 	UFUNCTION()
 	void ForwardMovementAction(const FInputActionValue& Value);
@@ -114,9 +117,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "ALS")
 	TObjectPtr<AALSBaseCharacter> PossessedCharacter = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ALS|Input")
-	TObjectPtr<UInputMappingContext> DefaultInputMappingContext = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Input System")
+	FPlayerInputSystem PlayerInputSystem;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ALS|Input")
-	TObjectPtr<UInputMappingContext> DebugInputMappingContext = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debug Input System")
+	FDebugInputSystem DebugInputSystem;
 };

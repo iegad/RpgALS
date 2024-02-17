@@ -51,46 +51,46 @@ void AALSPlayerController::OnRep_Pawn()
 	}
 }
 
-void AALSPlayerController::SetupInputComponent()
-{
+void 
+AALSPlayerController::SetupInputComponent() {
 	Super::SetupInputComponent();
 
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
-	if (EnhancedInputComponent)
-	{
-		EnhancedInputComponent->ClearActionEventBindings();
-		EnhancedInputComponent->ClearActionValueBindings();
-		EnhancedInputComponent->ClearDebugKeyBindings();
-
-		BindActions(DefaultInputMappingContext);
-		BindActions(DebugInputMappingContext);
-	}
-	else
-	{
+	if (!EnhancedInputComponent) {
 		UE_LOG(LogTemp, Fatal, TEXT("ALS Community requires Enhanced Input System to be activated in project settings to function properly"));
+		return;
 	}
-}
 
-void AALSPlayerController::BindActions(UInputMappingContext* Context)
-{
-	if (Context)
-	{
-		const TArray<FEnhancedActionKeyMapping>& Mappings = Context->GetMappings();
-		UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
-		if (EnhancedInputComponent)
-		{
-			// There may be more than one keymapping assigned to one action. So, first filter duplicate action entries to prevent multiple delegate bindings
-			TSet<const UInputAction*> UniqueActions;
-			for (const FEnhancedActionKeyMapping& Keymapping : Mappings)
-			{
-				UniqueActions.Add(Keymapping.Action);
-			}
-			for (const UInputAction* UniqueAction : UniqueActions)
-			{
-				EnhancedInputComponent->BindAction(UniqueAction, ETriggerEvent::Triggered, Cast<UObject>(this), UniqueAction->GetFName());
-			}
-		}
-	}
+	EnhancedInputComponent->ClearActionEventBindings();
+	EnhancedInputComponent->ClearActionValueBindings();
+	EnhancedInputComponent->ClearDebugKeyBindings();
+
+	EnhancedInputComponent->BindAction(PlayerInputSystem.AimAction, ETriggerEvent::Completed, this, &ThisClass::AimAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.CameraHeldAction, ETriggerEvent::Triggered, this, &ThisClass::CameraHeldAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.CameraRightAction, ETriggerEvent::Triggered, this, &ThisClass::CameraRightAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.CameraTapAction, ETriggerEvent::Triggered, this, &ThisClass::CameraTapAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.CameraUpAction, ETriggerEvent::Triggered, this, &ThisClass::CameraUpAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.ForwardMovementAction, ETriggerEvent::Triggered, this, &ThisClass::ForwardMovementAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.JumpAction, ETriggerEvent::Triggered, this, &ThisClass::JumpAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.LookingDirectionAction, ETriggerEvent::Triggered, this, &ThisClass::LookingDirectionAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.RagdollAction, ETriggerEvent::Triggered, this, &ThisClass::RagdollAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.RightMovementAction, ETriggerEvent::Triggered, this, &ThisClass::RightMovementAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.SprintAction, ETriggerEvent::Triggered, this, &ThisClass::SprintAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.StanceAction, ETriggerEvent::Triggered, this, &ThisClass::StanceAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.VelocityDirectionAction, ETriggerEvent::Triggered, this, &ThisClass::VelocityDirectionAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.WalkAction, ETriggerEvent::Triggered, this, &ThisClass::WalkAction);
+
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugFocusedCharacterCycleAction, ETriggerEvent::Triggered, this, &ThisClass::DebugFocusedCharacterCycleAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugOpenOverlayMenuAction, ETriggerEvent::Triggered, this, &ThisClass::DebugOpenOverlayMenuAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugOverlayMenuCycleAction, ETriggerEvent::Triggered, this, &ThisClass::DebugOverlayMenuCycleAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleCharacterInfoAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleCharacterInfoAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleMeshAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleMeshAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleDebugViewAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleDebugViewAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleHudAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleHudAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleLayerColorsAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleLayerColorsAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleShapesAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleShapesAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleSlomoAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleSlomoAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleTracesAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleTracesAction);
 }
 
 void AALSPlayerController::SetupInputs()
@@ -101,12 +101,11 @@ void AALSPlayerController::SetupInputs()
 		{
 			FModifyContextOptions Options;
 			Options.bForceImmediately = 1;
-			Subsystem->AddMappingContext(DefaultInputMappingContext, 1, Options);
+			Subsystem->AddMappingContext(PlayerInputSystem.InputMappingContext, 1, Options);
 			UALSDebugComponent* DebugComp = Cast<UALSDebugComponent>(PossessedCharacter->GetComponentByClass(UALSDebugComponent::StaticClass()));
-			if (DebugComp)
-			{
+			if (DebugComp) {
 				// Do only if we have debug component
-				Subsystem->AddMappingContext(DebugInputMappingContext, 0, Options);
+				Subsystem->AddMappingContext(DebugInputSystem.InputMappingContext, 0, Options);
 			}
 		}
 	}
@@ -119,6 +118,15 @@ void AALSPlayerController::SetupCamera()
 	if (PossessedCharacter && CastedMgr)
 	{
 		CastedMgr->OnPossess(PossessedCharacter);
+	}
+}
+
+void 
+AALSPlayerController::SetGlobalTimeDilationLocal(float Dilation) {
+	UWorld* World = GetWorld();
+
+	if (World && UKismetSystemLibrary::IsStandalone(World)) {
+		UGameplayStatics::SetGlobalTimeDilation(World, Dilation);
 	}
 }
 
