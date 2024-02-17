@@ -50,9 +50,43 @@ public:
 
 	/** Ragdoll System */
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ALS|Get Up Animations")
+	TMap<EALSOverlayState, UAnimMontage*> GetUpBackAnimationMap{
+		{EALSOverlayState::Default, nullptr},
+		{EALSOverlayState::Masculine, nullptr},
+		{EALSOverlayState::Feminine, nullptr},
+		{EALSOverlayState::Injured, nullptr},
+		{EALSOverlayState::HandsTied, nullptr},
+		{EALSOverlayState::Rifle, nullptr},
+		{EALSOverlayState::PistolOneHanded, nullptr},
+		{EALSOverlayState::PistolTwoHanded, nullptr},
+		{EALSOverlayState::Bow, nullptr},
+		{EALSOverlayState::Torch, nullptr},
+		{EALSOverlayState::Binoculars, nullptr},
+		{EALSOverlayState::Box, nullptr},
+		{EALSOverlayState::Barrel, nullptr},
+	};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ALS|Get Up Animations")
+	TMap<EALSOverlayState, UAnimMontage*> GetUpFrontAnimationMap{
+		{EALSOverlayState::Default, nullptr},
+		{EALSOverlayState::Masculine, nullptr},
+		{EALSOverlayState::Feminine, nullptr},
+		{EALSOverlayState::Injured, nullptr},
+		{EALSOverlayState::HandsTied, nullptr},
+		{EALSOverlayState::Rifle, nullptr},
+		{EALSOverlayState::PistolOneHanded, nullptr},
+		{EALSOverlayState::PistolTwoHanded, nullptr},
+		{EALSOverlayState::Bow, nullptr},
+		{EALSOverlayState::Torch, nullptr},
+		{EALSOverlayState::Binoculars, nullptr},
+		{EALSOverlayState::Box, nullptr},
+		{EALSOverlayState::Barrel, nullptr},
+	};
+
 	/** Implement on BP to get required get up animation according to character's state */
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "ALS|Ragdoll System")
-	UAnimMontage* GetGetUpAnimation(bool bRagdollFaceUpState);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ALS|Ragdoll System")
+	UAnimMontage* GetGetUpAnimation(bool bRagdollFaceUpState) const;
 
 	UFUNCTION(BlueprintCallable, Category = "ALS|Ragdoll System")
 	virtual void RagdollStart();
@@ -242,9 +276,26 @@ public:
 	void Replicated_PlayMontage(UAnimMontage* Montage, float PlayRate);
 	virtual void Replicated_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate);
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ALS|Movement System")
+	TMap<EALSOverlayState, UAnimMontage*> RollAnimationMap{
+		{EALSOverlayState::Default, nullptr},
+		{EALSOverlayState::Masculine, nullptr},
+		{EALSOverlayState::Feminine, nullptr},
+		{EALSOverlayState::Injured, nullptr},
+		{EALSOverlayState::HandsTied, nullptr},
+		{EALSOverlayState::Rifle, nullptr},
+		{EALSOverlayState::PistolOneHanded, nullptr},
+		{EALSOverlayState::PistolTwoHanded, nullptr},
+		{EALSOverlayState::Bow, nullptr},
+		{EALSOverlayState::Torch, nullptr},
+		{EALSOverlayState::Binoculars, nullptr},
+		{EALSOverlayState::Box, nullptr},
+		{EALSOverlayState::Barrel, nullptr},
+	};
+
 	/** Implement on BP to get required roll animation according to character's state */
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "ALS|Movement System")
-	UAnimMontage* GetRollAnimation();
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ALS|Movement System")
+	UAnimMontage* GetRollAnimation() const;
 
 	/** Utility */
 

@@ -79,6 +79,11 @@ void AALSBaseCharacter::Replicated_PlayMontage_Implementation(UAnimMontage* Mont
 	Server_PlayMontage(Montage, PlayRate);
 }
 
+UAnimMontage* AALSBaseCharacter::GetRollAnimation() const
+{
+	return *RollAnimationMap.Find(GetOverlayState());
+}
+
 void AALSBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -143,6 +148,11 @@ void AALSBaseCharacter::Tick(float DeltaTime)
 	// Cache values
 	PreviousVelocity = GetVelocity();
 	PreviousAimYaw = AimingRotation.Yaw;
+}
+
+UAnimMontage* AALSBaseCharacter::GetGetUpAnimation(bool bRagdollFaceUpState) const
+{
+	return bRagdollFaceUpState ? *GetUpBackAnimationMap.Find(GetOverlayState()) : *GetUpFrontAnimationMap.Find(GetOverlayState());
 }
 
 void AALSBaseCharacter::RagdollStart()
