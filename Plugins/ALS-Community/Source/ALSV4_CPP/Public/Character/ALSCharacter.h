@@ -20,15 +20,14 @@ public:
 	AALSCharacter(const FObjectInitializer& ObjectInitializer);
 
 	/** Implemented on BP to update held objects */
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "ALS|HeldObject")
+	UFUNCTION(BlueprintCallable, Category = "ALS|HeldObject")
 	void UpdateHeldObject();
 
 	UFUNCTION(BlueprintCallable, Category = "ALS|HeldObject")
 	void ClearHeldObject();
 
 	UFUNCTION(BlueprintCallable, Category = "ALS|HeldObject")
-	void AttachToHand(UStaticMesh* NewStaticMesh, USkeletalMesh* NewSkeletalMesh,
-	                  class UClass* NewAnimClass, bool bLeftHand, FVector Offset);
+	void AttachToHand(UStaticMesh* NewStaticMesh, USkeletalMesh* NewSkeletalMesh, class UClass* NewAnimClass, bool bLeftHand, FVector Offset);
 
 	virtual void RagdollStart() override;
 
@@ -48,7 +47,7 @@ protected:
 	virtual void OnOverlayStateChanged(EALSOverlayState PreviousState) override;
 
 	/** Implement on BP to update animation states of held objects */
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "ALS|HeldObject")
+	UFUNCTION(BlueprintCallable, Category = "ALS|HeldObject")
 	void UpdateHeldObjectAnimations();
 
 public:
@@ -60,6 +59,25 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|Component")
 	TObjectPtr<UStaticMeshComponent> StaticMesh = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|HeldObject")
+	TMap<EALSOverlayState, USkeletalMesh*> SkeletalMeshMap{
+		{EALSOverlayState::Rifle, nullptr},
+		{EALSOverlayState::PistolOneHanded, nullptr},
+		{EALSOverlayState::PistolTwoHanded, nullptr},
+		{EALSOverlayState::Bow, nullptr},
+	};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|HeldObject")
+	TMap<EALSOverlayState, UStaticMesh*> StaticMeshMap{
+		{EALSOverlayState::Torch, nullptr},
+		{EALSOverlayState::Binoculars, nullptr},
+		{EALSOverlayState::Box, nullptr},
+		{EALSOverlayState::Barrel, nullptr},
+	};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|HeldObject")
+	TMap<EALSOverlayState, TSubclassOf<UAnimInstance>> AnimClassMap{ {EALSOverlayState::Bow, nullptr} };
 
 private:
 	bool bNeedsColorReset = false;

@@ -8,7 +8,7 @@ public class RpgALS : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ALSV4_CPP" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

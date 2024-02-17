@@ -8,6 +8,7 @@
 #include "Engine/StaticMesh.h"
 #include "AI/ALSAIController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Props/BowAnim.h"
 
 AALSCharacter::AALSCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -24,6 +25,28 @@ AALSCharacter::AALSCharacter(const FObjectInitializer& ObjectInitializer)
 	AIControllerClass = AALSAIController::StaticClass();
 }
 
+void 
+AALSCharacter::UpdateHeldObject() {
+	if (GetOverlayState() == EALSOverlayState::Default || 
+		GetOverlayState() == EALSOverlayState::Masculine ||
+		GetOverlayState() == EALSOverlayState::Feminine ||
+		GetOverlayState() == EALSOverlayState::Injured || 
+		GetOverlayState() == EALSOverlayState::HandsTied) {
+		ClearHeldObject();
+		return;
+	}
+
+	bool LeftHand = GetOverlayState() == EALSOverlayState::Bow ||
+		GetOverlayState() == EALSOverlayState::Torch ||
+		GetOverlayState() == EALSOverlayState::Barrel;
+
+	USkeletalMesh* NewSkeletalMesh = SkeletalMeshMap.FindRef(GetOverlayState());
+	UStaticMesh* NewStaticMesh = StaticMeshMap.FindRef(GetOverlayState());
+	TSubclassOf<UAnimInstance> AnimClass = *AnimClassMap.FindRef(GetOverlayState());
+
+	AttachToHand(NewStaticMesh, NewSkeletalMesh, AnimClass, LeftHand, { 0, 0, 0 });
+}
+
 void AALSCharacter::ClearHeldObject()
 {
 	StaticMesh->SetStaticMesh(nullptr);
@@ -31,8 +54,7 @@ void AALSCharacter::ClearHeldObject()
 	SkeletalMesh->SetAnimInstanceClass(nullptr);
 }
 
-void AALSCharacter::AttachToHand(UStaticMesh* NewStaticMesh, USkeletalMesh* NewSkeletalMesh, UClass* NewAnimClass,
-                                 bool bLeftHand, FVector Offset)
+void AALSCharacter::AttachToHand(UStaticMesh* NewStaticMesh, USkeletalMesh* NewSkeletalMesh, UClass* NewAnimClass, bool bLeftHand, FVector Offset)
 {
 	ClearHeldObject();
 
@@ -100,6 +122,16 @@ void AALSCharacter::OnOverlayStateChanged(EALSOverlayState PreviousState)
 {
 	Super::OnOverlayStateChanged(PreviousState);
 	UpdateHeldObject();
+}
+
+void AALSCharacter::UpdateHeldObjectAnimations()
+{
+	if (GetOverlayState() == EALSOverlayState::Bow) {
+		UBowAnim* BowAnim = Cast<UBowAnim>(SkeletalMesh->GetAnimInstance());
+		if (BowAnim) {
+			BowAnim->Draw = GetAnimCurveValue(TEXT("Enable_SpineRotation"));
+		}
+	}
 }
 
 void AALSCharacter::Tick(float DeltaTime)
