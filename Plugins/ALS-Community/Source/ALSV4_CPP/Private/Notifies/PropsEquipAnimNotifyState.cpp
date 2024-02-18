@@ -22,7 +22,7 @@ UPropsEquipAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimS
 			break;
 		}
 
-		Character->WeaponComponent->StartEquip(Character, Props);
+		Character->WeaponComponent->StartEquip(Props);
 	} while (0);
 }
 
@@ -44,6 +44,6 @@ UPropsEquipAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSeq
 			break;
 		}
 
-		Character->WeaponComponent->EndEquip(Character, Props);
+		Character->WeaponComponent->EndEquip(Props);
 	} while (0);
 }

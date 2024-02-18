@@ -181,11 +181,11 @@ AALSCharacter::RifleAction_Implementation() {
 		}
 
 		if (GetOverlayState() == Props->OverlayState) {
-			WeaponComponent->UnEquip(this, Props);
+			WeaponComponent->UnEquip(Props);
 			break;
 		}
 
-		WeaponComponent->Equip(this, Props);
+		WeaponComponent->Equip(Props);
 	} while (0);
 }
 
@@ -198,12 +198,21 @@ AALSCharacter::PistolAction_Implementation() {
 		}
 
 		if (GetOverlayState() == Props->OverlayState) {
-			WeaponComponent->UnEquip(this, Props);
+			WeaponComponent->UnEquip(Props);
 			break;
 		}
 
-		WeaponComponent->Equip(this, Props);
+		WeaponComponent->Equip(Props);
 	} while (0);
+}
+
+void 
+AALSCharacter::AttackHoldAction_Implementation() {
+	
+}
+
+void 
+AALSCharacter::AttackTapAction_Implementation() {
 }
 
 void AALSCharacter::UpdateHeldObjectAnimations()

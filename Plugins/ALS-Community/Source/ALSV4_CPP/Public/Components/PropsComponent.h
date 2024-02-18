@@ -16,22 +16,25 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void StartEquip(AALSCharacter* Character, const APropsBase* Props) const;
+	void StartEquip(const APropsBase* Props) const;
 
 	UFUNCTION(BlueprintCallable)
-	void EndEquip(AALSCharacter* Character, const APropsBase* Props) const;
+	void EndEquip(const APropsBase* Props) const;
 
 	UFUNCTION(BlueprintCallable)
-	void StartUnEquip(AALSCharacter* Character, const APropsBase* Props) const;
+	void StartUnEquip(const APropsBase* Props) const;
 
 	UFUNCTION(BlueprintCallable)
-	void EndUnEquip(AALSCharacter* Character, const APropsBase* Props) const;
+	void EndUnEquip(const APropsBase* Props) const;
 
 	UFUNCTION(BlueprintCallable)
-	void Equip(AALSCharacter* Character, const APropsBase* Props) const;
+	void Equip(const APropsBase* Props) const;
 
 	UFUNCTION(BlueprintCallable)
-	void UnEquip(AALSCharacter* Character, const APropsBase* Props) const;
+	void UnEquip(const APropsBase* Props) const;
+
+protected:
+	inline AALSCharacter* GetALSCharacter() const;
 
 private:
 	mutable APropsBase* DesiredProps = nullptr;

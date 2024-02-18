@@ -66,6 +66,8 @@ AALSPlayerController::SetupInputComponent() {
 	EnhancedInputComponent->ClearDebugKeyBindings();
 
 	EnhancedInputComponent->BindAction(PlayerInputSystem.AimAction, ETriggerEvent::Completed, this, &ThisClass::AimAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.AttackHoldAction, ETriggerEvent::Triggered, this, &ThisClass::AttackHoldAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.AttackTapAction, ETriggerEvent::Triggered, this, &ThisClass::AttackTapAction);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.CameraHeldAction, ETriggerEvent::Triggered, this, &ThisClass::CameraHeldAction);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.CameraRightAction, ETriggerEvent::Triggered, this, &ThisClass::CameraRightAction);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.CameraTapAction, ETriggerEvent::Triggered, this, &ThisClass::CameraTapAction);
@@ -237,6 +239,20 @@ void
 AALSPlayerController::PistolAction(const FInputActionValue& Value) {
 	if (PossessedCharacter) {
 		PossessedCharacter->PistolAction();
+	}
+}
+
+void 
+AALSPlayerController::AttackHoldAction(const FInputActionValue& Value) {
+	if (PossessedCharacter) {
+		PossessedCharacter->AttackHoldAction();
+	}
+}
+
+void 
+AALSPlayerController::AttackTapAction(const FInputActionValue& Value) {
+	if (PossessedCharacter) {
+		PossessedCharacter->AttackTapAction();
 	}
 }
 

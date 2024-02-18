@@ -407,6 +407,14 @@ public:
 	void PistolAction();
 	virtual void PistolAction_Implementation() {};
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
+	void AttackHoldAction();
+	virtual void AttackHoldAction_Implementation() {};
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
+	void AttackTapAction();
+	virtual void AttackTapAction_Implementation() {};
+
 protected:
 	/** Ragdoll System */
 

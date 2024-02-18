@@ -11,4 +11,5 @@ UCLASS()
 class ALSV4_CPP_API UWeaponComponent : public UPropsComponent {
 	GENERATED_BODY()
 	
+public:
 };

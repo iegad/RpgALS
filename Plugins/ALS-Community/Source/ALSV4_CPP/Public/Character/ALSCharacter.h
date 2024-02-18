@@ -56,6 +56,10 @@ protected:
 
 	virtual void PistolAction_Implementation() override;
 
+	virtual void AttackHoldAction_Implementation() override;
+
+	virtual void AttackTapAction_Implementation() override;
+
 	/** Implement on BP to update animation states of held objects */
 	UFUNCTION(BlueprintCallable, Category = "ALS|HeldObject")
 	void UpdateHeldObjectAnimations();

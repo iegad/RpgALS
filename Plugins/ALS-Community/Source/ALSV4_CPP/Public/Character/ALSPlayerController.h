@@ -78,6 +78,12 @@ protected:
 	UFUNCTION()
 	void PistolAction(const FInputActionValue& Value);
 
+	UFUNCTION()
+	void AttackHoldAction(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void AttackTapAction(const FInputActionValue& Value);
+
 	// Debug actions
 	UFUNCTION()
 	void DebugToggleHudAction(const FInputActionValue& Value);
