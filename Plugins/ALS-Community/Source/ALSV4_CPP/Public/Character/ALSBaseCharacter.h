@@ -397,6 +397,15 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
 	void LookingDirectionAction();
+	virtual void LookingDirectionAction_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
+	void RifleAction();
+	virtual void RifleAction_Implementation() {};
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
+	void PistolAction();
+	virtual void PistolAction_Implementation() {};
 
 protected:
 	/** Ragdoll System */

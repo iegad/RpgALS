@@ -4,6 +4,10 @@
 #include "UObject/NoExportTypes.h"
 #include "ALSLibrary.generated.h"
 
+#define ALS_LOG(Format, ...) UE_LOG(LogTemp, Display, Format, ##__VA_ARGS__)
+#define ALS_WARN(Format, ...) UE_LOG(LogTemp, Warning, Format, ##__VA_ARGS__)
+#define ALS_ERROR(Format, ...) UE_LOG(LogTemp, Error, Format, ##__VA_ARGS__)
+
 class UInputAction;
 class UInputMappingContext;
 
@@ -36,7 +40,7 @@ struct FPlayerInputSystem {
 	TObjectPtr<UInputAction> JumpAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> LookingDirectionAction;
+	TObjectPtr<UInputAction> RifleAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UInputAction> RagdollAction;
@@ -51,7 +55,7 @@ struct FPlayerInputSystem {
 	TObjectPtr<UInputAction> StanceAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> VelocityDirectionAction;
+	TObjectPtr<UInputAction> PistolAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UInputAction> WalkAction;
@@ -99,8 +103,20 @@ struct FDebugInputSystem {
 };
 
 UCLASS()
-class ALSV4_CPP_API UALSLibrary : public UObject
-{
+class ALSV4_CPP_API UALSLibrary : public UObject {
 	GENERATED_BODY()
+
+public:
+	static UALSLibrary* Instance() {
+		static UALSLibrary* instance = nullptr;
+
+		if (!instance) {
+			instance = NewObject<UALSLibrary>();
+		}
+
+		return instance;
+	}
 	
+private:
+	UALSLibrary() : Super() {}
 };

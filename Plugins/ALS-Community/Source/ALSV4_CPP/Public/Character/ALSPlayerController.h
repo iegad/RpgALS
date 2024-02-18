@@ -73,10 +73,10 @@ protected:
 	void RagdollAction(const FInputActionValue& Value);
 
 	UFUNCTION()
-	void VelocityDirectionAction(const FInputActionValue& Value);
+	void RifleAction(const FInputActionValue& Value);
 
 	UFUNCTION()
-	void LookingDirectionAction(const FInputActionValue& Value);
+	void PistolAction(const FInputActionValue& Value);
 
 	// Debug actions
 	UFUNCTION()

@@ -8,6 +8,8 @@
 #include "Character/ALSBaseCharacter.h"
 #include "ALSCharacter.generated.h"
 
+class APropsBase;
+class UWeaponComponent;
 /**
  * Specialized character class, with additional features like held object etc.
  */
@@ -39,12 +41,20 @@ public:
 
 	virtual FVector GetFirstPersonCameraTarget() override;
 
+	APropsBase* GetCurrentProps() const;
+
+	APropsBase* GetPropsFromOverlayState(EALSOverlayState Overlay) const;
+
 protected:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void BeginPlay() override;
 
 	virtual void OnOverlayStateChanged(EALSOverlayState PreviousState) override;
+
+	virtual void RifleAction_Implementation() override;
+
+	virtual void PistolAction_Implementation() override;
 
 	/** Implement on BP to update animation states of held objects */
 	UFUNCTION(BlueprintCallable, Category = "ALS|HeldObject")
@@ -60,7 +70,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|Component")
 	TObjectPtr<UStaticMeshComponent> StaticMesh = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|HeldObject")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ALS|HeldObject")
 	TMap<EALSOverlayState, USkeletalMesh*> SkeletalMeshMap{
 		{EALSOverlayState::Rifle, nullptr},
 		{EALSOverlayState::PistolOneHanded, nullptr},
@@ -68,7 +78,7 @@ public:
 		{EALSOverlayState::Bow, nullptr},
 	};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|HeldObject")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ALS|HeldObject")
 	TMap<EALSOverlayState, UStaticMesh*> StaticMeshMap{
 		{EALSOverlayState::Torch, nullptr},
 		{EALSOverlayState::Binoculars, nullptr},
@@ -76,8 +86,27 @@ public:
 		{EALSOverlayState::Barrel, nullptr},
 	};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|HeldObject")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|HeldObject")
 	TMap<EALSOverlayState, TSubclassOf<UAnimInstance>> AnimClassMap{ {EALSOverlayState::Bow, nullptr} };
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<USceneComponent> SceneRifle;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<UChildActorComponent> ChildActorRifle;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<USceneComponent> ScenePistol;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<UChildActorComponent> ChildActorPistol;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<UWeaponComponent> WeaponComponent;
+
+private:
+	inline void CreatePropsSystem();
+	inline void CreateCustomComponent();
 
 private:
 	bool bNeedsColorReset = false;

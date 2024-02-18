@@ -72,12 +72,12 @@ AALSPlayerController::SetupInputComponent() {
 	EnhancedInputComponent->BindAction(PlayerInputSystem.CameraUpAction, ETriggerEvent::Triggered, this, &ThisClass::CameraUpAction);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.ForwardMovementAction, ETriggerEvent::Triggered, this, &ThisClass::ForwardMovementAction);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.JumpAction, ETriggerEvent::Triggered, this, &ThisClass::JumpAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.LookingDirectionAction, ETriggerEvent::Triggered, this, &ThisClass::LookingDirectionAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.PistolAction, ETriggerEvent::Triggered, this, &ThisClass::PistolAction);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.RagdollAction, ETriggerEvent::Triggered, this, &ThisClass::RagdollAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.RifleAction, ETriggerEvent::Triggered, this, &ThisClass::RifleAction);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.RightMovementAction, ETriggerEvent::Triggered, this, &ThisClass::RightMovementAction);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.SprintAction, ETriggerEvent::Triggered, this, &ThisClass::SprintAction);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.StanceAction, ETriggerEvent::Triggered, this, &ThisClass::StanceAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.VelocityDirectionAction, ETriggerEvent::Triggered, this, &ThisClass::VelocityDirectionAction);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.WalkAction, ETriggerEvent::Triggered, this, &ThisClass::WalkAction);
 
 	EnhancedInputComponent->BindAction(DebugInputSystem.DebugFocusedCharacterCycleAction, ETriggerEvent::Triggered, this, &ThisClass::DebugFocusedCharacterCycleAction);
@@ -226,19 +226,17 @@ void AALSPlayerController::RagdollAction(const FInputActionValue& Value)
 	}
 }
 
-void AALSPlayerController::VelocityDirectionAction(const FInputActionValue& Value)
-{
-	if (PossessedCharacter && Value.Get<bool>())
-	{
-		PossessedCharacter->VelocityDirectionAction();
+void 
+AALSPlayerController::RifleAction(const FInputActionValue& Value) {
+	if (PossessedCharacter) {
+		PossessedCharacter->RifleAction();
 	}
 }
 
-void AALSPlayerController::LookingDirectionAction(const FInputActionValue& Value)
-{
-	if (PossessedCharacter && Value.Get<bool>())
-	{
-		PossessedCharacter->LookingDirectionAction();
+void 
+AALSPlayerController::PistolAction(const FInputActionValue& Value) {
+	if (PossessedCharacter) {
+		PossessedCharacter->PistolAction();
 	}
 }
 
