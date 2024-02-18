@@ -9,7 +9,7 @@
 #include "AI/ALSAIController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Props/BowAnim.h"
-#include "Props/PropsBase.h"
+#include "Props/Weapons/WeaponBase.h"
 #include "Components/WeaponComponent.h"
 
 AALSCharacter::AALSCharacter(const FObjectInitializer& ObjectInitializer)
@@ -166,8 +166,21 @@ AALSCharacter::GetPropsFromOverlayState(EALSOverlayState Overlay) const {
 	return Props;
 }
 
-void AALSCharacter::OnOverlayStateChanged(EALSOverlayState PreviousState)
-{
+void 
+AALSCharacter::Tick(float DeltaTime) {
+	Super::Tick(DeltaTime);
+	UpdateHeldObjectAnimations();
+}
+
+void 
+AALSCharacter::BeginPlay() {
+	Super::BeginPlay();
+	UpdateHeldObject();
+}
+
+
+void
+AALSCharacter::OnOverlayStateChanged(EALSOverlayState PreviousState) {
 	Super::OnOverlayStateChanged(PreviousState);
 	UpdateHeldObject();
 }
@@ -208,7 +221,18 @@ AALSCharacter::PistolAction_Implementation() {
 
 void 
 AALSCharacter::AttackHoldAction_Implementation() {
-	
+	switch (GetOverlayState()) {
+	case EALSOverlayState::Rifle:
+		RifleFire();
+		break;
+
+	case EALSOverlayState::PistolOneHanded:
+		PistolFire();
+		break;
+
+	default:
+		break;
+	}
 }
 
 void 
@@ -245,16 +269,24 @@ AALSCharacter::CreateCustomComponent() {
 	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
 }
 
-void AALSCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	UpdateHeldObjectAnimations();
+inline void 
+AALSCharacter::RifleFire() {
+	if (GetOverlayState() == EALSOverlayState::Rifle &&
+		GetRotationMode() == EALSRotationMode::Aiming) {
+		AWeaponBase* WeaponBase = Cast<AWeaponBase>(GetCurrentProps());
+		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::Rifle) {
+			WeaponComponent->Attack(WeaponBase);
+		}
+	}
 }
 
-void AALSCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-
-	UpdateHeldObject();
+inline void 
+AALSCharacter::PistolFire() {
+	if (GetOverlayState() == EALSOverlayState::PistolOneHanded &&
+		GetRotationMode() == EALSRotationMode::Aiming) {
+		AWeaponBase* WeaponBase = Cast<AWeaponBase>(GetCurrentProps());
+		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::PistolOneHanded) {
+			WeaponComponent->Attack(WeaponBase);
+		}
+	}
 }

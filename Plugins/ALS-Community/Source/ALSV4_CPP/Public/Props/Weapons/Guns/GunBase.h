@@ -12,11 +12,14 @@ public:
 	AGunBase();
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ALS")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS")
 	FName MuzzleSocketName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USceneComponent> MuzzleScene;
+
+public:
+	virtual void Attack(AALSCharacter* Character, int DebugTrace) override;
 
 protected:
 	virtual void BeginPlay() override;

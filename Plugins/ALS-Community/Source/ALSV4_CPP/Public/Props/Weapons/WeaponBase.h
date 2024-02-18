@@ -5,6 +5,7 @@
 #include "WeaponBase.generated.h"
 
 class UAnimMontage;
+class AALSCharacter;
 
 USTRUCT(BlueprintType)
 struct FWeaponAttackOptions {
@@ -67,6 +68,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS")
 	FWeaponAnimationOptions WeaponAnimationOptions;
+
+public:
+	virtual void Attack(AALSCharacter *Character, int DebugTrace) {}
 
 protected:
 	virtual void BeginPlay() override;

@@ -111,6 +111,8 @@ public:
 private:
 	inline void CreatePropsSystem();
 	inline void CreateCustomComponent();
+	inline void RifleFire();
+	inline void PistolFire();
 
 private:
 	bool bNeedsColorReset = false;
