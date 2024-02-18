@@ -5,8 +5,8 @@
 
 
 #include "Character/ALSBaseCharacter.h"
-#include "Character/ALSPlayerCameraManager.h"
-#include "Character/Animation/ALSPlayerCameraBehavior.h"
+#include "CameraSystem/ALSPlayerCameraManager.h"
+#include "CameraSystem/ALSPlayerCameraBehavior.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 

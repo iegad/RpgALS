@@ -6,7 +6,7 @@
 
 
 #include "Character/Animation/ALSCharacterAnimInstance.h"
-#include "Character/Animation/ALSPlayerCameraBehavior.h"
+#include "CameraSystem/ALSPlayerCameraBehavior.h"
 #include "Library/ALSMathLibrary.h"
 #include "Components/ALSDebugComponent.h"
 

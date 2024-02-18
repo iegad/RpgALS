@@ -1,8 +1,5 @@
-// Copyright:       Copyright (C) 2022 Doğa Can Yanıkoğlu
-// Source Code:     https://github.com/dyanikoglu/ALS-Community
-
-
-#include "Character/Animation/Notify/ALSAnimNotifyFootstep.h"
+#include "Notifies/ALSAnimNotifyFootstep.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ALSAnimNotifyFootstep)
 
 #include "Animation/AnimInstance.h"
 #include "Components/AudioComponent.h"
@@ -22,18 +19,16 @@ FName UALSAnimNotifyFootstep::NAME_FootstepType(TEXT("FootstepType"));
 FName UALSAnimNotifyFootstep::NAME_Foot_R(TEXT("Foot_R"));
 
 
-void UALSAnimNotifyFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
-{
+void 
+UALSAnimNotifyFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) {
 	Super::Notify(MeshComp, Animation, EventReference);
 
-	if (!MeshComp)
-	{
+	if (!MeshComp) {
 		return;
 	}
 
 	AActor* MeshOwner = MeshComp->GetOwner();
-	if (!MeshOwner)
-	{
+	if (!MeshOwner) {
 		return;
 	}
 
@@ -49,10 +44,8 @@ void UALSAnimNotifyFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 		FHitResult Hit;
 
 		if (UKismetSystemLibrary::LineTraceSingle(MeshOwner /*used by bIgnoreSelf*/, FootLocation, TraceEnd, TraceChannel, true /*bTraceComplex*/, MeshOwner->Children,
-		                                          DrawDebugType, Hit, true /*bIgnoreSelf*/))
-		{
-			if (!Hit.PhysMaterial.Get())
-			{
+		                                          DrawDebugType, Hit, true /*bIgnoreSelf*/)) {
+			if (!Hit.PhysMaterial.Get()) {
 				return;
 			}
 
@@ -66,27 +59,21 @@ void UALSAnimNotifyFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 			HitDataTable->GetAllRows<FALSHitFX>(FString(), HitFXRows);
 
 			FALSHitFX* HitFX = nullptr;
-			if (auto FoundResult = HitFXRows.FindByPredicate([&](const FALSHitFX* Value)
-			{
+			if (auto FoundResult = HitFXRows.FindByPredicate([&](const FALSHitFX* Value) {
 				return SurfaceType == Value->SurfaceType;
-			}))
-			{
+			})) {
 				HitFX = *FoundResult;
 			}
-			else if (auto DefaultResult = HitFXRows.FindByPredicate([&](const FALSHitFX* Value)
-			{
+			else if (auto DefaultResult = HitFXRows.FindByPredicate([&](const FALSHitFX* Value) {
 				return EPhysicalSurface::SurfaceType_Default == Value->SurfaceType;
-			}))
-			{
+			})) {
 				HitFX = *DefaultResult;
 			}
-			else
-			{
+			else {
 				return;
 			}
 
-			if (bSpawnSound && HitFX->Sound.LoadSynchronous())
-			{
+			if (bSpawnSound && HitFX->Sound.LoadSynchronous()) {
 				UAudioComponent* SpawnedSound = nullptr;
 
 				const float MaskCurveValue = MeshComp->GetAnimInstance()->GetCurveValue(
@@ -95,8 +82,7 @@ void UALSAnimNotifyFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 					                           ? VolumeMultiplier
 					                           : VolumeMultiplier * (1.0f - MaskCurveValue);
 
-				switch (HitFX->SoundSpawnType)
-				{
+				switch (HitFX->SoundSpawnType) {
 				case EALSSpawnType::Location:
 					SpawnedSound = UGameplayStatics::SpawnSoundAtLocation(
 						World, HitFX->Sound.Get(), Hit.Location + HitFX->SoundLocationOffset,
@@ -112,20 +98,17 @@ void UALSAnimNotifyFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 
 					break;
 				}
-				if (SpawnedSound)
-				{
+				if (SpawnedSound) {
 					SpawnedSound->SetIntParameter(SoundParameterName, static_cast<int32>(FootstepType));
 				}
 			}
 
-			if (bSpawnNiagara && HitFX->NiagaraSystem.LoadSynchronous())
-			{
+			if (bSpawnNiagara && HitFX->NiagaraSystem.LoadSynchronous()) {
 				UNiagaraComponent* SpawnedParticle = nullptr;
 				const FVector Location = Hit.Location + MeshOwner->GetTransform().TransformVector(
 					HitFX->DecalLocationOffset);
 
-				switch (HitFX->NiagaraSpawnType)
-				{
+				switch (HitFX->NiagaraSpawnType) {
 				case EALSSpawnType::Location:
 					SpawnedParticle = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 						World, HitFX->NiagaraSystem.Get(), Location, FootRotation + HitFX->NiagaraRotationOffset);
@@ -139,8 +122,7 @@ void UALSAnimNotifyFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 				}
 			}
 
-			if (bSpawnDecal && HitFX->DecalMaterial.LoadSynchronous())
-			{
+			if (bSpawnDecal && HitFX->DecalMaterial.LoadSynchronous()) {
 				const FVector Location = Hit.Location + MeshOwner->GetTransform().TransformVector(
 					HitFX->DecalLocationOffset);
 
@@ -149,8 +131,7 @@ void UALSAnimNotifyFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 				                                  bMirrorDecalZ ? -HitFX->DecalSize.Z : HitFX->DecalSize.Z);
 
 				UDecalComponent* SpawnedDecal = nullptr;
-				switch (HitFX->DecalSpawnType)
-				{
+				switch (HitFX->DecalSpawnType) {
 				case EALSSpawnType::Location:
 					SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(
 						World, HitFX->DecalMaterial.Get(), DecalSize, Location,
@@ -170,8 +151,8 @@ void UALSAnimNotifyFootstep::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	}
 }
 
-FString UALSAnimNotifyFootstep::GetNotifyName_Implementation() const
-{
+FString 
+UALSAnimNotifyFootstep::GetNotifyName_Implementation() const {
 	FString Name(TEXT("Footstep Type: "));
 	Name.Append(GetEnumerationToString(FootstepType));
 	return Name;
