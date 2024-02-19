@@ -8,6 +8,7 @@ void
 AALSActor::SetActive(bool Value) {
 	bActived = Value;
 	SetActorHiddenInGame(!Value);
+	OnActiveChanged(Value);
 }
 
 void 

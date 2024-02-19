@@ -10,14 +10,11 @@ class ALSV4_CPP_API AALSActor : public AActor {
 	
 public:	
 	AALSActor();
-
 	void SetActive(bool Value);
-
 	virtual void SetLifeSpan(float LifeSpan) override;
-
 	bool IsActive() const;
-
 	double GetExpireTime() const;
+	virtual void OnActiveChanged(bool Value) {}
 
 private:
 	bool bActived = false;

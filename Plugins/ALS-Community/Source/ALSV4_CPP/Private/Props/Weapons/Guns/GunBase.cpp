@@ -3,10 +3,12 @@
 
 #include "KismetTraceUtils.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "ALSLibrary.h"
 #include "Character/ALSCharacter.h"
 #include "Core/ALSGameMode.h"
+#include "Props/Weapons/TracerBase.h"
 
 AGunBase::AGunBase() : Super() {
 	MuzzleScene = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleScene"));
@@ -40,10 +42,15 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 			break;
 		}
 
+		AALSGameMode* ALSGameMode = Cast<AALSGameMode>(UGameplayStatics::GetGameMode(World));
+		if (!ALSGameMode) {
+			break;
+		}
+
 		WeaponAttackOptions.AttackCD = WeaponAttackOptions.AttackInterval;
 
 		const FVector&& MuzzleLocation = Mesh->GetSocketLocation(MuzzleSocketName);
-		const FRotator&& MuzzleRotation = Mesh->GetSocketRotation(MuzzleSocketName);
+		//const FRotator&& MuzzleRotation = Mesh->GetSocketRotation(MuzzleSocketName);
 		const FVector&& CameraLocation = PlayerCameraManager->GetCameraLocation();
 		const FRotator&& CameraRotation = PlayerCameraManager->GetCameraRotation();
 		const FVector&& CameraForward = CameraRotation.Vector();
@@ -79,11 +86,19 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 			OutHitResult.bBlockingHit, OutHitResult, FLinearColor::Red, FLinearColor::Green, 5.f);
 #endif
 
+		bool bTracer = true;
+
 		if (OutHitResult.bBlockingHit && !OutHitResult.bStartPenetrating) {
-			AALSGameMode* ALSGameMode = Cast<AALSGameMode>(UGameplayStatics::GetGameMode(World));
-			// 播放环境特效
-			if (OutHitResult.PhysMaterial.IsValid() && ALSGameMode) {
-				ALSGameMode->PlayEffect(OutHitResult.PhysMaterial->SurfaceType, OutHitResult.ImpactPoint, OutHitResult.Normal, WeaponEffectsOptions.HittedEffects);
+			if (OutHitResult.Distance < 200) {
+				// 如果距离2米以内就不显示Tracer.
+				bTracer = false;
+			}
+
+			End = OutHitResult.ImpactPoint;
+
+			if (OutHitResult.PhysMaterial.IsValid()) {
+				// 播放环境特效
+				ALSGameMode->PlayEffect(OutHitResult.PhysMaterial->SurfaceType, End, OutHitResult.Normal, WeaponEffectsOptions.HittedEffects);
 			}
 
 			AALSCharacter* HitCharacter = Cast<AALSCharacter>(OutHitResult.GetActor());
@@ -97,7 +112,14 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 		if (Recoil) {
 			Character->AddControllerPitchInput(-FMath::FRandRange(0, Recoil));
 		}
-
+		
+		if (TracerBase && bTracer) {
+			FRotator MuzzleRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, End);
+			auto* Actor = ALSGameMode->GetALSActor(TracerBase, MuzzleLocation, MuzzleRotation, 2.f);
+			if (!Actor) {
+				ALS_ERROR(TEXT("TracerPool->Get failed: %s:%d"), __FILEW__, __LINE__);
+			}
+		}
 	} while (0);
 }
 

@@ -1592,7 +1592,7 @@ AALSBaseCharacter::RifleFire() {
 		GetRotationMode() == EALSRotationMode::Aiming) {
 		AWeaponBase* WeaponBase = Cast<AWeaponBase>(GetCurrentProps());
 		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::Rifle) {
-			WeaponComponent->Attack(WeaponBase);
+			WeaponComponent->Attack(WeaponBase, 0);
 		}
 	}
 }
@@ -1603,7 +1603,7 @@ AALSBaseCharacter::PistolFire() {
 		GetRotationMode() == EALSRotationMode::Aiming) {
 		AWeaponBase* WeaponBase = Cast<AWeaponBase>(GetCurrentProps());
 		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::PistolOneHanded) {
-			WeaponComponent->Attack(WeaponBase);
+			WeaponComponent->Attack(WeaponBase, 0);
 		}
 	}
 }

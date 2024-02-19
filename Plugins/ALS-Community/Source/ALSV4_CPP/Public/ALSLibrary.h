@@ -125,6 +125,8 @@ public:
 
 		return instance;
 	}
+
+	UWorld* GetCurrentWorld() const;
 	
 private:
 	UALSLibrary() : Super() {}

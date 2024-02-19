@@ -4,6 +4,8 @@
 #include "Props/Weapons/WeaponBase.h"
 #include "GunBase.generated.h"
 
+class ATracerBase;
+
 UCLASS()
 class ALSV4_CPP_API AGunBase : public AWeaponBase {
 	GENERATED_BODY()
@@ -17,6 +19,9 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USceneComponent> MuzzleScene;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<ATracerBase> TracerBase;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Recoil = 0.f;
