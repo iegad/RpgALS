@@ -63,34 +63,31 @@ AALSPlayerController::SetupInputComponent() {
 	EnhancedInputComponent->ClearActionValueBindings();
 	EnhancedInputComponent->ClearDebugKeyBindings();
 
-	EnhancedInputComponent->BindAction(PlayerInputSystem.AimAction, ETriggerEvent::Completed, this, &ThisClass::AimAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.AttackHoldAction, ETriggerEvent::Triggered, this, &ThisClass::AttackHoldAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.AttackTapAction, ETriggerEvent::Triggered, this, &ThisClass::AttackTapAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.CameraHeldAction, ETriggerEvent::Triggered, this, &ThisClass::CameraHeldAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.CameraRightAction, ETriggerEvent::Triggered, this, &ThisClass::CameraRightAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.CameraTapAction, ETriggerEvent::Triggered, this, &ThisClass::CameraTapAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.CameraUpAction, ETriggerEvent::Triggered, this, &ThisClass::CameraUpAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.ForwardMovementAction, ETriggerEvent::Triggered, this, &ThisClass::ForwardMovementAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.JumpAction, ETriggerEvent::Triggered, this, &ThisClass::JumpAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.PistolAction, ETriggerEvent::Triggered, this, &ThisClass::PistolAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.RagdollAction, ETriggerEvent::Triggered, this, &ThisClass::RagdollAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.RifleAction, ETriggerEvent::Triggered, this, &ThisClass::RifleAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.RightMovementAction, ETriggerEvent::Triggered, this, &ThisClass::RightMovementAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.SprintAction, ETriggerEvent::Triggered, this, &ThisClass::SprintAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.StanceAction, ETriggerEvent::Triggered, this, &ThisClass::StanceAction);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.WalkAction, ETriggerEvent::Triggered, this, &ThisClass::WalkAction);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Aim, ETriggerEvent::Completed, this, &AALSPlayerController::IA_Aim);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_AttackHold, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_AttackHold);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_AttackTap, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_AttackTap);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Look, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Look);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Move, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Move);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Jump, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Jump);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Pistol, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Pistol);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Ragdoll, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Ragdoll);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Rifle, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Rifle);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Roll, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Roll);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Sprint, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Sprint);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Crouch, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Crouch);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Walk, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Walk);
 
-	EnhancedInputComponent->BindAction(DebugInputSystem.DebugFocusedCharacterCycleAction, ETriggerEvent::Triggered, this, &ThisClass::DebugFocusedCharacterCycleAction);
-	EnhancedInputComponent->BindAction(DebugInputSystem.DebugOpenOverlayMenuAction, ETriggerEvent::Triggered, this, &ThisClass::DebugOpenOverlayMenuAction);
-	EnhancedInputComponent->BindAction(DebugInputSystem.DebugOverlayMenuCycleAction, ETriggerEvent::Triggered, this, &ThisClass::DebugOverlayMenuCycleAction);
-	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleCharacterInfoAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleCharacterInfoAction);
-	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleMeshAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleMeshAction);
-	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleDebugViewAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleDebugViewAction);
-	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleHudAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleHudAction);
-	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleLayerColorsAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleLayerColorsAction);
-	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleShapesAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleShapesAction);
-	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleSlomoAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleSlomoAction);
-	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleTracesAction, ETriggerEvent::Triggered, this, &ThisClass::DebugToggleTracesAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugFocusedCharacterCycleAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugFocusedCharacterCycleAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugOpenOverlayMenuAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugOpenOverlayMenuAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugOverlayMenuCycleAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugOverlayMenuCycleAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleCharacterInfoAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugToggleCharacterInfoAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleMeshAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugToggleMeshAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleDebugViewAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugToggleDebugViewAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleHudAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugToggleHudAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleLayerColorsAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugToggleLayerColorsAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleShapesAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugToggleShapesAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleSlomoAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugToggleSlomoAction);
+	EnhancedInputComponent->BindAction(DebugInputSystem.DebugToggleTracesAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugToggleTracesAction);
 }
 
 void 
@@ -128,114 +125,93 @@ AALSPlayerController::SetGlobalTimeDilationLocal(float Dilation) {
 }
 
 void
-AALSPlayerController::ForwardMovementAction(const FInputActionValue& Value) {
+AALSPlayerController::IA_Move(const FInputActionValue& Value) {
 	if (PossessedCharacter) {
-		PossessedCharacter->ForwardMovementAction(Value.GetMagnitude());
+		PossessedCharacter->IA_Move(Value);
 	}
 }
 
 void 
-AALSPlayerController::RightMovementAction(const FInputActionValue& Value) {
+AALSPlayerController::IA_Look(const FInputActionValue& Value) {
 	if (PossessedCharacter) {
-		PossessedCharacter->RightMovementAction(Value.GetMagnitude());
+		PossessedCharacter->IA_Look(Value);
 	}
 }
 
 void 
-AALSPlayerController::CameraUpAction(const FInputActionValue& Value) {
+AALSPlayerController::IA_Jump(const FInputActionValue& Value) {
 	if (PossessedCharacter) {
-		PossessedCharacter->CameraUpAction(Value.GetMagnitude());
+		PossessedCharacter->IA_Jump(Value);
 	}
 }
 
 void 
-AALSPlayerController::CameraRightAction(const FInputActionValue& Value) {
+AALSPlayerController::IA_Sprint(const FInputActionValue& Value) {
 	if (PossessedCharacter) {
-		PossessedCharacter->CameraRightAction(Value.GetMagnitude());
+		PossessedCharacter->IA_Sprint(Value);
 	}
 }
 
 void 
-AALSPlayerController::JumpAction(const FInputActionValue& Value) {
+AALSPlayerController::IA_Aim() {
 	if (PossessedCharacter) {
-		PossessedCharacter->JumpAction(Value.Get<bool>());
+		PossessedCharacter->IA_Aim();
 	}
 }
 
 void 
-AALSPlayerController::SprintAction(const FInputActionValue& Value) {
+AALSPlayerController::IA_Crouch() {
 	if (PossessedCharacter) {
-		PossessedCharacter->SprintAction(Value.Get<bool>());
+		PossessedCharacter->IA_Crouch();
 	}
 }
 
 void 
-AALSPlayerController::AimAction(const FInputActionValue& Value) {
+AALSPlayerController::IA_Walk() {
 	if (PossessedCharacter) {
-		PossessedCharacter->AimAction(Value.Get<bool>());
+		PossessedCharacter->IA_Walk();
 	}
 }
 
 void 
-AALSPlayerController::CameraTapAction(const FInputActionValue& Value) {
+AALSPlayerController::IA_Ragdoll() {
 	if (PossessedCharacter) {
-		PossessedCharacter->CameraTapAction();
+		PossessedCharacter->IA_Ragdoll();
 	}
 }
 
 void 
-AALSPlayerController::CameraHeldAction(const FInputActionValue& Value) {
+AALSPlayerController::IA_Rifle() {
 	if (PossessedCharacter) {
-		PossessedCharacter->CameraHeldAction();
+		PossessedCharacter->IA_Rifle();
 	}
 }
 
-void 
-AALSPlayerController::StanceAction(const FInputActionValue& Value) {
-	if (PossessedCharacter && Value.Get<bool>()) {
-		PossessedCharacter->StanceAction();
-	}
-}
-
-void 
-AALSPlayerController::WalkAction(const FInputActionValue& Value) {
-	if (PossessedCharacter && Value.Get<bool>()) {
-		PossessedCharacter->WalkAction();
-	}
-}
-
-void 
-AALSPlayerController::RagdollAction(const FInputActionValue& Value) {
-	if (PossessedCharacter && Value.Get<bool>()) {
-		PossessedCharacter->RagdollAction();
-	}
-}
-
-void 
-AALSPlayerController::RifleAction(const FInputActionValue& Value) {
+void
+AALSPlayerController::IA_Roll() {
 	if (PossessedCharacter) {
-		PossessedCharacter->RifleAction();
+		PossessedCharacter->IA_Roll();
 	}
 }
 
 void 
-AALSPlayerController::PistolAction(const FInputActionValue& Value) {
+AALSPlayerController::IA_Pistol() {
 	if (PossessedCharacter) {
-		PossessedCharacter->PistolAction();
+		PossessedCharacter->IA_Pistol();
 	}
 }
 
 void 
-AALSPlayerController::AttackHoldAction(const FInputActionValue& Value) {
+AALSPlayerController::IA_AttackHold() {
 	if (PossessedCharacter) {
-		PossessedCharacter->AttackHoldAction();
+		PossessedCharacter->IA_AttackHold();
 	}
 }
 
 void 
-AALSPlayerController::AttackTapAction(const FInputActionValue& Value) {
+AALSPlayerController::IA_AttackTap() {
 	if (PossessedCharacter) {
-		PossessedCharacter->AttackTapAction();
+		PossessedCharacter->IA_AttackTap();
 	}
 }
 

@@ -1,7 +1,3 @@
-// Copyright:       Copyright (C) 2022 Doğa Can Yanıkoğlu
-// Source Code:     https://github.com/dyanikoglu/ALS-Community
-
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -10,6 +6,7 @@
 #include "Library/ALSCharacterStructLibrary.h"
 #include "Engine/DataTable.h"
 #include "GameFramework/Character.h"
+#include "EnhancedInputComponent.h"
 
 #include "ALSBaseCharacter.generated.h"
 
@@ -18,6 +15,8 @@ class UALSDebugComponent;
 class UAnimMontage;
 class UALSPlayerCameraBehavior;
 enum class EVisibilityBasedAnimTickOption : uint8;
+class APropsBase;
+class UWeaponComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FJumpPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJumpedSignature);
@@ -27,26 +26,37 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRagdollStateChangedSignature, bool,
  * Base character class
  */
 UCLASS(BlueprintType)
-class ALSV4_CPP_API AALSBaseCharacter : public ACharacter
-{
+class ALSV4_CPP_API AALSBaseCharacter : public ACharacter {
 	GENERATED_BODY()
 
 public:
 	AALSBaseCharacter(const FObjectInitializer& ObjectInitializer);
 
+public:
+	void IA_Move(const FInputActionValue& Value);
+	void IA_Look(const FInputActionValue& Value);
+	void IA_Jump(const FInputActionValue& Value);
+	void IA_Sprint(const FInputActionValue& Value);
+	void IA_Aim();
+	void IA_Crouch();
+	void IA_Walk();
+	void IA_Ragdoll();
+	void IA_Rifle();
+	void IA_Pistol();
+	void IA_Roll();
+	void IA_AttackHold();
+	void IA_AttackTap();
+
 	UFUNCTION(BlueprintCallable, Category = "ALS|Movement")
-	FORCEINLINE class UALSCharacterMovementComponent* GetMyMovementComponent() const
-	{
-		return MyCharacterMovementComponent;
-	}
+	FORCEINLINE class UALSCharacterMovementComponent* GetMyMovementComponent() const { return MyCharacterMovementComponent; }
 
 	virtual void Tick(float DeltaTime) override;
-
 	virtual void BeginPlay() override;
-
 	virtual void PostInitializeComponents() override;
-
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	APropsBase* GetCurrentProps() const;
+	APropsBase* GetPropsFromOverlayState(EALSOverlayState Overlay) const;
 
 	/** Ragdoll System */
 
@@ -354,67 +364,6 @@ public:
 	UFUNCTION(BlueprintGetter, Category = "ALS|Essential Information")
 	float GetAimYawRate() const { return AimYawRate; }
 
-	/** Input */
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void ForwardMovementAction(float Value);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void RightMovementAction(float Value);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void CameraUpAction(float Value);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void CameraRightAction(float Value);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void JumpAction(bool bValue);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void SprintAction(bool bValue);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void AimAction(bool bValue);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void CameraTapAction();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void CameraHeldAction();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void StanceAction();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void WalkAction();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void RagdollAction();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void VelocityDirectionAction();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void LookingDirectionAction();
-	virtual void LookingDirectionAction_Implementation();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void RifleAction();
-	virtual void RifleAction_Implementation() {};
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void PistolAction();
-	virtual void PistolAction_Implementation() {};
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void AttackHoldAction();
-	virtual void AttackHoldAction_Implementation() {};
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Input")
-	void AttackTapAction();
-	virtual void AttackTapAction_Implementation() {};
-
 protected:
 	/** Ragdoll System */
 
@@ -686,7 +635,38 @@ protected:
 	/** We won't use curve based movement and a few other features on networked games */
 	bool bEnableNetworkOptimizations = false;
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|Components")
+	TObjectPtr<USceneComponent> HeldObjectRoot = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|Components")
+	TObjectPtr<USkeletalMeshComponent> SkeletalMesh = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|Components")
+	TObjectPtr<UStaticMeshComponent> StaticMesh = nullptr;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<USceneComponent> SceneRifle;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<UChildActorComponent> ChildActorRifle;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<USceneComponent> ScenePistol;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<UChildActorComponent> ChildActorPistol;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<UWeaponComponent> WeaponComponent;
+
+private:
+	inline void CreatePropsSystem();
+	inline void CreateCustomComponent();
+	inline void RifleFire();
+	inline void PistolFire();
+
 private:
 	UPROPERTY()
-	TObjectPtr<UALSDebugComponent> ALSDebugComponent = nullptr;
+	TObjectPtr<UALSDebugComponent> ALSDebugComponent;
 };

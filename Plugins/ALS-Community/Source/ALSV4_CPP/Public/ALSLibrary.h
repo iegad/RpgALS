@@ -19,52 +19,43 @@ struct FPlayerInputSystem {
 	TObjectPtr<UInputMappingContext> InputMappingContext;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> AimAction;
+	TObjectPtr<UInputAction> IA_Aim;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> AttackHoldAction;
+	TObjectPtr<UInputAction> IA_AttackHold;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> AttackTapAction;
+	TObjectPtr<UInputAction> IA_AttackTap;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> CameraHeldAction;
+	TObjectPtr<UInputAction> IA_Look;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> CameraRightAction;
+	TObjectPtr<UInputAction> IA_Move;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> CameraTapAction;
+	TObjectPtr<UInputAction> IA_Jump;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> CameraUpAction;
+	TObjectPtr<UInputAction> IA_Pistol;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> ForwardMovementAction;
+	TObjectPtr<UInputAction> IA_Ragdoll;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> JumpAction;
+	TObjectPtr<UInputAction> IA_Rifle;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> PistolAction;
+	TObjectPtr<UInputAction> IA_Roll;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> RagdollAction;
+	TObjectPtr<UInputAction> IA_Sprint;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> RifleAction;
+	TObjectPtr<UInputAction> IA_Crouch;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> RightMovementAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> SprintAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> StanceAction;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UInputAction> WalkAction;
+	TObjectPtr<UInputAction> IA_Walk;
 };
 
 USTRUCT(BlueprintType)

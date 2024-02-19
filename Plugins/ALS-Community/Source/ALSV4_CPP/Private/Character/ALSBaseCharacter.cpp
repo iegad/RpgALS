@@ -1,9 +1,5 @@
-// Copyright:       Copyright (C) 2022 Doğa Can Yanıkoğlu
-// Source Code:     https://github.com/dyanikoglu/ALS-Community
-
-
 #include "Character/ALSBaseCharacter.h"
-
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ALSBaseCharacter)
 
 #include "Character/Animation/ALSCharacterAnimInstance.h"
 #include "CameraSystem/ALSPlayerCameraBehavior.h"
@@ -19,6 +15,12 @@
 #include "TimerManager.h"
 #include "Net/UnrealNetwork.h"
 
+#include "Props/Weapons/WeaponBase.h"
+#include "Components/WeaponComponent.h"
+#include "AI/ALSAIController.h"
+
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/StaticMesh.h"
 
 const FName NAME_FP_Camera(TEXT("FP_Camera"));
 const FName NAME_Pelvis(TEXT("Pelvis"));
@@ -37,6 +39,196 @@ AALSBaseCharacter::AALSBaseCharacter(const FObjectInitializer& ObjectInitializer
 	bUseControllerRotationYaw = 0;
 	bReplicates = true;
 	SetReplicatingMovement(true);
+
+	HeldObjectRoot = CreateDefaultSubobject<USceneComponent>(TEXT("HeldObjectRoot"));
+	HeldObjectRoot->SetupAttachment(GetMesh());
+
+	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
+	SkeletalMesh->SetupAttachment(HeldObjectRoot);
+
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	StaticMesh->SetupAttachment(HeldObjectRoot);
+
+	AIControllerClass = AALSAIController::StaticClass();
+
+	CreatePropsSystem();
+	CreateCustomComponent();
+}
+
+
+void
+AALSBaseCharacter::IA_Move(const FInputActionValue& Value) {
+	if (MovementState == EALSMovementState::Grounded || MovementState == EALSMovementState::InAir) {
+		const FVector2D v = Value.Get<FVector2D>();
+		const FRotator DirRotator(0.0f, AimingRotation.Yaw, 0.0f);
+		AddMovementInput(UKismetMathLibrary::GetForwardVector(DirRotator), v.Y);
+		AddMovementInput(UKismetMathLibrary::GetRightVector(DirRotator), v.X);
+	}
+}
+
+void
+AALSBaseCharacter::IA_Look(const FInputActionValue& Value) {
+	const FVector2D v = Value.Get<FVector2D>();
+	AddControllerPitchInput(LookUpDownRate * -v.Y);
+	AddControllerYawInput(LookLeftRightRate * v.X);
+}
+
+void
+AALSBaseCharacter::IA_Jump(const FInputActionValue& Value) {
+	if (Value.Get<bool>()) {
+		// Jump Action: Press "Jump Action" to end the ragdoll if ragdolling, stand up if crouching, or jump if standing.
+		if (JumpPressedDelegate.IsBound()) {
+			JumpPressedDelegate.Broadcast();
+		}
+
+		if (MovementAction == EALSMovementAction::None) {
+			if (MovementState == EALSMovementState::Grounded) {
+				if (Stance == EALSStance::Standing) {
+					Jump();
+				}
+				else if (Stance == EALSStance::Crouching) {
+					UnCrouch();
+				}
+			}
+			else if (MovementState == EALSMovementState::Ragdoll) {
+				ReplicatedRagdollEnd();
+			}
+		}
+	}
+	else {
+		StopJumping();
+	}
+}
+
+void
+AALSBaseCharacter::IA_Sprint(const FInputActionValue& Value) {
+	if (Value.Get<bool>()) {
+		SetDesiredGait(EALSGait::Sprinting);
+	}
+	else {
+		SetDesiredGait(EALSGait::Running);
+	}
+}
+
+void
+AALSBaseCharacter::IA_Aim() {
+	if (GetRotationMode() != EALSRotationMode::Aiming) {
+		SetRotationMode(EALSRotationMode::Aiming);
+	}
+	else if (ViewMode == EALSViewMode::ThirdPerson) {
+		SetRotationMode(DesiredRotationMode);
+	}
+	else if (ViewMode == EALSViewMode::FirstPerson) {
+		SetRotationMode(EALSRotationMode::LookingDirection);
+	}
+}
+
+void
+AALSBaseCharacter::IA_Crouch() {
+	if (Stance == EALSStance::Standing) {
+		SetDesiredStance(EALSStance::Crouching);
+		Crouch();
+	}
+	else if (Stance == EALSStance::Crouching) {
+		SetDesiredStance(EALSStance::Standing);
+		UnCrouch();
+	}
+}
+
+void
+AALSBaseCharacter::IA_Walk() {
+	if (DesiredGait == EALSGait::Walking) {
+		SetDesiredGait(EALSGait::Running);
+	}
+	else if (DesiredGait == EALSGait::Running) {
+		SetDesiredGait(EALSGait::Walking);
+	}
+}
+
+void
+AALSBaseCharacter::IA_Ragdoll() {
+	if (GetMovementState() == EALSMovementState::Ragdoll) {
+		ReplicatedRagdollEnd();
+	}
+	else {
+		ReplicatedRagdollStart();
+	}
+}
+
+void
+AALSBaseCharacter::IA_Rifle() {
+	do {
+		APropsBase* Props = Cast<APropsBase>(ChildActorRifle->GetChildActor());
+		if (!Props || Props->OverlayState < EALSOverlayState::Rifle) {
+			break;
+		}
+
+		if (GetOverlayState() == Props->OverlayState) {
+			WeaponComponent->UnEquip(Props);
+			break;
+		}
+
+		WeaponComponent->Equip(Props);
+	} while (0);
+}
+
+void
+AALSBaseCharacter::IA_Pistol() {
+	do {
+		APropsBase* Props = Cast<APropsBase>(ChildActorPistol->GetChildActor());
+		if (!Props || Props->OverlayState < EALSOverlayState::Rifle) {
+			break;
+		}
+
+		if (GetOverlayState() == Props->OverlayState) {
+			WeaponComponent->UnEquip(Props);
+			break;
+		}
+
+		WeaponComponent->Equip(Props);
+	} while (0);
+}
+
+void 
+AALSBaseCharacter::IA_Roll() {
+	if (MovementState == EALSMovementState::Grounded) {
+		UWorld* World = GetWorld();
+		if (World) {
+			Replicated_PlayMontage(GetRollAnimation(), 1.35f);
+		}
+	}
+}
+
+void
+AALSBaseCharacter::IA_AttackHold() {
+	switch (GetOverlayState()) {
+	case EALSOverlayState::Rifle:
+		RifleFire();
+		break;
+
+	case EALSOverlayState::PistolOneHanded:
+		PistolFire();
+		break;
+
+	default:
+		break;
+	}
+}
+
+void
+AALSBaseCharacter::IA_AttackTap() {
+	switch (GetOverlayState()) {
+	case EALSOverlayState::Rifle:
+		RifleFire();
+		break;
+
+	case EALSOverlayState::PistolOneHanded:
+		PistolFire();
+		break;
+
+	default:
+		break;
+	}
 }
 
 void AALSBaseCharacter::PostInitializeComponents()
@@ -61,6 +253,49 @@ void AALSBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION(AALSBaseCharacter, OverlayState, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(AALSBaseCharacter, ViewMode, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(AALSBaseCharacter, VisibleMesh, COND_SkipOwner);
+}
+
+APropsBase* 
+AALSBaseCharacter::GetCurrentProps() const {
+	APropsBase* CurrentProps = nullptr;
+
+	switch (GetOverlayState()) {
+	case EALSOverlayState::Rifle:
+		CurrentProps = Cast<APropsBase>(ChildActorRifle->GetChildActor());
+		break;
+
+	case EALSOverlayState::PistolOneHanded:
+		CurrentProps = Cast<APropsBase>(ChildActorPistol->GetChildActor());
+		break;
+
+	case EALSOverlayState::PistolTwoHanded:
+		CurrentProps = Cast<APropsBase>(ChildActorPistol->GetChildActor());
+		break;
+
+	default: break;
+	}
+
+	return CurrentProps;
+}
+
+APropsBase* 
+AALSBaseCharacter::GetPropsFromOverlayState(EALSOverlayState Overlay) const {
+	APropsBase* Props = nullptr;
+
+	switch (Overlay) {
+	case EALSOverlayState::Rifle:
+		Props = Cast<APropsBase>(ChildActorRifle->GetChildActor());
+		break;
+
+	case EALSOverlayState::PistolOneHanded:
+		Props = Cast<APropsBase>(ChildActorPistol->GetChildActor());
+		break;
+
+	default:
+		break;
+	}
+
+	return Props;
 }
 
 void AALSBaseCharacter::OnBreakfall_Implementation()
@@ -1213,215 +1448,44 @@ void AALSBaseCharacter::LimitRotation(float AimYawMin, float AimYawMax, float In
 	}
 }
 
-void AALSBaseCharacter::ForwardMovementAction_Implementation(float Value)
-{
-	if (MovementState == EALSMovementState::Grounded || MovementState == EALSMovementState::InAir)
-	{
-		// Default camera relative movement behavior
-		const FRotator DirRotator(0.0f, AimingRotation.Yaw, 0.0f);
-		AddMovementInput(UKismetMathLibrary::GetForwardVector(DirRotator), Value);
-	}
-}
+//void AALSBaseCharacter::CameraTapAction_Implementation()
+//{// 设置第左右第三人称视角
+//	if (ViewMode == EALSViewMode::FirstPerson)
+//	{
+//		// Don't swap shoulders on first person mode
+//		return;
+//	}
+//
+//	// Switch shoulders
+//	SetRightShoulder(!bRightShoulder);
+//}
 
-void AALSBaseCharacter::RightMovementAction_Implementation(float Value)
-{
-	if (MovementState == EALSMovementState::Grounded || MovementState == EALSMovementState::InAir)
-	{
-		// Default camera relative movement behavior
-		const FRotator DirRotator(0.0f, AimingRotation.Yaw, 0.0f);
-		AddMovementInput(UKismetMathLibrary::GetRightVector(DirRotator), Value);
-	}
-}
+//void AALSBaseCharacter::CameraHeldAction_Implementation()
+//{// 第一人称/第三人称切换
+//	// Switch camera mode
+//	if (ViewMode == EALSViewMode::FirstPerson)
+//	{
+//		SetViewMode(EALSViewMode::ThirdPerson);
+//	}
+//	else if (ViewMode == EALSViewMode::ThirdPerson)
+//	{
+//		SetViewMode(EALSViewMode::FirstPerson);
+//	}
+//}
 
-void AALSBaseCharacter::CameraUpAction_Implementation(float Value)
-{
-	AddControllerPitchInput(LookUpDownRate * Value);
-}
-
-void AALSBaseCharacter::CameraRightAction_Implementation(float Value)
-{
-	AddControllerYawInput(LookLeftRightRate * Value);
-}
-
-void AALSBaseCharacter::JumpAction_Implementation(bool bValue)
-{
-	if (bValue)
-	{
-		// Jump Action: Press "Jump Action" to end the ragdoll if ragdolling, stand up if crouching, or jump if standing.
-		if (JumpPressedDelegate.IsBound())
-		{
-			JumpPressedDelegate.Broadcast();
-		}
-
-		if (MovementAction == EALSMovementAction::None)
-		{
-			if (MovementState == EALSMovementState::Grounded)
-			{
-				if (Stance == EALSStance::Standing)
-				{
-					Jump();
-				}
-				else if (Stance == EALSStance::Crouching)
-				{
-					UnCrouch();
-				}
-			}
-			else if (MovementState == EALSMovementState::Ragdoll)
-			{
-				ReplicatedRagdollEnd();
-			}
-		}
-	}
-	else
-	{
-		StopJumping();
-	}
-}
-
-void AALSBaseCharacter::SprintAction_Implementation(bool bValue)
-{
-	if (bValue)
-	{
-		SetDesiredGait(EALSGait::Sprinting);
-	}
-	else
-	{
-		SetDesiredGait(EALSGait::Running);
-	}
-}
-
-void AALSBaseCharacter::AimAction_Implementation(bool bValue)
-{
-	if (GetRotationMode() != EALSRotationMode::Aiming)
-	{
-		// AimAction: Hold "AimAction" to enter the aiming mode, release to revert back the desired rotation mode.
-		SetRotationMode(EALSRotationMode::Aiming);
-	}
-	else
-	{
-		if (ViewMode == EALSViewMode::ThirdPerson)
-		{
-			SetRotationMode(DesiredRotationMode);
-		}
-		else if (ViewMode == EALSViewMode::FirstPerson)
-		{
-			SetRotationMode(EALSRotationMode::LookingDirection);
-		}
-	}
-}
-
-void AALSBaseCharacter::CameraTapAction_Implementation()
-{
-	if (ViewMode == EALSViewMode::FirstPerson)
-	{
-		// Don't swap shoulders on first person mode
-		return;
-	}
-
-	// Switch shoulders
-	SetRightShoulder(!bRightShoulder);
-}
-
-void AALSBaseCharacter::CameraHeldAction_Implementation()
-{
-	// Switch camera mode
-	if (ViewMode == EALSViewMode::FirstPerson)
-	{
-		SetViewMode(EALSViewMode::ThirdPerson);
-	}
-	else if (ViewMode == EALSViewMode::ThirdPerson)
-	{
-		SetViewMode(EALSViewMode::FirstPerson);
-	}
-}
-
-void AALSBaseCharacter::StanceAction_Implementation()
-{
-	// Stance Action: Press "Stance Action" to toggle Standing / Crouching, double tap to Roll.
-
-	if (MovementAction != EALSMovementAction::None)
-	{
-		return;
-	}
-
-	UWorld* World = GetWorld();
-	check(World);
-
-	const float PrevStanceInputTime = LastStanceInputTime;
-	LastStanceInputTime = World->GetTimeSeconds();
-
-	if (LastStanceInputTime - PrevStanceInputTime <= RollDoubleTapTimeout)
-	{
-		// Roll
-		Replicated_PlayMontage(GetRollAnimation(), 1.15f);
-
-		if (Stance == EALSStance::Standing)
-		{
-			SetDesiredStance(EALSStance::Crouching);
-		}
-		else if (Stance == EALSStance::Crouching)
-		{
-			SetDesiredStance(EALSStance::Standing);
-		}
-		return;
-	}
-
-	if (MovementState == EALSMovementState::Grounded)
-	{
-		if (Stance == EALSStance::Standing)
-		{
-			SetDesiredStance(EALSStance::Crouching);
-			Crouch();
-		}
-		else if (Stance == EALSStance::Crouching)
-		{
-			SetDesiredStance(EALSStance::Standing);
-			UnCrouch();
-		}
-	}
-
-	// Notice: MovementState == EALSMovementState::InAir case is removed
-}
-
-void AALSBaseCharacter::WalkAction_Implementation()
-{
-	if (DesiredGait == EALSGait::Walking)
-	{
-		SetDesiredGait(EALSGait::Running);
-	}
-	else if (DesiredGait == EALSGait::Running)
-	{
-		SetDesiredGait(EALSGait::Walking);
-	}
-}
-
-void AALSBaseCharacter::RagdollAction_Implementation()
-{
-	// Ragdoll Action: Press "Ragdoll Action" to toggle the ragdoll state on or off.
-
-	if (GetMovementState() == EALSMovementState::Ragdoll)
-	{
-		ReplicatedRagdollEnd();
-	}
-	else
-	{
-		ReplicatedRagdollStart();
-	}
-}
-
-void AALSBaseCharacter::VelocityDirectionAction_Implementation()
-{
-	// Select Rotation Mode: Switch the desired (default) rotation mode to Velocity or Looking Direction.
-	// This will be the mode the character reverts back to when un-aiming
-	SetDesiredRotationMode(EALSRotationMode::VelocityDirection);
-	SetRotationMode(EALSRotationMode::VelocityDirection);
-}
-
-void AALSBaseCharacter::LookingDirectionAction_Implementation()
-{
-	SetDesiredRotationMode(EALSRotationMode::LookingDirection);
-	SetRotationMode(EALSRotationMode::LookingDirection);
-}
+//void AALSBaseCharacter::VelocityDirectionAction_Implementation()
+//{
+//	// Select Rotation Mode: Switch the desired (default) rotation mode to Velocity or Looking Direction.
+//	// This will be the mode the character reverts back to when un-aiming
+//	SetDesiredRotationMode(EALSRotationMode::VelocityDirection);
+//	SetRotationMode(EALSRotationMode::VelocityDirection);
+//}
+//
+//void AALSBaseCharacter::LookingDirectionAction_Implementation()
+//{
+//	SetDesiredRotationMode(EALSRotationMode::LookingDirection);
+//	SetRotationMode(EALSRotationMode::LookingDirection);
+//}
 
 
 void AALSBaseCharacter::ReplicatedRagdollStart()
@@ -1466,4 +1530,46 @@ void AALSBaseCharacter::OnRep_OverlayState(EALSOverlayState PrevOverlayState)
 void AALSBaseCharacter::OnRep_VisibleMesh(const USkeletalMesh* PreviousSkeletalMesh)
 {
 	OnVisibleMeshChanged(PreviousSkeletalMesh);
+}
+
+inline void 
+AALSBaseCharacter::CreatePropsSystem() {
+	SceneRifle = CreateDefaultSubobject<USceneComponent>(TEXT("ScnRifle"));
+	SceneRifle->SetupAttachment(GetMesh(), TEXT("Slot_Rifle"));
+
+	ScenePistol = CreateDefaultSubobject<USceneComponent>(TEXT("ScnPistol"));
+	ScenePistol->SetupAttachment(GetMesh(), TEXT("Slot_Pistol"));
+
+	ChildActorRifle = CreateDefaultSubobject<UChildActorComponent>(TEXT("ChildActorRifle"));
+	ChildActorRifle->SetupAttachment(SceneRifle);
+
+	ChildActorPistol = CreateDefaultSubobject<UChildActorComponent>(TEXT("ChildActorPistol"));
+	ChildActorPistol->SetupAttachment(ScenePistol);
+}
+
+inline void 
+AALSBaseCharacter::CreateCustomComponent() {
+	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
+}
+
+inline void 
+AALSBaseCharacter::RifleFire() {
+	if (GetOverlayState() == EALSOverlayState::Rifle &&
+		GetRotationMode() == EALSRotationMode::Aiming) {
+		AWeaponBase* WeaponBase = Cast<AWeaponBase>(GetCurrentProps());
+		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::Rifle) {
+			WeaponComponent->Attack(WeaponBase);
+		}
+	}
+}
+
+inline void 
+AALSBaseCharacter::PistolFire() {
+	if (GetOverlayState() == EALSOverlayState::PistolOneHanded &&
+		GetRotationMode() == EALSRotationMode::Aiming) {
+		AWeaponBase* WeaponBase = Cast<AWeaponBase>(GetCurrentProps());
+		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::PistolOneHanded) {
+			WeaponComponent->Attack(WeaponBase);
+		}
+	}
 }

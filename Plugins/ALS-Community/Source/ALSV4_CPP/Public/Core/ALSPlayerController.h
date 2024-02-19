@@ -1,6 +1,3 @@
-// Copyright:       Copyright (C) 2022 Doğa Can Yanıkoğlu
-// Source Code:     https://github.com/dyanikoglu/ALS-Community
-
 #pragma once
 
 #include "ALSLibrary.h"
@@ -30,92 +27,36 @@ public:
 
 protected:
 	void SetupInputs();
-
 	void SetupCamera();
 
 	UFUNCTION(BlueprintCallable)
 	void SetGlobalTimeDilationLocal(float Dilation);
 
-	UFUNCTION()
-	void ForwardMovementAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void RightMovementAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void CameraUpAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void CameraRightAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void JumpAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void SprintAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void AimAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void CameraTapAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void CameraHeldAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void StanceAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void WalkAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void RagdollAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void RifleAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void PistolAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void AttackHoldAction(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void AttackTapAction(const FInputActionValue& Value);
+	void IA_Move(const FInputActionValue& Value);
+	void IA_Look(const FInputActionValue& Value);
+	void IA_Jump(const FInputActionValue& Value);
+	void IA_Sprint(const FInputActionValue& Value);
+	void IA_Aim();
+	void IA_Crouch();
+	void IA_Walk();
+	void IA_Ragdoll();
+	void IA_Rifle();
+	void IA_Roll();
+	void IA_Pistol();
+	void IA_AttackHold();
+	void IA_AttackTap();
 
 	// Debug actions
-	UFUNCTION()
 	void DebugToggleHudAction(const FInputActionValue& Value);
-
-	UFUNCTION()
 	void DebugToggleDebugViewAction(const FInputActionValue& Value);
-
-	UFUNCTION()
 	void DebugToggleTracesAction(const FInputActionValue& Value);
-
-	UFUNCTION()
 	void DebugToggleShapesAction(const FInputActionValue& Value);
-
-	UFUNCTION()
 	void DebugToggleLayerColorsAction(const FInputActionValue& Value);
-
-	UFUNCTION()
 	void DebugToggleCharacterInfoAction(const FInputActionValue& Value);
-
-	UFUNCTION()
 	void DebugToggleSlomoAction(const FInputActionValue& Value);
-
-	UFUNCTION()
 	void DebugFocusedCharacterCycleAction(const FInputActionValue& Value);
-
-	UFUNCTION()
 	void DebugToggleMeshAction(const FInputActionValue& Value);
-
-	UFUNCTION()
 	void DebugOpenOverlayMenuAction(const FInputActionValue& Value);
-
-	UFUNCTION()
 	void DebugOverlayMenuCycleAction(const FInputActionValue& Value);
 
 public:

@@ -1,33 +1,9 @@
-// Copyright:       Copyright (C) 2022 Doğa Can Yanıkoğlu
-// Source Code:     https://github.com/dyanikoglu/ALS-Community
-
-
 #include "Character/ALSCharacter.h"
 
-#include "Components/SkeletalMeshComponent.h"
-#include "Engine/StaticMesh.h"
-#include "AI/ALSAIController.h"
-#include "Kismet/GameplayStatics.h"
 #include "Props/BowAnim.h"
-#include "Props/Weapons/WeaponBase.h"
-#include "Components/WeaponComponent.h"
 
 AALSCharacter::AALSCharacter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-{
-	HeldObjectRoot = CreateDefaultSubobject<USceneComponent>(TEXT("HeldObjectRoot"));
-	HeldObjectRoot->SetupAttachment(GetMesh());
-
-	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
-	SkeletalMesh->SetupAttachment(HeldObjectRoot);
-
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	StaticMesh->SetupAttachment(HeldObjectRoot);
-
-	AIControllerClass = AALSAIController::StaticClass();
-
-	CreatePropsSystem();
-	CreateCustomComponent();
+	: Super(ObjectInitializer) {
 }
 
 void 
@@ -123,49 +99,6 @@ FVector AALSCharacter::GetFirstPersonCameraTarget()
 	return GetMesh()->GetSocketLocation(TEXT("FP_Camera"));
 }
 
-APropsBase*
-AALSCharacter::GetCurrentProps() const {
-	APropsBase* CurrentProps = nullptr;
-
-	switch (GetOverlayState()) {
-	case EALSOverlayState::Rifle: 
-		CurrentProps = Cast<APropsBase>(ChildActorRifle->GetChildActor());
-		break;
-
-	case EALSOverlayState::PistolOneHanded: 
-		CurrentProps = Cast<APropsBase>(ChildActorPistol->GetChildActor());
-		break;
-
-	case EALSOverlayState::PistolTwoHanded: 
-		CurrentProps = Cast<APropsBase>(ChildActorPistol->GetChildActor());
-		break;
-
-	default: break;
-	}
-
-	return CurrentProps;
-}
-
-APropsBase* 
-AALSCharacter::GetPropsFromOverlayState(EALSOverlayState Overlay) const {
-	APropsBase* Props = nullptr;
-
-	switch (Overlay) {
-	case EALSOverlayState::Rifle:
-		Props = Cast<APropsBase>(ChildActorRifle->GetChildActor());
-		break;
-		
-	case EALSOverlayState::PistolOneHanded:
-		Props = Cast<APropsBase>(ChildActorPistol->GetChildActor());
-		break;
-
-	default:
-		break;
-	}
-
-	return Props;
-}
-
 void 
 AALSCharacter::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
@@ -178,7 +111,6 @@ AALSCharacter::BeginPlay() {
 	UpdateHeldObject();
 }
 
-
 void
 AALSCharacter::OnOverlayStateChanged(EALSOverlayState PreviousState) {
 	Super::OnOverlayStateChanged(PreviousState);
@@ -186,107 +118,11 @@ AALSCharacter::OnOverlayStateChanged(EALSOverlayState PreviousState) {
 }
 
 void 
-AALSCharacter::RifleAction_Implementation() {
-	do {
-		APropsBase* Props = Cast<APropsBase>(ChildActorRifle->GetChildActor());
-		if (!Props || Props->OverlayState < EALSOverlayState::Rifle) {
-			break;
-		}
-
-		if (GetOverlayState() == Props->OverlayState) {
-			WeaponComponent->UnEquip(Props);
-			break;
-		}
-
-		WeaponComponent->Equip(Props);
-	} while (0);
-}
-
-void 
-AALSCharacter::PistolAction_Implementation() {
-	do {
-		APropsBase* Props = Cast<APropsBase>(ChildActorPistol->GetChildActor());
-		if (!Props || Props->OverlayState < EALSOverlayState::Rifle) {
-			break;
-		}
-
-		if (GetOverlayState() == Props->OverlayState) {
-			WeaponComponent->UnEquip(Props);
-			break;
-		}
-
-		WeaponComponent->Equip(Props);
-	} while (0);
-}
-
-void 
-AALSCharacter::AttackHoldAction_Implementation() {
-	switch (GetOverlayState()) {
-	case EALSOverlayState::Rifle:
-		RifleFire();
-		break;
-
-	case EALSOverlayState::PistolOneHanded:
-		PistolFire();
-		break;
-
-	default:
-		break;
-	}
-}
-
-void 
-AALSCharacter::AttackTapAction_Implementation() {
-}
-
-void AALSCharacter::UpdateHeldObjectAnimations()
-{
+AALSCharacter::UpdateHeldObjectAnimations() {
 	if (GetOverlayState() == EALSOverlayState::Bow) {
 		UBowAnim* BowAnim = Cast<UBowAnim>(SkeletalMesh->GetAnimInstance());
 		if (BowAnim) {
 			BowAnim->Draw = GetAnimCurveValue(TEXT("Enable_SpineRotation"));
-		}
-	}
-}
-
-inline void 
-AALSCharacter::CreatePropsSystem() {
-	SceneRifle = CreateDefaultSubobject<USceneComponent>(TEXT("ScnRifle"));
-	SceneRifle->SetupAttachment(GetMesh(), TEXT("Slot_Rifle"));
-
-	ScenePistol = CreateDefaultSubobject<USceneComponent>(TEXT("ScnPistol"));
-	ScenePistol->SetupAttachment(GetMesh(), TEXT("Slot_Pistol"));
-
-	ChildActorRifle = CreateDefaultSubobject<UChildActorComponent>(TEXT("ChildActorRifle"));
-	ChildActorRifle->SetupAttachment(SceneRifle);
-
-	ChildActorPistol = CreateDefaultSubobject<UChildActorComponent>(TEXT("ChildActorPistol"));
-	ChildActorPistol->SetupAttachment(ScenePistol);
-}
-
-inline void 
-AALSCharacter::CreateCustomComponent() {
-	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
-}
-
-inline void 
-AALSCharacter::RifleFire() {
-	if (GetOverlayState() == EALSOverlayState::Rifle &&
-		GetRotationMode() == EALSRotationMode::Aiming) {
-		AWeaponBase* WeaponBase = Cast<AWeaponBase>(GetCurrentProps());
-		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::Rifle) {
-			WeaponComponent->Attack(WeaponBase);
-		}
-	}
-}
-
-inline void 
-AALSCharacter::PistolFire() {
-	if (GetOverlayState() == EALSOverlayState::PistolOneHanded &&
-		GetRotationMode() == EALSRotationMode::Aiming) {
-		AWeaponBase* WeaponBase = Cast<AWeaponBase>(GetCurrentProps());
-		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::PistolOneHanded) {
-			WeaponComponent->Attack(WeaponBase);
 		}
 	}
 }

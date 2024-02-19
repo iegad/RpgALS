@@ -274,7 +274,7 @@ void UALSDebugComponent::DrawDebugCapsuleTraceSingle(const UWorld* World,
 	}
 }
 
-static void DrawDebugSweptSphere(const UWorld* InWorld,
+static void DrawDebugSweptSphere1(const UWorld* InWorld,
 	                        FVector const& Start,
 	                        FVector const& End,
 	                        float Radius,
@@ -312,14 +312,14 @@ void UALSDebugComponent::DrawDebugSphereTraceSingle(const UWorld* World,
 		if (bHit && OutHit.bBlockingHit)
 		{
 			// Red up to the blocking hit, green thereafter
-			DrawDebugSweptSphere(World, Start, OutHit.Location, CollisionShape.GetSphereRadius(), TraceColor.ToFColor(true), bPersistent, LifeTime);
-			DrawDebugSweptSphere(World, OutHit.Location, End, CollisionShape.GetSphereRadius(), TraceHitColor.ToFColor(true), bPersistent, LifeTime);
+			DrawDebugSweptSphere1(World, Start, OutHit.Location, CollisionShape.GetSphereRadius(), TraceColor.ToFColor(true), bPersistent, LifeTime);
+			DrawDebugSweptSphere1(World, OutHit.Location, End, CollisionShape.GetSphereRadius(), TraceHitColor.ToFColor(true), bPersistent, LifeTime);
 			DrawDebugPoint(World, OutHit.ImpactPoint, 16.0f, TraceColor.ToFColor(true), bPersistent, LifeTime);
 		}
 		else
 		{
 			// no hit means all red
-			DrawDebugSweptSphere(World, Start, End, CollisionShape.GetSphereRadius(), TraceColor.ToFColor(true), bPersistent, LifeTime);
+			DrawDebugSweptSphere1(World, Start, End, CollisionShape.GetSphereRadius(), TraceColor.ToFColor(true), bPersistent, LifeTime);
 		}
 	}
 }
