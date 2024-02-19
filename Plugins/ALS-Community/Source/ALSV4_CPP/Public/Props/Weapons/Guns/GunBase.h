@@ -18,6 +18,9 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USceneComponent> MuzzleScene;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Recoil = 0.f;
+
 public:
 	virtual void Attack(AALSCharacter* Character, int DebugTrace) override;
 

@@ -92,6 +92,11 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 			}
 		}
 
+		// 后坐力
+		if (Recoil) {
+			Character->AddControllerPitchInput(-FMath::FRandRange(0, Recoil));
+		}
+
 	} while (0);
 }
 

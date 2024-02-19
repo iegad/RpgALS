@@ -62,6 +62,7 @@ FWeaponAnimationOptions::CheckInitialized() const {
 
 
 AWeaponBase::AWeaponBase() : Super() {
+    PrimaryActorTick.bCanEverTick = true;
 }
 
 void 

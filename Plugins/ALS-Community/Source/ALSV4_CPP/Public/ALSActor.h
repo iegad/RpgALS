@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,20 +5,21 @@
 #include "ALSActor.generated.h"
 
 UCLASS()
-class ALSV4_CPP_API AALSActor : public AActor
-{
+class ALSV4_CPP_API AALSActor : public AActor {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AALSActor();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	void SetActive(bool Value);
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	virtual void SetLifeSpan(float LifeSpan) override;
 
+	bool IsActive() const;
+
+	double GetExpireTime() const;
+
+private:
+	bool bActived = false;
+	double ExpireTime = 0.f;
 };

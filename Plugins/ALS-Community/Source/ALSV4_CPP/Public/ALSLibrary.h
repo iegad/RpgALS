@@ -99,6 +99,12 @@ struct FDebugInputSystem {
 	TObjectPtr<UInputAction> DebugToggleTracesAction;
 };
 
+USTRUCT(BlueprintType)
+struct FCharacterStateSystem {
+	GENERATED_BODY()
+};
+
+
 UCLASS()
 class ALSV4_CPP_API UALSLibrary : public UObject {
 	GENERATED_BODY()
