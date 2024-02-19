@@ -1066,10 +1066,9 @@ void AALSBaseCharacter::OnMovementActionChanged(const EALSMovementAction Previou
 	}
 }
 
-void AALSBaseCharacter::OnStanceChanged(const EALSStance PreviousStance)
-{
-	if (CameraBehavior)
-	{
+void 
+AALSBaseCharacter::OnStanceChanged(const EALSStance PreviousStance) {
+	if (CameraBehavior) {
 		CameraBehavior->Stance = Stance;
 	}
 

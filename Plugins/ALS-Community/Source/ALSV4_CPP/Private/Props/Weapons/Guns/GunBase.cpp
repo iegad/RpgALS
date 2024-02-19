@@ -3,8 +3,10 @@
 
 #include "KismetTraceUtils.h"
 #include "Kismet/GameplayStatics.h"
+
 #include "ALSLibrary.h"
 #include "Character/ALSCharacter.h"
+#include "Core/ALSGameMode.h"
 
 AGunBase::AGunBase() : Super() {
 	MuzzleScene = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleScene"));
@@ -39,6 +41,7 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 		}
 
 		WeaponAttackOptions.AttackCD = WeaponAttackOptions.AttackInterval;
+
 		const FVector&& MuzzleLocation = Mesh->GetSocketLocation(MuzzleSocketName);
 		const FRotator&& MuzzleRotation = Mesh->GetSocketRotation(MuzzleSocketName);
 		const FVector&& CameraLocation = PlayerCameraManager->GetCameraLocation();
@@ -48,17 +51,47 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 		const FVector Start = CameraLocation + CameraForward * Offset;
 		FVector End = Start + CameraForward * WeaponAttackOptions.Range;
 
+		// 播放音效
+		if (WeaponEffectsOptions.AttackSound) {
+			UGameplayStatics::SpawnSoundAtLocation(World, WeaponEffectsOptions.AttackSound, MuzzleLocation);
+		}
+
+		// 播放特效
+		if (WeaponEffectsOptions.AttackEffects) {
+			UGameplayStatics::SpawnEmitterAttached(WeaponEffectsOptions.AttackEffects, MuzzleScene);
+		}
+
+		// 播放攻击蒙太奇
+		if (WeaponAnimationOptions.AttackMontage) {
+			Character->PlayAnimMontage(WeaponAnimationOptions.AttackMontage);
+		}
+
+		// 射线检测
 		FCollisionQueryParams TraceParams(TEXT("WeaponTrace"), false);
 		TraceParams.AddIgnoredActor(Character);
 		TraceParams.bReturnPhysicalMaterial = true;
 
 		FHitResult OutHitResult;
-		World->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Camera);
+		World->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Camera, TraceParams);
 
 #if ENABLE_DRAW_DEBUG
 		DrawDebugLineTraceSingle(World, Start, End, EDrawDebugTrace::Type(DebugTrace),
 			OutHitResult.bBlockingHit, OutHitResult, FLinearColor::Red, FLinearColor::Green, 5.f);
 #endif
+
+		if (OutHitResult.bBlockingHit && !OutHitResult.bStartPenetrating) {
+			AALSGameMode* ALSGameMode = Cast<AALSGameMode>(UGameplayStatics::GetGameMode(World));
+			// 播放环境特效
+			if (OutHitResult.PhysMaterial.IsValid() && ALSGameMode) {
+				ALSGameMode->PlayEffect(OutHitResult.PhysMaterial->SurfaceType, OutHitResult.ImpactPoint, OutHitResult.Normal, WeaponEffectsOptions.HittedEffects);
+			}
+
+			AALSCharacter* HitCharacter = Cast<AALSCharacter>(OutHitResult.GetActor());
+			if (HitCharacter && HitCharacter->ActorHasTag(TEXT("Enemy"))) {
+				// TODO: Hit
+			}
+		}
+
 	} while (0);
 }
 

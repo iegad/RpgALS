@@ -23,7 +23,7 @@ APropsBase::BeginPlay() {
 		ALS_ERROR(TEXT("%s's EquipMontage is nullptr: %s:%d"), *this->GetClass()->GetName(), __FILEW__, __LINE__);
 	}
 
-	if (UnEquipMontage) {
+	if (!UnEquipMontage) {
 		ALS_ERROR(TEXT("%s's UnEquipMontage is nullptr: %s:%d"), *this->GetClass()->GetName(), __FILEW__, __LINE__);
 	}
 }

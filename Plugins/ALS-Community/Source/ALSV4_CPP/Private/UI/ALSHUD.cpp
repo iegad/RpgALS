@@ -100,6 +100,6 @@ UALSHUD::CalculateSpread(float Value, float DeltaTime) {
 	static const FVector2D InRange(0.f, 650.f);
 	static const FVector2D OutRange(5.f, 30.f);
 
-	CrosshairValue = FMath::FInterpTo(CrosshairValue, Value, DeltaTime, 36);
+	CrosshairValue = FMath::FInterpTo(CrosshairValue, Value, DeltaTime, 300);
 	Spread = FMath::GetMappedRangeValueClamped(InRange, OutRange, CrosshairValue);
 }
