@@ -17,6 +17,7 @@ class UALSPlayerCameraBehavior;
 enum class EVisibilityBasedAnimTickOption : uint8;
 class APropsBase;
 class UWeaponComponent;
+class UALSHUD;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FJumpPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJumpedSignature);
@@ -660,13 +661,19 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
 	TObjectPtr<UWeaponComponent> WeaponComponent;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|HUD System")
+	TSubclassOf<UALSHUD> ALSHUDClass;
+
 private:
 	inline void CreatePropsSystem();
 	inline void CreateCustomComponent();
 	inline void RifleFire();
 	inline void PistolFire();
+	inline void UpdateALSHUD(float DeltaTime);
 
 private:
 	UPROPERTY()
 	TObjectPtr<UALSDebugComponent> ALSDebugComponent;
+
+	UALSHUD* ALSHUD = nullptr;
 };

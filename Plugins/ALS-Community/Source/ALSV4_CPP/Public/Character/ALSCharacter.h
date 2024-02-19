@@ -10,8 +10,7 @@ class UWeaponComponent;
  * Specialized character class, with additional features like held object etc.
  */
 UCLASS(Blueprintable, BlueprintType)
-class ALSV4_CPP_API AALSCharacter : public AALSBaseCharacter
-{
+class ALSV4_CPP_API AALSCharacter : public AALSBaseCharacter {
 	GENERATED_BODY()
 
 public:

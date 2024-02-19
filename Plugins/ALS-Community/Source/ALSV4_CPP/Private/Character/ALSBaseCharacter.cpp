@@ -19,8 +19,10 @@
 #include "Components/WeaponComponent.h"
 #include "AI/ALSAIController.h"
 
+#include "ALSLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/StaticMesh.h"
+#include "UI/ALSHUD.h"
 
 const FName NAME_FP_Camera(TEXT("FP_Camera"));
 const FName NAME_Pelvis(TEXT("Pelvis"));
@@ -30,7 +32,6 @@ const FName NAME_YawOffset(TEXT("YawOffset"));
 const FName NAME_pelvis(TEXT("pelvis"));
 const FName NAME_root(TEXT("root"));
 const FName NAME_spine_03(TEXT("spine_03"));
-
 
 AALSBaseCharacter::AALSBaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UALSCharacterMovementComponent>(CharacterMovementComponentName))
@@ -54,7 +55,6 @@ AALSBaseCharacter::AALSBaseCharacter(const FObjectInitializer& ObjectInitializer
 	CreatePropsSystem();
 	CreateCustomComponent();
 }
-
 
 void
 AALSBaseCharacter::IA_Move(const FInputActionValue& Value) {
@@ -335,12 +335,10 @@ void AALSBaseCharacter::BeginPlay()
 	// Force update states to use the initial desired values.
 	ForceUpdateCharacterState();
 
-	if (Stance == EALSStance::Standing)
-	{
+	if (Stance == EALSStance::Standing) {
 		UnCrouch();
 	}
-	else if (Stance == EALSStance::Crouching)
-	{
+	else if (Stance == EALSStance::Crouching) {
 		Crouch();
 	}
 
@@ -349,40 +347,46 @@ void AALSBaseCharacter::BeginPlay()
 	LastVelocityRotation = TargetRotation;
 	LastMovementInputRotation = TargetRotation;
 
-	if (GetMesh()->GetAnimInstance() && GetLocalRole() == ROLE_SimulatedProxy)
-	{
+	if (GetMesh()->GetAnimInstance() && GetLocalRole() == ROLE_SimulatedProxy) {
 		GetMesh()->GetAnimInstance()->SetRootMotionMode(ERootMotionMode::IgnoreRootMotion);
 	}
 
 	MyCharacterMovementComponent->SetMovementSettings(GetTargetMovementSettings());
 
 	ALSDebugComponent = FindComponentByClass<UALSDebugComponent>();
+
+	if (ALSHUDClass) {
+		ALSHUD = CreateWidget<UALSHUD>(GetGameInstance(), ALSHUDClass);
+		if (!ALSHUD) {
+			ALS_ERROR(TEXT("CreateWidget ALSHUD failed"));
+			return;
+		}
+		ALSHUD->AddToViewport();
+	}
 }
 
-void AALSBaseCharacter::Tick(float DeltaTime)
-{
+void 
+AALSBaseCharacter::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	// Set required values
 	SetEssentialValues(DeltaTime);
 
-	if (MovementState == EALSMovementState::Grounded)
-	{
+	if (MovementState == EALSMovementState::Grounded) {
 		UpdateCharacterMovement();
 		UpdateGroundedRotation(DeltaTime);
 	}
-	else if (MovementState == EALSMovementState::InAir)
-	{
+	else if (MovementState == EALSMovementState::InAir) {
 		UpdateInAirRotation(DeltaTime);
 	}
-	else if (MovementState == EALSMovementState::Ragdoll)
-	{
+	else if (MovementState == EALSMovementState::Ragdoll) {
 		RagdollUpdate(DeltaTime);
 	}
 
 	// Cache values
 	PreviousVelocity = GetVelocity();
 	PreviousAimYaw = AimingRotation.Yaw;
+	UpdateALSHUD(DeltaTime);
 }
 
 UAnimMontage* AALSBaseCharacter::GetGetUpAnimation(bool bRagdollFaceUpState) const
@@ -1074,19 +1078,29 @@ void AALSBaseCharacter::OnStanceChanged(const EALSStance PreviousStance)
 
 void AALSBaseCharacter::OnRotationModeChanged(EALSRotationMode PreviousRotationMode)
 {
-	if (RotationMode == EALSRotationMode::VelocityDirection && ViewMode == EALSViewMode::FirstPerson)
-	{
+	if (RotationMode == EALSRotationMode::VelocityDirection && ViewMode == EALSViewMode::FirstPerson) {
 		// If the new rotation mode is Velocity Direction and the character is in First Person,
 		// set the viewmode to Third Person.
 		SetViewMode(EALSViewMode::ThirdPerson);
 	}
 
-	if (CameraBehavior)
-	{
+	if (CameraBehavior) {
 		CameraBehavior->SetRotationMode(RotationMode);
 	}
 
 	MyCharacterMovementComponent->SetMovementSettings(GetTargetMovementSettings());
+	if (ALSHUD) {
+		if (GetRotationMode() == EALSRotationMode::Aiming && (
+			GetOverlayState() == EALSOverlayState::Rifle ||
+			GetOverlayState() == EALSOverlayState::PistolOneHanded ||
+			GetOverlayState() == EALSOverlayState::PistolTwoHanded ||
+			GetOverlayState() == EALSOverlayState::Bow)) {
+			ALSHUD->ShowCrosshair();
+		}
+		else {
+			ALSHUD->HideCrosshair();
+		}
+	}
 }
 
 void AALSBaseCharacter::OnGaitChanged(const EALSGait PreviousGait)
@@ -1572,4 +1586,23 @@ AALSBaseCharacter::PistolFire() {
 			WeaponComponent->Attack(WeaponBase);
 		}
 	}
+}
+
+inline void 
+AALSBaseCharacter::UpdateALSHUD(float DeltaTime) {
+	if (!ALSHUD || !ALSHUD->IsCrosshairVisiblity()) {
+		return;
+	}
+
+	AWeaponBase* Weapon = Cast<AWeaponBase>(GetCurrentProps());
+	if (!Weapon) {
+		return;
+	}
+
+	if (Weapon->WeaponAttackOptions.AttackCD <= 0.f) {
+		ALSHUD->CalculateSpread(PreviousVelocity.Size(), DeltaTime);
+		return;
+	}
+
+	ALSHUD->CalculateSpread(Weapon->WeaponAttackOptions.AttackCD * 8500, DeltaTime);
 }
