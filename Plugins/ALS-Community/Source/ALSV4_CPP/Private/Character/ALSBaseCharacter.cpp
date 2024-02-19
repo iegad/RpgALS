@@ -1093,8 +1093,8 @@ AALSBaseCharacter::OnStanceChanged(const EALSStance PreviousStance) {
 	MyCharacterMovementComponent->SetMovementSettings(GetTargetMovementSettings());
 }
 
-void AALSBaseCharacter::OnRotationModeChanged(EALSRotationMode PreviousRotationMode)
-{
+void 
+AALSBaseCharacter::OnRotationModeChanged(EALSRotationMode PreviousRotationMode) {
 	if (RotationMode == EALSRotationMode::VelocityDirection && ViewMode == EALSViewMode::FirstPerson) {
 		// If the new rotation mode is Velocity Direction and the character is in First Person,
 		// set the viewmode to Third Person.
@@ -1150,8 +1150,11 @@ void AALSBaseCharacter::OnViewModeChanged(const EALSViewMode PreviousViewMode)
 	}
 }
 
-void AALSBaseCharacter::OnOverlayStateChanged(const EALSOverlayState PreviousState)
-{
+void 
+AALSBaseCharacter::OnOverlayStateChanged(const EALSOverlayState PreviousState) {
+	if (GetOverlayState() <= EALSOverlayState::Feminine && GetRotationMode() == EALSRotationMode::Aiming) {
+		SetRotationMode(EALSRotationMode::LookingDirection);
+	}
 }
 
 void AALSBaseCharacter::OnVisibleMeshChanged(const USkeletalMesh* PrevVisibleMesh)
