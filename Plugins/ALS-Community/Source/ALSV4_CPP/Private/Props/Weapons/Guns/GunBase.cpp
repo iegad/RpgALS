@@ -87,8 +87,9 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 			}
 
 			AALSCharacter* HitCharacter = Cast<AALSCharacter>(OutHitResult.GetActor());
-			if (HitCharacter && HitCharacter->ActorHasTag(TEXT("Enemy"))) {
-				// TODO: Hit
+			// TODO: 这里需要为 AALSBaseCharacter 添加阵营, 不同阵营才会受到伤害
+			if (HitCharacter/* && HitCharacter->ActorHasTag(TEXT("Enemy"))*/) {
+				HitCharacter->Hit(WeaponAttackOptions.Damage);
 			}
 		}
 

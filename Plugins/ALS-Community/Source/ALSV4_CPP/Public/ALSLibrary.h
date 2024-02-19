@@ -102,6 +102,12 @@ struct FDebugInputSystem {
 USTRUCT(BlueprintType)
 struct FCharacterStateSystem {
 	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float MaxHP = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float HP = 0.f;
 };
 
 

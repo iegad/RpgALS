@@ -8,6 +8,8 @@
 #include "GameFramework/Character.h"
 #include "EnhancedInputComponent.h"
 
+#include "ALSLibrary.h"
+
 #include "ALSBaseCharacter.generated.h"
 
 // forward declarations
@@ -59,9 +61,15 @@ public:
 	APropsBase* GetCurrentProps() const;
 	APropsBase* GetPropsFromOverlayState(EALSOverlayState Overlay) const;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ALS|Character State System")
+	FCharacterStateSystem CharacterStateSystem;
+
+	UFUNCTION(BlueprintCallable, Category = "ALS|Character State System")
+	void Hit(float Damage);
+
 	/** Ragdoll System */
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ALS|Get Up Animations")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Get Up Animations")
 	TMap<EALSOverlayState, UAnimMontage*> GetUpBackAnimationMap{
 		{EALSOverlayState::Default, nullptr},
 		{EALSOverlayState::Masculine, nullptr},
@@ -78,7 +86,7 @@ public:
 		{EALSOverlayState::Barrel, nullptr},
 	};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ALS|Get Up Animations")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Get Up Animations")
 	TMap<EALSOverlayState, UAnimMontage*> GetUpFrontAnimationMap{
 		{EALSOverlayState::Default, nullptr},
 		{EALSOverlayState::Masculine, nullptr},

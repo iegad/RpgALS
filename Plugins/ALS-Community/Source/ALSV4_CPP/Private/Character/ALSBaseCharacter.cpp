@@ -7,8 +7,10 @@
 #include "Components/ALSDebugComponent.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Curves/CurveFloat.h"
 #include "Character/ALSCharacterMovementComponent.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -19,9 +21,6 @@
 #include "Components/WeaponComponent.h"
 #include "AI/ALSAIController.h"
 
-#include "ALSLibrary.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "Engine/StaticMesh.h"
 #include "UI/ALSHUD.h"
 
 const FName NAME_FP_Camera(TEXT("FP_Camera"));
@@ -296,6 +295,25 @@ AALSBaseCharacter::GetPropsFromOverlayState(EALSOverlayState Overlay) const {
 	}
 
 	return Props;
+}
+
+void 
+AALSBaseCharacter::Hit(float Damage) {
+	const float Value = CharacterStateSystem.HP < Damage ? CharacterStateSystem.HP : Damage;
+	CharacterStateSystem.HP -= Value;
+
+	do {
+		if (CharacterStateSystem.HP <= 0.f) {
+			ReplicatedRagdollStart();
+			break;
+		}
+
+		if (CharacterStateSystem.MaxHP > 0.f && 
+			CharacterStateSystem.HP / CharacterStateSystem.MaxHP <= 0.5f && 
+			GetOverlayState() < EALSOverlayState::Injured) {
+			SetOverlayState(EALSOverlayState::Injured);
+		}
+	} while (0);
 }
 
 void AALSBaseCharacter::OnBreakfall_Implementation()
