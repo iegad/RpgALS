@@ -4,19 +4,20 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Curves/CurveFloat.h"
-#include "Character/ALSCharacterMovementComponent.h"
 #include "Engine/StaticMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "TimerManager.h"
 #include "Net/UnrealNetwork.h"
 
 #include "AI/ALSAIController.h"
-#include "Character/Animation/ALSCharacterAnimInstance.h"
 #include "CameraSystem/ALSPlayerCameraBehavior.h"
-#include "Library/ALSMathLibrary.h"
+#include "Character/Animation/ALSCharacterAnimInstance.h"
 #include "Components/ALSDebugComponent.h"
+#include "Character/ALSCharacterMovementComponent.h"
+#include "Library/ALSMathLibrary.h"
 
 #include "Props/Weapons/WeaponBase.h"
 #include "Components/WeaponComponent.h"
@@ -48,6 +49,7 @@ AALSBaseCharacter::AALSBaseCharacter(const FObjectInitializer& ObjectInitializer
 
 	CreatePropsSystem();
 	CreateCustomComponent();
+	CreatePhysicsConstraint();
 }
 
 APropsBase* 
@@ -1493,14 +1495,26 @@ AALSBaseCharacter::OnRep_VisibleMesh(const USkeletalMesh* PreviousSkeletalMesh) 
 
 inline void 
 AALSBaseCharacter::CreatePropsSystem() {
-	SceneRifle = CreateDefaultSubobject<USceneComponent>(TEXT("ScnRifle"));
-	SceneRifle->SetupAttachment(GetMesh(), TEXT("Slot_Rifle"));
+	StaticMeshRifle2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshRifle2"));
+	StaticMeshRifle2->SetupAttachment(GetMesh(), TEXT("Slot_Rifle"));
+	StaticMeshRifle2->SetVisibility(false);
+	StaticMeshRifle2->SetSimulatePhysics(true);
+	StaticMeshRifle2->SetHiddenInGame(true);
+	StaticMeshRifle2->SetIsReplicated(true);
 
-	ScenePistol = CreateDefaultSubobject<USceneComponent>(TEXT("ScnPistol"));
-	ScenePistol->SetupAttachment(GetMesh(), TEXT("Slot_Pistol"));
+	SceneRifle = CreateDefaultSubobject<USceneComponent>(TEXT("ScnRifle"));
+	SceneRifle->SetupAttachment(StaticMeshRifle2);
 
 	ChildActorRifle = CreateDefaultSubobject<UChildActorComponent>(TEXT("ChildActorRifle"));
 	ChildActorRifle->SetupAttachment(SceneRifle);
+
+	StaticMeshRifle1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshRifle1"));
+	StaticMeshRifle1->SetupAttachment(GetMesh(), TEXT("Slot_Rifle"));
+	StaticMeshRifle1->SetVisibility(false);
+	StaticMeshRifle1->SetIsReplicated(true);
+
+	ScenePistol = CreateDefaultSubobject<USceneComponent>(TEXT("ScnPistol"));
+	ScenePistol->SetupAttachment(GetMesh(), TEXT("Slot_Pistol"));
 
 	ChildActorPistol = CreateDefaultSubobject<UChildActorComponent>(TEXT("ChildActorPistol"));
 	ChildActorPistol->SetupAttachment(ScenePistol);
@@ -1509,6 +1523,19 @@ AALSBaseCharacter::CreatePropsSystem() {
 inline void 
 AALSBaseCharacter::CreateCustomComponent() {
 	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
+}
+
+inline void 
+AALSBaseCharacter::CreatePhysicsConstraint() {
+	PhysicsRifle = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("PhysicsRifle"));
+	PhysicsRifle->SetupAttachment(StaticMeshRifle1);
+	PhysicsRifle->SetConstrainedComponents(StaticMeshRifle1, "", StaticMeshRifle2, "");
+	PhysicsRifle->SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Limited, 5.f);
+	PhysicsRifle->SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Locked, 6.f);
+	PhysicsRifle->SetAngularTwistLimit(EAngularConstraintMotion::ACM_Limited, 15.f);
+	PhysicsRifle->SetAngularDriveMode(EAngularDriveMode::TwistAndSwing);
+	PhysicsRifle->SetOrientationDriveTwistAndSwing(true, true);
+	PhysicsRifle->SetAngularDriveParams(88.f, 1.f, 0.f);
 }
 
 inline void 

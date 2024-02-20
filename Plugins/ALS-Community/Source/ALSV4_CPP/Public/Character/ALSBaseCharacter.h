@@ -21,6 +21,7 @@ enum class EVisibilityBasedAnimTickOption : uint8;
 class APropsBase;
 class UWeaponComponent;
 class UALSHUD;
+class UPhysicsConstraintComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FJumpPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJumpedSignature);
@@ -391,24 +392,33 @@ public:
 
 	// --------------------------------------------------- 组件 ---------------------------------------------------
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "ALS|Components")
-	TObjectPtr<USkeletalMeshComponent> SkeletalMesh = nullptr;
+	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|Components")
-	//TObjectPtr<UStaticMeshComponent> StaticMesh = nullptr;
+	//TObjectPtr<UStaticMeshComponent> StaticMesh;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
+	TObjectPtr<UPhysicsConstraintComponent> PhysicsRifle;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
+	TObjectPtr<UStaticMeshComponent> StaticMeshRifle1;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
+	TObjectPtr<UStaticMeshComponent> StaticMeshRifle2;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
 	TObjectPtr<USceneComponent> SceneRifle;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
 	TObjectPtr<UChildActorComponent> ChildActorRifle;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
 	TObjectPtr<USceneComponent> ScenePistol;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
 	TObjectPtr<UChildActorComponent> ChildActorPistol;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
 	TObjectPtr<UWeaponComponent> WeaponComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|HUD System")
@@ -659,6 +669,7 @@ protected:
 private:
 	inline void CreatePropsSystem();
 	inline void CreateCustomComponent();
+	inline void CreatePhysicsConstraint();
 	inline void RifleFire();
 	inline void PistolFire();
 	inline void UpdateALSHUD(float DeltaTime);
