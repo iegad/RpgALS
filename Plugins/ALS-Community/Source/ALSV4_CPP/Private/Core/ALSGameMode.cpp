@@ -11,10 +11,11 @@
 
 AALSGameMode::AALSGameMode() : Super() {
 	TracerPool = CreateDefaultSubobject<UALSActorPoolComponent>(TEXT("TracerPool"));
+	MarkerPool = CreateDefaultSubobject<UALSActorPoolComponent>(TEXT("MarkerPool"));
 }
 
 void 
-AALSGameMode::PlayEffect(EPhysicalSurface Surface, const FVector& Location, const FVector& Normal, UParticleSystem* AdditiveVFX) {
+AALSGameMode::PlayEffect(EPhysicalSurface Surface, const FVector& Location, const FRotator& Rotation, UParticleSystem* AdditiveVFX) {
 	UWorld* World = GetWorld();
 	if (!World) {
 		return;
@@ -24,8 +25,6 @@ AALSGameMode::PlayEffect(EPhysicalSurface Surface, const FVector& Location, cons
 
 	UParticleSystem* Particle = EnvironmentVFX.FindRef(PhysicalMaterial);
 	USoundBase* Sound = EnvironmentSFX.FindRef(PhysicalMaterial);
-
-	const FRotator&& Rotation = Normal.ToOrientationRotator();
 
 	if (Sound) {
 		UGameplayStatics::SpawnSoundAtLocation(World, Sound, Location, Rotation);

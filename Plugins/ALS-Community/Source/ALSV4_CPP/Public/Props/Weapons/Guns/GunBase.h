@@ -5,6 +5,7 @@
 #include "GunBase.generated.h"
 
 class ATracerBase;
+class AMarkerBase;
 
 UCLASS()
 class ALSV4_CPP_API AGunBase : public AWeaponBase {
@@ -22,6 +23,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ATracerBase> TracerBase;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AMarkerBase> MarkerBase;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Recoil = 0.f;

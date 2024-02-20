@@ -10,6 +10,7 @@
 #include "Core/ALSGameMode.h"
 #include "Components/ALSActorPoolComponent.h"
 #include "Props/Weapons/TracerBase.h"
+#include "Props/Weapons/MarkerBase.h"
 
 AGunBase::AGunBase() : Super() {
 	MuzzleScene = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleScene"));
@@ -89,16 +90,21 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 		bool bTracer = true;
 
 		if (OutHitResult.bBlockingHit && !OutHitResult.bStartPenetrating) {
+			End = OutHitResult.ImpactPoint;
+			const FRotator&& EndRotation = OutHitResult.Normal.ToOrientationRotator();
+
 			if (OutHitResult.Distance < 200) {
 				// 如果距离2米以内就不显示Tracer.
 				bTracer = false;
 			}
 
-			End = OutHitResult.ImpactPoint;
+			if (MarkerBase) {
+				ALSGameMode->MarkerPool->Get(MarkerBase, End, EndRotation, 5.f);
+			}
 
 			if (OutHitResult.PhysMaterial.IsValid()) {
 				// 播放环境特效
-				ALSGameMode->PlayEffect(OutHitResult.PhysMaterial->SurfaceType, End, OutHitResult.Normal, WeaponEffectsOptions.HittedEffects);
+				ALSGameMode->PlayEffect(OutHitResult.PhysMaterial->SurfaceType, End, EndRotation, WeaponEffectsOptions.HittedEffects);
 			}
 
 			AALSCharacter* HitCharacter = Cast<AALSCharacter>(OutHitResult.GetActor());
@@ -115,10 +121,7 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 		
 		if (TracerBase && bTracer) {
 			const FRotator&& MuzzleRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, End);
-			auto* Actor = ALSGameMode->TracerPool->Get(TracerBase, MuzzleLocation, MuzzleRotation, 2.f);
-			if (!Actor) {
-				ALS_ERROR(TEXT("TracerPool->Get failed: %s:%d"), __FILEW__, __LINE__);
-			}
+			ALSGameMode->TracerPool->Get(TracerBase, MuzzleLocation, MuzzleRotation, 2.f);
 		}
 	} while (0);
 }

@@ -134,6 +134,7 @@ UALSActorPoolComponent::CheckActorLifeSpan() {
 			Node = Node->GetNextNode();
 			ActivePool.RemoveNode(DeleteNode);
 			UnactivePool.PushLast(Actor);
+			Actor->SetActive(false);
 			continue;
 		}
 

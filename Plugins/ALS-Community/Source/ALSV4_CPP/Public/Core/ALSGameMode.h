@@ -45,10 +45,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|ALSActor Pool")
 	TObjectPtr<UALSActorPoolComponent> TracerPool;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|ALSActor Pool")
+	TObjectPtr<UALSActorPoolComponent> MarkerPool;
+
 public:
 	AALSGameMode();
 
-	void PlayEffect(EPhysicalSurface Surface, const FVector& Location, const FVector& Normal, UParticleSystem* AdditiveVFX = nullptr);
+	void PlayEffect(EPhysicalSurface Surface, const FVector& Location, const FRotator& Rotation, UParticleSystem* AdditiveVFX = nullptr);
 	
 protected:
 	virtual void BeginPlay() override;
