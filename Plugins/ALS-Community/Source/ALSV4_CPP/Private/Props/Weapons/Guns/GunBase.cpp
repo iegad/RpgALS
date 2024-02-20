@@ -8,6 +8,7 @@
 #include "ALSLibrary.h"
 #include "Character/ALSCharacter.h"
 #include "Core/ALSGameMode.h"
+#include "Components/ALSActorPoolComponent.h"
 #include "Props/Weapons/TracerBase.h"
 
 AGunBase::AGunBase() : Super() {
@@ -50,7 +51,6 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 		WeaponAttackOptions.AttackCD = WeaponAttackOptions.AttackInterval;
 
 		const FVector&& MuzzleLocation = Mesh->GetSocketLocation(MuzzleSocketName);
-		//const FRotator&& MuzzleRotation = Mesh->GetSocketRotation(MuzzleSocketName);
 		const FVector&& CameraLocation = PlayerCameraManager->GetCameraLocation();
 		const FRotator&& CameraRotation = PlayerCameraManager->GetCameraRotation();
 		const FVector&& CameraForward = CameraRotation.Vector();
@@ -114,8 +114,8 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 		}
 		
 		if (TracerBase && bTracer) {
-			FRotator MuzzleRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, End);
-			auto* Actor = ALSGameMode->GetALSActor(TracerBase, MuzzleLocation, MuzzleRotation, 2.f);
+			const FRotator&& MuzzleRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, End);
+			auto* Actor = ALSGameMode->TracerPool->Get(TracerBase, MuzzleLocation, MuzzleRotation, 2.f);
 			if (!Actor) {
 				ALS_ERROR(TEXT("TracerPool->Get failed: %s:%d"), __FILEW__, __LINE__);
 			}

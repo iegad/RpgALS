@@ -1,12 +1,10 @@
 #pragma once
 
-#include "Containers/Deque.h"
-
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
 #include "ALSGameMode.generated.h"
 
-class AALSActor;
+class UALSActorPoolComponent;
 
 UENUM()
 enum class EEnvironmentPhysicalMaterials {
@@ -44,21 +42,14 @@ public:
 		{EEnvironmentPhysicalMaterials::Flesh, nullptr},
 	};
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|ALSActor Pool")
+	TObjectPtr<UALSActorPoolComponent> TracerPool;
+
 public:
 	AALSGameMode();
 
 	void PlayEffect(EPhysicalSurface Surface, const FVector& Location, const FVector& Normal, UParticleSystem* AdditiveVFX = nullptr);
-	AALSActor* GetALSActor(UClass* Class, const FVector& Location, const FRotator& Rotation, const float LifeSpan);
-	void PutALSActor(AALSActor* Actor);
-
+	
 protected:
 	virtual void BeginPlay() override;
-	virtual void BeginDestroy() override;
-
-private:
-	void CheckActorLifeSpan();
-
-	TDeque<AALSActor*> UnactivePool;
-	TDoubleLinkedList<AALSActor*> ActivePool;
-	FTimerHandle LifeSpanTimer;
 };
