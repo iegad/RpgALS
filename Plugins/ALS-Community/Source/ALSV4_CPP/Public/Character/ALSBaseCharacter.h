@@ -1,15 +1,16 @@
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Components/TimelineComponent.h"
+#include "Engine/DataTable.h"
+#include "EnhancedInputComponent.h"
+
 #include "Library/ALSCharacterEnumLibrary.h"
 #include "Library/ALSCharacterStructLibrary.h"
-#include "Engine/DataTable.h"
-#include "GameFramework/Character.h"
-#include "EnhancedInputComponent.h"
 
 #include "ALSLibrary.h"
 
+#include "CoreMinimal.h"
+#include "GameFramework/Character.h"
 #include "ALSBaseCharacter.generated.h"
 
 // forward declarations
@@ -34,8 +35,9 @@ class ALSV4_CPP_API AALSBaseCharacter : public ACharacter {
 
 public:
 	AALSBaseCharacter(const FObjectInitializer& ObjectInitializer);
+	APropsBase* GetCurrentProps() const;
+	APropsBase* GetPropsFromOverlayState(EALSOverlayState Overlay) const;
 
-public:
 	void IA_Move(const FInputActionValue& Value);
 	void IA_Look(const FInputActionValue& Value);
 	void IA_Jump(const FInputActionValue& Value);
@@ -50,58 +52,17 @@ public:
 	void IA_AttackHold();
 	void IA_AttackTap();
 
-	UFUNCTION(BlueprintCallable, Category = "ALS|Movement")
-	FORCEINLINE class UALSCharacterMovementComponent* GetMyMovementComponent() const { return MyCharacterMovementComponent; }
-
 	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 	virtual void PostInitializeComponents() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	APropsBase* GetCurrentProps() const;
-	APropsBase* GetPropsFromOverlayState(EALSOverlayState Overlay) const;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ALS|Character State System")
-	FCharacterStateSystem CharacterStateSystem;
+public:
+	UFUNCTION(BlueprintCallable, Category = "ALS|Movement")
+	FORCEINLINE class UALSCharacterMovementComponent* GetMyMovementComponent() const { return ALSCharacterMovementComponent; }
 
 	UFUNCTION(BlueprintCallable, Category = "ALS|Character State System")
 	void Hit(float Damage);
-
-	/** Ragdoll System */
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Get Up Animations")
-	TMap<EALSOverlayState, UAnimMontage*> GetUpBackAnimationMap{
-		{EALSOverlayState::Default, nullptr},
-		{EALSOverlayState::Masculine, nullptr},
-		{EALSOverlayState::Feminine, nullptr},
-		{EALSOverlayState::Injured, nullptr},
-		{EALSOverlayState::HandsTied, nullptr},
-		{EALSOverlayState::Rifle, nullptr},
-		{EALSOverlayState::PistolOneHanded, nullptr},
-		{EALSOverlayState::PistolTwoHanded, nullptr},
-		{EALSOverlayState::Bow, nullptr},
-		{EALSOverlayState::Torch, nullptr},
-		{EALSOverlayState::Binoculars, nullptr},
-		{EALSOverlayState::Box, nullptr},
-		{EALSOverlayState::Barrel, nullptr},
-	};
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Get Up Animations")
-	TMap<EALSOverlayState, UAnimMontage*> GetUpFrontAnimationMap{
-		{EALSOverlayState::Default, nullptr},
-		{EALSOverlayState::Masculine, nullptr},
-		{EALSOverlayState::Feminine, nullptr},
-		{EALSOverlayState::Injured, nullptr},
-		{EALSOverlayState::HandsTied, nullptr},
-		{EALSOverlayState::Rifle, nullptr},
-		{EALSOverlayState::PistolOneHanded, nullptr},
-		{EALSOverlayState::PistolTwoHanded, nullptr},
-		{EALSOverlayState::Bow, nullptr},
-		{EALSOverlayState::Torch, nullptr},
-		{EALSOverlayState::Binoculars, nullptr},
-		{EALSOverlayState::Box, nullptr},
-		{EALSOverlayState::Barrel, nullptr},
-	};
 
 	/** Implement on BP to get required get up animation according to character's state */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ALS|Ragdoll System")
@@ -228,40 +189,31 @@ public:
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable, Category = "ALS|Character States")
 	void Multicast_RagdollEnd(FVector CharacterLocation);
 
-	/** Input */
-
-	UPROPERTY(BlueprintAssignable, Category = "ALS|Input")
-	FJumpPressedSignature JumpPressedDelegate;
-
-	UPROPERTY(BlueprintAssignable, Category = "ALS|Input")
-	FOnJumpedSignature OnJumpedDelegate;
-
-	UPROPERTY(BlueprintAssignable, Category = "ALS|Input")
-	FRagdollStateChangedSignature RagdollStateChangedDelegate;
-
-	UFUNCTION(BlueprintGetter, Category = "ALS|Input")
-	EALSStance GetDesiredStance() const { return DesiredStance; }
-
-	UFUNCTION(BlueprintSetter, Category = "ALS|Input")
-	void SetDesiredStance(EALSStance NewStance);
-
-	UFUNCTION(BlueprintCallable, Server, Reliable, Category = "ALS|Input")
-	void Server_SetDesiredStance(EALSStance NewStance);
-
 	UFUNCTION(BlueprintCallable, Category = "ALS|Character States")
 	void SetDesiredGait(EALSGait NewGait);
 
 	UFUNCTION(BlueprintCallable, Server, Reliable, Category = "ALS|Character States")
 	void Server_SetDesiredGait(EALSGait NewGait);
 
-	UFUNCTION(BlueprintGetter, Category = "ALS|Input")
-	EALSRotationMode GetDesiredRotationMode() const { return DesiredRotationMode; }
-
-	UFUNCTION(BlueprintSetter, Category = "ALS|Input")
-	void SetDesiredRotationMode(EALSRotationMode NewRotMode);
-
 	UFUNCTION(BlueprintCallable, Server, Reliable, Category = "ALS|Character States")
 	void Server_SetDesiredRotationMode(EALSRotationMode NewRotMode);
+
+	/** Input System */
+
+	UFUNCTION(BlueprintGetter, Category = "ALS|Input System")
+	EALSStance GetDesiredStance() const { return DesiredStance; }
+
+	UFUNCTION(BlueprintSetter, Category = "ALS|Input System")
+	void SetDesiredStance(EALSStance NewStance);
+
+	UFUNCTION(BlueprintCallable, Server, Reliable, Category = "ALS|Input System")
+	void Server_SetDesiredStance(EALSStance NewStance);
+
+	UFUNCTION(BlueprintGetter, Category = "ALS|Input System")
+	EALSRotationMode GetDesiredRotationMode() const { return DesiredRotationMode; }
+
+	UFUNCTION(BlueprintSetter, Category = "ALS|Input System")
+	void SetDesiredRotationMode(EALSRotationMode NewRotMode);
 
 	/** Rotation System */
 
@@ -294,23 +246,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Movement System")
 	void Replicated_PlayMontage(UAnimMontage* Montage, float PlayRate);
 	virtual void Replicated_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate);
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ALS|Movement System")
-	TMap<EALSOverlayState, UAnimMontage*> RollAnimationMap{
-		{EALSOverlayState::Default, nullptr},
-		{EALSOverlayState::Masculine, nullptr},
-		{EALSOverlayState::Feminine, nullptr},
-		{EALSOverlayState::Injured, nullptr},
-		{EALSOverlayState::HandsTied, nullptr},
-		{EALSOverlayState::Rifle, nullptr},
-		{EALSOverlayState::PistolOneHanded, nullptr},
-		{EALSOverlayState::PistolTwoHanded, nullptr},
-		{EALSOverlayState::Bow, nullptr},
-		{EALSOverlayState::Torch, nullptr},
-		{EALSOverlayState::Binoculars, nullptr},
-		{EALSOverlayState::Box, nullptr},
-		{EALSOverlayState::Barrel, nullptr},
-	};
 
 	/** Implement on BP to get required roll animation according to character's state */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ALS|Movement System")
@@ -443,38 +378,127 @@ protected:
 	UFUNCTION(Category = "ALS|Replication")
 	void OnRep_VisibleMesh(const USkeletalMesh* PreviousSkeletalMesh);
 
+public:
+	// --------------------------------------------------- 委托 ---------------------------------------------------
+	UPROPERTY(BlueprintAssignable, Category = "ALS|Input")
+	FJumpPressedSignature JumpPressedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "ALS|Input")
+	FOnJumpedSignature OnJumpedDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = "ALS|Input")
+	FRagdollStateChangedSignature RagdollStateChangedDelegate;
+
+	// --------------------------------------------------- 组件 ---------------------------------------------------
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "ALS|Components")
+	TObjectPtr<USkeletalMeshComponent> SkeletalMesh = nullptr;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|Components")
+	//TObjectPtr<UStaticMeshComponent> StaticMesh = nullptr;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<USceneComponent> SceneRifle;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<UChildActorComponent> ChildActorRifle;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<USceneComponent> ScenePistol;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<UChildActorComponent> ChildActorPistol;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
+	TObjectPtr<UWeaponComponent> WeaponComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|HUD System")
+	TSubclassOf<UALSHUD> ALSHUDClass;
+
+	// --------------------------------------------------- 属性 ---------------------------------------------------
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ALS|Character State System")
+	FCharacterStateSystem CharacterStateSystem;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Animations")
+	TMap<EALSOverlayState, UAnimMontage*> GetUpBackAnimationMap{
+		{EALSOverlayState::Default, nullptr},
+		{EALSOverlayState::Masculine, nullptr},
+		{EALSOverlayState::Feminine, nullptr},
+		{EALSOverlayState::Injured, nullptr},
+		{EALSOverlayState::HandsTied, nullptr},
+		{EALSOverlayState::Rifle, nullptr},
+		{EALSOverlayState::PistolOneHanded, nullptr},
+		{EALSOverlayState::PistolTwoHanded, nullptr},
+		{EALSOverlayState::Bow, nullptr},
+		{EALSOverlayState::Torch, nullptr},
+		{EALSOverlayState::Binoculars, nullptr},
+		{EALSOverlayState::Box, nullptr},
+		{EALSOverlayState::Barrel, nullptr},
+	};
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Animations")
+	TMap<EALSOverlayState, UAnimMontage*> GetUpFrontAnimationMap{
+		{EALSOverlayState::Default, nullptr},
+		{EALSOverlayState::Masculine, nullptr},
+		{EALSOverlayState::Feminine, nullptr},
+		{EALSOverlayState::Injured, nullptr},
+		{EALSOverlayState::HandsTied, nullptr},
+		{EALSOverlayState::Rifle, nullptr},
+		{EALSOverlayState::PistolOneHanded, nullptr},
+		{EALSOverlayState::PistolTwoHanded, nullptr},
+		{EALSOverlayState::Bow, nullptr},
+		{EALSOverlayState::Torch, nullptr},
+		{EALSOverlayState::Binoculars, nullptr},
+		{EALSOverlayState::Box, nullptr},
+		{EALSOverlayState::Barrel, nullptr},
+	};
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ALS|Animations")
+	TMap<EALSOverlayState, UAnimMontage*> RollAnimationMap{
+		{EALSOverlayState::Default, nullptr},
+		{EALSOverlayState::Masculine, nullptr},
+		{EALSOverlayState::Feminine, nullptr},
+		{EALSOverlayState::Injured, nullptr},
+		{EALSOverlayState::HandsTied, nullptr},
+		{EALSOverlayState::Rifle, nullptr},
+		{EALSOverlayState::PistolOneHanded, nullptr},
+		{EALSOverlayState::PistolTwoHanded, nullptr},
+		{EALSOverlayState::Bow, nullptr},
+		{EALSOverlayState::Torch, nullptr},
+		{EALSOverlayState::Binoculars, nullptr},
+		{EALSOverlayState::Box, nullptr},
+		{EALSOverlayState::Barrel, nullptr},
+	};
+
 protected:
-	/* Custom movement component*/
+	// --------------------------------------------------- 组件 ---------------------------------------------------
 	UPROPERTY()
-	TObjectPtr<UALSCharacterMovementComponent> MyCharacterMovementComponent;
-
-	/** Input */
-
-	UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category = "ALS|Input")
+	TObjectPtr<UALSCharacterMovementComponent> ALSCharacterMovementComponent; // 自定义移动组件
+	
+	// --------------------------------------------------- 属性 ---------------------------------------------------
+	UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category = "ALS|Input System")
 	EALSRotationMode DesiredRotationMode = EALSRotationMode::LookingDirection;
 
-	UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category = "ALS|Input")
+	UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category = "ALS|Input System")
 	EALSGait DesiredGait = EALSGait::Running;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "ALS|Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "ALS|Input System")
 	EALSStance DesiredStance = EALSStance::Standing;
 
-	UPROPERTY(EditDefaultsOnly, Category = "ALS|Input", BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Input System")
 	float LookUpDownRate = 1.25f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "ALS|Input", BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Input System")
 	float LookLeftRightRate = 1.25f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "ALS|Input", BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Input System")
 	float RollDoubleTapTimeout = 0.3f;
 
-	UPROPERTY(Category = "ALS|Input", BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "ALS|Input System")
 	bool bBreakFall = false;
 
-	UPROPERTY(Category = "ALS|Input", BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "ALS|Input System")
 	bool bSprintHeld = false;
-
-	/** Camera System */
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ALS|Camera System")
 	float ThirdPersonFOV = 90.0f;
@@ -485,12 +509,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ALS|Camera System")
 	bool bRightShoulder = false;
 
-	/** Movement System */
+	UPROPERTY(BlueprintReadOnly, Category = "ALS|Camera System")
+	TObjectPtr<UALSPlayerCameraBehavior> CameraBehavior;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Movement System")
 	FDataTableRowHandle MovementModel;
-
-	/** Essential Information */
 
 	UPROPERTY(BlueprintReadOnly, Category = "ALS|Essential Information")
 	FVector Acceleration = FVector::ZeroVector;
@@ -531,44 +554,38 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ALS|Skeletal Mesh", ReplicatedUsing = OnRep_VisibleMesh)
 	TObjectPtr<USkeletalMesh> VisibleMesh = nullptr;
 
-	/** State Values */
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ALS|State Values", ReplicatedUsing = OnRep_OverlayState)
 	EALSOverlayState OverlayState = EALSOverlayState::Default;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ALS|State Values")
+	UPROPERTY(BlueprintReadOnly, Category = "ALS|Locomotion State Values")
 	EALSGroundedEntryState GroundedEntryState;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ALS|State Values")
+	UPROPERTY(BlueprintReadOnly, Category = "ALS|Locomotion State Values")
 	EALSMovementState MovementState = EALSMovementState::None;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ALS|State Values")
+	UPROPERTY(BlueprintReadOnly, Category = "ALS|Locomotion State Values")
 	EALSMovementState PrevMovementState = EALSMovementState::None;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ALS|State Values")
+	UPROPERTY(BlueprintReadOnly, Category = "ALS|Locomotion State Values")
 	EALSMovementAction MovementAction = EALSMovementAction::None;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ALS|State Values", ReplicatedUsing = OnRep_RotationMode)
+	UPROPERTY(BlueprintReadOnly, Category = "ALS|Locomotion State Values", ReplicatedUsing = OnRep_RotationMode)
 	EALSRotationMode RotationMode = EALSRotationMode::LookingDirection;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ALS|State Values")
+	UPROPERTY(BlueprintReadOnly, Category = "ALS|Locomotion State Values")
 	EALSGait Gait = EALSGait::Walking;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|State Values")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Locomotion State Values")
 	EALSStance Stance = EALSStance::Standing;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|State Values", ReplicatedUsing = OnRep_ViewMode)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Locomotion State Values", ReplicatedUsing = OnRep_ViewMode)
 	EALSViewMode ViewMode = EALSViewMode::ThirdPerson;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ALS|State Values")
+	UPROPERTY(BlueprintReadOnly, Category = "ALS|Locomotion State Values")
 	int32 OverlayOverrideState = 0;
-
-	/** Movement System */
 
 	UPROPERTY(BlueprintReadOnly, Category = "ALS|Movement System")
 	FALSMovementStateSettings MovementData;
-
-	/** Rotation System */
 
 	UPROPERTY(BlueprintReadOnly, Category = "ALS|Rotation System")
 	FRotator TargetRotation = FRotator::ZeroRotator;
@@ -579,17 +596,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "ALS|Rotation System")
 	float YawOffset = 0.0f;
 
-	/** Breakfall System */
-
 	/** If player hits to the ground with a specified amount of velocity, switch to breakfall state */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "ALS|Breakfall System")
 	bool bBreakfallOnLand = true;
 
 	/** If player hits to the ground with an amount of velocity greater than specified value, switch to breakfall state */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "ALS|Breakfall System", meta = (EditCondition ="bBreakfallOnLand"))
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "ALS|Breakfall System", meta = (EditCondition = "bBreakfallOnLand"))
 	float BreakfallOnLandVelocity = 700.0f;
-
-	/** Ragdoll System */
 
 	/** If the skeleton uses a reversed pelvis bone, flip the calculation operator */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "ALS|Ragdoll System")
@@ -600,7 +613,7 @@ protected:
 	bool bRagdollOnLand = false;
 
 	/** If player hits to the ground with an amount of velocity greater than specified value, switch to ragdoll state */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "ALS|Ragdoll System", meta = (EditCondition ="bRagdollOnLand"))
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "ALS|Ragdoll System", meta = (EditCondition = "bRagdollOnLand"))
 	float RagdollOnLandVelocity = 1000.0f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "ALS|Ragdoll System")
@@ -614,6 +627,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "ALS|Ragdoll System")
 	FVector TargetRagdollLocation = FVector::ZeroVector;
+
+	// --------------------------------------------------- 字段 ---------------------------------------------------
 
 	/* Server ragdoll pull force storage*/
 	float ServerRagdollPull = 0.0f;
@@ -629,9 +644,6 @@ protected:
 
 	float PreviousAimYaw = 0.0f;
 
-	UPROPERTY(BlueprintReadOnly, Category = "ALS|Camera")
-	TObjectPtr<UALSPlayerCameraBehavior> CameraBehavior;
-
 	/** Last time the 'first' crouch/roll button is pressed */
 	float LastStanceInputTime = 0.0f;
 
@@ -643,34 +655,6 @@ protected:
 
 	/** We won't use curve based movement and a few other features on networked games */
 	bool bEnableNetworkOptimizations = false;
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|Components")
-	TObjectPtr<USceneComponent> HeldObjectRoot = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|Components")
-	TObjectPtr<USkeletalMeshComponent> SkeletalMesh = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS|Components")
-	TObjectPtr<UStaticMeshComponent> StaticMesh = nullptr;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
-	TObjectPtr<USceneComponent> SceneRifle;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
-	TObjectPtr<UChildActorComponent> ChildActorRifle;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
-	TObjectPtr<USceneComponent> ScenePistol;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
-	TObjectPtr<UChildActorComponent> ChildActorPistol;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props System")
-	TObjectPtr<UWeaponComponent> WeaponComponent;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|HUD System")
-	TSubclassOf<UALSHUD> ALSHUDClass;
 
 private:
 	inline void CreatePropsSystem();

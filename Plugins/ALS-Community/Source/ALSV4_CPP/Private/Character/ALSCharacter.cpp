@@ -28,15 +28,15 @@ AALSCharacter::UpdateHeldObject() {
 	AttachToHand(NewStaticMesh, NewSkeletalMesh, AnimClass, LeftHand, { 0, 0, 0 });
 }
 
-void AALSCharacter::ClearHeldObject()
-{
-	StaticMesh->SetStaticMesh(nullptr);
+void 
+AALSCharacter::ClearHeldObject() {
+	// StaticMesh->SetStaticMesh(nullptr);
 	SkeletalMesh->SetSkeletalMesh(nullptr);
 	SkeletalMesh->SetAnimInstanceClass(nullptr);
 }
 
-void AALSCharacter::AttachToHand(UStaticMesh* NewStaticMesh, USkeletalMesh* NewSkeletalMesh, UClass* NewAnimClass, bool bLeftHand, FVector Offset)
-{
+void 
+AALSCharacter::AttachToHand(UStaticMesh* NewStaticMesh, USkeletalMesh* NewSkeletalMesh, UClass* NewAnimClass, bool bLeftHand, FVector Offset) {
 	ClearHeldObject();
 
 	//if (IsValid(NewStaticMesh))
@@ -67,35 +67,35 @@ void AALSCharacter::AttachToHand(UStaticMesh* NewStaticMesh, USkeletalMesh* NewS
 	//HeldObjectRoot->SetRelativeLocation(Offset);
 }
 
-void AALSCharacter::RagdollStart()
-{
+void 
+AALSCharacter::RagdollStart() {
 	ClearHeldObject();
 	Super::RagdollStart();
 }
 
-void AALSCharacter::RagdollEnd()
-{
+void 
+AALSCharacter::RagdollEnd() {
 	Super::RagdollEnd();
 	UpdateHeldObject();
 }
 
-ECollisionChannel AALSCharacter::GetThirdPersonTraceParams(FVector& TraceOrigin, float& TraceRadius)
-{
+ECollisionChannel 
+AALSCharacter::GetThirdPersonTraceParams(FVector& TraceOrigin, float& TraceRadius) {
 	const FName CameraSocketName = bRightShoulder ? TEXT("TP_CameraTrace_R") : TEXT("TP_CameraTrace_L");
 	TraceOrigin = GetMesh()->GetSocketLocation(CameraSocketName);
 	TraceRadius = 15.0f;
 	return ECC_Camera;
 }
 
-FTransform AALSCharacter::GetThirdPersonPivotTarget()
-{
+FTransform 
+AALSCharacter::GetThirdPersonPivotTarget() {
 	return FTransform(GetActorRotation(),
 	                  (GetMesh()->GetSocketLocation(TEXT("Head")) + GetMesh()->GetSocketLocation(TEXT("root"))) / 2.0f,
 	                  FVector::OneVector);
 }
 
-FVector AALSCharacter::GetFirstPersonCameraTarget()
-{
+FVector
+AALSCharacter::GetFirstPersonCameraTarget() {
 	return GetMesh()->GetSocketLocation(TEXT("FP_Camera"));
 }
 

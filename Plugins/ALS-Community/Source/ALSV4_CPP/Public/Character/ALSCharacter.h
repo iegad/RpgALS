@@ -6,6 +6,7 @@
 
 class APropsBase;
 class UWeaponComponent;
+
 /**
  * Specialized character class, with additional features like held object etc.
  */
