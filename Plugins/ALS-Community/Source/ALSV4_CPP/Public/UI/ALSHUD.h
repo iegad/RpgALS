@@ -42,6 +42,6 @@ private:
 
 	float CrosshairValue = 0.f;
 	float Spread = 5.f;
-	float Length = 6.f;
-	float Thickness = 2.5f;
+	float Length = 10.f;
+	float Thickness = 4.f;
 };
