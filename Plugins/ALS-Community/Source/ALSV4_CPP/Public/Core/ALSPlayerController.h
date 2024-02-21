@@ -9,20 +9,18 @@
 
 class AALSBaseCharacter;
 class UInputMappingContext;
+class UALSGameSettings;
 
 /**
  * Player controller class
  */
 UCLASS(Blueprintable, BlueprintType)
-class ALSV4_CPP_API AALSPlayerController : public APlayerController
-{
+class ALSV4_CPP_API AALSPlayerController : public APlayerController {
 	GENERATED_BODY()
 
 public:
 	virtual void OnPossess(APawn* NewPawn) override;
-
 	virtual void OnRep_Pawn() override;
-
 	virtual void SetupInputComponent() override;
 
 protected:
@@ -45,6 +43,7 @@ protected:
 	void IA_Pistol();
 	void IA_AttackHold();
 	void IA_AttackTap();
+	void IA_Settings();
 
 	// Debug actions
 	void DebugToggleHudAction(const FInputActionValue& Value);
@@ -69,4 +68,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debug Input System")
 	FDebugInputSystem DebugInputSystem;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UALSGameSettings> ALSGameSettingsClass;
+
+private:
+	TObjectPtr<UALSGameSettings> UI_ALSGameSettings;
 };

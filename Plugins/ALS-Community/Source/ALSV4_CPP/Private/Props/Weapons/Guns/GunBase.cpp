@@ -36,15 +36,21 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 
 		UWorld* World = GetWorld();
 		if (!World) {
+			ALS_ERROR(TEXT("GetWorld() called failed: %s:%d"), __FILEW__, __LINE__);
 			break;
 		}
 
 		const APlayerCameraManager* PlayerCameraManager = UGameplayStatics::GetPlayerCameraManager(World, 0);
 		if (!PlayerCameraManager) {
+			ALS_ERROR(TEXT("GetPlayerCameraManager() called failed: %s:%d"), __FILEW__, __LINE__);
 			break;
 		}
 
-		UALSGameInstance* GameInstance = UALSLibrary::Instance()->GetGameInstance(World);
+		UALSGameInstance* GameInstance = Cast<UALSGameInstance>(GetGameInstance());
+		if (!GameInstance) {
+			ALS_ERROR(TEXT("GameInstance is not ALSGameInstance: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
 
 		WeaponAttackOptions.AttackCD = WeaponAttackOptions.AttackInterval;
 
@@ -95,7 +101,7 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 				bTracer = false;
 			}
 
-			if (MarkerClass && GameInstance) {
+			if (MarkerClass) {
 				GameInstance->ALSActorPool->Get(World, MarkerClass, End, EndRotation, 5.f);
 			}
 
@@ -120,7 +126,7 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 			Character->AddControllerPitchInput(-FMath::FRandRange(0, Recoil));
 		}
 		
-		if (TracerClass && bTracer && GameInstance) {
+		if (TracerClass && bTracer) {
 			const FRotator&& MuzzleRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, End);
 			GameInstance->ALSActorPool->Get(World, TracerClass, MuzzleLocation, MuzzleRotation, 2.f);
 		}

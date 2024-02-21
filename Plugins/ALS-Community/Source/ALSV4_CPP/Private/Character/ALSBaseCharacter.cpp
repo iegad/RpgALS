@@ -23,14 +23,14 @@
 #include "Components/WeaponComponent.h"
 #include "UI/ALSHUD.h"
 
-const FName NAME_FP_Camera(TEXT("FP_Camera"));
-const FName NAME_Pelvis(TEXT("Pelvis"));
-const FName NAME_RagdollPose(TEXT("RagdollPose"));
-const FName NAME_RotationAmount(TEXT("RotationAmount"));
-const FName NAME_YawOffset(TEXT("YawOffset"));
-const FName NAME_pelvis(TEXT("pelvis"));
-const FName NAME_root(TEXT("root"));
-const FName NAME_spine_03(TEXT("spine_03"));
+
+static const FName NAME_Pelvis(TEXT("Pelvis"));
+static const FName NAME_RagdollPose(TEXT("RagdollPose"));
+static const FName NAME_RotationAmount(TEXT("RotationAmount"));
+static const FName NAME_YawOffset(TEXT("YawOffset"));
+static const FName NAME_pelvis(TEXT("pelvis"));
+static const FName NAME_root(TEXT("root"));
+static const FName NAME_spine_03(TEXT("spine_03"));
 
 AALSBaseCharacter::AALSBaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UALSCharacterMovementComponent>(CharacterMovementComponentName)) {
@@ -593,21 +593,19 @@ AALSBaseCharacter::SetRotationMode(const EALSRotationMode NewRotationMode, bool 
 	}
 }
 
-void AALSBaseCharacter::Server_SetRotationMode_Implementation(EALSRotationMode NewRotationMode, bool bForce)
-{
+void 
+AALSBaseCharacter::Server_SetRotationMode_Implementation(EALSRotationMode NewRotationMode, bool bForce) {
 	SetRotationMode(NewRotationMode, bForce);
 }
 
-void AALSBaseCharacter::SetViewMode(const EALSViewMode NewViewMode, bool bForce)
-{
-	if (bForce || ViewMode != NewViewMode)
-	{
+void 
+AALSBaseCharacter::SetViewMode(const EALSViewMode NewViewMode, bool bForce) {
+	if (bForce || ViewMode != NewViewMode) {
 		const EALSViewMode Prev = ViewMode;
 		ViewMode = NewViewMode;
 		OnViewModeChanged(Prev);
 
-		if (GetLocalRole() == ROLE_AutonomousProxy)
-		{
+		if (GetLocalRole() == ROLE_AutonomousProxy) {
 			Server_SetViewMode(NewViewMode, bForce);
 		}
 	}
@@ -618,46 +616,40 @@ void AALSBaseCharacter::Server_SetViewMode_Implementation(EALSViewMode NewViewMo
 	SetViewMode(NewViewMode, bForce);
 }
 
-void AALSBaseCharacter::SetOverlayState(const EALSOverlayState NewState, bool bForce)
-{
-	if (bForce || OverlayState != NewState)
-	{
+void 
+AALSBaseCharacter::SetOverlayState(const EALSOverlayState NewState, bool bForce) {
+	if (bForce || OverlayState != NewState) {
 		const EALSOverlayState Prev = OverlayState;
 		OverlayState = NewState;
 		OnOverlayStateChanged(Prev);
 
-		if (GetLocalRole() == ROLE_AutonomousProxy)
-		{
+		if (GetLocalRole() == ROLE_AutonomousProxy) {
 			Server_SetOverlayState(NewState, bForce);
 		}
 	}
 }
 
-void AALSBaseCharacter::SetGroundedEntryState(EALSGroundedEntryState NewState)
-{
+void 
+AALSBaseCharacter::SetGroundedEntryState(EALSGroundedEntryState NewState) {
 	GroundedEntryState = NewState;
 }
 
-
-void AALSBaseCharacter::Server_SetOverlayState_Implementation(EALSOverlayState NewState, bool bForce)
-{
+void 
+AALSBaseCharacter::Server_SetOverlayState_Implementation(EALSOverlayState NewState, bool bForce) {
 	SetOverlayState(NewState, bForce);
 }
 
-void AALSBaseCharacter::EventOnLanded()
-{
+void 
+AALSBaseCharacter::EventOnLanded() {
 	const float VelZ = FMath::Abs(GetCharacterMovement()->Velocity.Z);
 
-	if (bRagdollOnLand && VelZ > RagdollOnLandVelocity)
-	{
+	if (bRagdollOnLand && VelZ > RagdollOnLandVelocity) {
 		ReplicatedRagdollStart();
 	}
-	else if (bBreakfallOnLand && bHasMovementInput && VelZ >= BreakfallOnLandVelocity)
-	{
+	else if (bBreakfallOnLand && bHasMovementInput && VelZ >= BreakfallOnLandVelocity) {
 		OnBreakfall();
 	}
-	else
-	{
+	else {
 		GetCharacterMovement()->BrakingFrictionFactor = bHasMovementInput ? 0.5f : 3.0f;
 
 		// After 0.5 secs, reset braking friction factor to zero
@@ -666,26 +658,23 @@ void AALSBaseCharacter::EventOnLanded()
 	}
 }
 
-void AALSBaseCharacter::Multicast_OnLanded_Implementation()
-{
-	if (!IsLocallyControlled())
-	{
+void 
+AALSBaseCharacter::Multicast_OnLanded_Implementation() {
+	if (!IsLocallyControlled()) {
 		EventOnLanded();
 	}
 }
 
-void AALSBaseCharacter::EventOnJumped()
-{
+void
+AALSBaseCharacter::EventOnJumped() {
 	// Set the new In Air Rotation to the velocity rotation if speed is greater than 100.
 	InAirRotation = Speed > 100.0f ? LastVelocityRotation : GetActorRotation();
-
 	OnJumpedDelegate.Broadcast();
 }
 
-void AALSBaseCharacter::Server_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate)
-{
-	if (GetMesh()->GetAnimInstance())
-	{
+void 
+AALSBaseCharacter::Server_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate) {
+	if (GetMesh()->GetAnimInstance()) {
 		GetMesh()->GetAnimInstance()->Montage_Play(Montage, PlayRate);
 	}
 
@@ -693,50 +682,48 @@ void AALSBaseCharacter::Server_PlayMontage_Implementation(UAnimMontage* Montage,
 	Multicast_PlayMontage(Montage, PlayRate);
 }
 
-void AALSBaseCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate)
-{
-	if (GetMesh()->GetAnimInstance() && !IsLocallyControlled())
-	{
+void 
+AALSBaseCharacter::Multicast_PlayMontage_Implementation(UAnimMontage* Montage, float PlayRate) {
+	if (GetMesh()->GetAnimInstance() && !IsLocallyControlled()) {
 		GetMesh()->GetAnimInstance()->Montage_Play(Montage, PlayRate);
 	}
 }
 
-void AALSBaseCharacter::Multicast_OnJumped_Implementation()
-{
-	if (!IsLocallyControlled())
-	{
+void 
+AALSBaseCharacter::Multicast_OnJumped_Implementation() {
+	if (!IsLocallyControlled()) {
 		EventOnJumped();
 	}
 }
 
-void AALSBaseCharacter::Server_RagdollStart_Implementation()
-{
+void 
+AALSBaseCharacter::Server_RagdollStart_Implementation() {
 	Multicast_RagdollStart();
 }
 
-void AALSBaseCharacter::Multicast_RagdollStart_Implementation()
-{
+void 
+AALSBaseCharacter::Multicast_RagdollStart_Implementation() {
 	RagdollStart();
 }
 
-void AALSBaseCharacter::Server_RagdollEnd_Implementation(FVector CharacterLocation)
-{
+void 
+AALSBaseCharacter::Server_RagdollEnd_Implementation(FVector CharacterLocation) {
 	Multicast_RagdollEnd(CharacterLocation);
 }
 
-void AALSBaseCharacter::Multicast_RagdollEnd_Implementation(FVector CharacterLocation)
-{
+void 
+AALSBaseCharacter::Multicast_RagdollEnd_Implementation(FVector CharacterLocation) {
 	RagdollEnd();
 }
 
-void AALSBaseCharacter::SetActorLocationAndTargetRotation(FVector NewLocation, FRotator NewRotation)
-{
+void 
+AALSBaseCharacter::SetActorLocationAndTargetRotation(FVector NewLocation, FRotator NewRotation) {
 	SetActorLocationAndRotation(NewLocation, NewRotation);
 	TargetRotation = NewRotation;
 }
 
-void AALSBaseCharacter::SetMovementModel()
-{
+void 
+AALSBaseCharacter::SetMovementModel() {
 	const FString ContextString = GetFullName();
 	FALSMovementStateSettings* OutRow =
 		MovementModel.DataTable->FindRow<FALSMovementStateSettings>(MovementModel.RowName, ContextString);
@@ -744,8 +731,8 @@ void AALSBaseCharacter::SetMovementModel()
 	MovementData = *OutRow;
 }
 
-void AALSBaseCharacter::ForceUpdateCharacterState()
-{
+void 
+AALSBaseCharacter::ForceUpdateCharacterState() {
 	SetGait(DesiredGait, true);
 	SetStance(DesiredStance, true);
 	SetRotationMode(DesiredRotationMode, true);
@@ -755,38 +742,31 @@ void AALSBaseCharacter::ForceUpdateCharacterState()
 	SetMovementAction(MovementAction, true);
 }
 
-FALSMovementSettings AALSBaseCharacter::GetTargetMovementSettings() const
-{
-	if (RotationMode == EALSRotationMode::VelocityDirection)
-	{
-		if (Stance == EALSStance::Standing)
-		{
+FALSMovementSettings 
+AALSBaseCharacter::GetTargetMovementSettings() const {
+	if (RotationMode == EALSRotationMode::VelocityDirection) {
+		if (Stance == EALSStance::Standing) {
 			return MovementData.VelocityDirection.Standing;
 		}
-		if (Stance == EALSStance::Crouching)
-		{
+
+		if (Stance == EALSStance::Crouching) {
 			return MovementData.VelocityDirection.Crouching;
 		}
 	}
-	else if (RotationMode == EALSRotationMode::LookingDirection)
-	{
-		if (Stance == EALSStance::Standing)
-		{
+	else if (RotationMode == EALSRotationMode::LookingDirection) {
+		if (Stance == EALSStance::Standing) {
 			return MovementData.LookingDirection.Standing;
 		}
-		if (Stance == EALSStance::Crouching)
-		{
+
+		if (Stance == EALSStance::Crouching) {
 			return MovementData.LookingDirection.Crouching;
 		}
 	}
-	else if (RotationMode == EALSRotationMode::Aiming)
-	{
-		if (Stance == EALSStance::Standing)
-		{
+	else if (RotationMode == EALSRotationMode::Aiming) {
+		if (Stance == EALSStance::Standing) {
 			return MovementData.Aiming.Standing;
 		}
-		if (Stance == EALSStance::Crouching)
-		{
+		if (Stance == EALSStance::Crouching) {
 			return MovementData.Aiming.Crouching;
 		}
 	}
@@ -795,26 +775,23 @@ FALSMovementSettings AALSBaseCharacter::GetTargetMovementSettings() const
 	return MovementData.VelocityDirection.Standing;
 }
 
-bool AALSBaseCharacter::CanSprint() const
-{
+bool 
+AALSBaseCharacter::CanSprint() const {
 	// Determine if the character is currently able to sprint based on the Rotation mode and current acceleration
 	// (input) rotation. If the character is in the Looking Rotation mode, only allow sprinting if there is full
 	// movement input and it is faced forward relative to the camera + or - 50 degrees.
 
-	if (!bHasMovementInput || RotationMode == EALSRotationMode::Aiming)
-	{
+	if (!bHasMovementInput || RotationMode == EALSRotationMode::Aiming) {
 		return false;
 	}
 
 	const bool bValidInputAmount = MovementInputAmount > 0.9f;
 
-	if (RotationMode == EALSRotationMode::VelocityDirection)
-	{
+	if (RotationMode == EALSRotationMode::VelocityDirection) {
 		return bValidInputAmount;
 	}
 
-	if (RotationMode == EALSRotationMode::LookingDirection)
-	{
+	if (RotationMode == EALSRotationMode::LookingDirection) {
 		const FRotator AccRot = ReplicatedCurrentAcceleration.ToOrientationRotator();
 		FRotator Delta = AccRot - AimingRotation;
 		Delta.Normalize();
@@ -825,76 +802,69 @@ bool AALSBaseCharacter::CanSprint() const
 	return false;
 }
 
-FVector AALSBaseCharacter::GetMovementInput() const
-{
+FVector 
+AALSBaseCharacter::GetMovementInput() const {
 	return ReplicatedCurrentAcceleration;
 }
 
-float AALSBaseCharacter::GetAnimCurveValue(FName CurveName) const
-{
-	if (GetMesh()->GetAnimInstance())
-	{
-		return GetMesh()->GetAnimInstance()->GetCurveValue(CurveName);
-	}
-
-	return 0.0f;
+float 
+AALSBaseCharacter::GetAnimCurveValue(FName CurveName) const {
+	return GetMesh()->GetAnimInstance() ? GetMesh()->GetAnimInstance()->GetCurveValue(CurveName) : 0.f;
 }
 
-void AALSBaseCharacter::SetVisibleMesh(USkeletalMesh* NewVisibleMesh)
-{
-	if (VisibleMesh != NewVisibleMesh)
-	{
+void 
+AALSBaseCharacter::SetVisibleMesh(USkeletalMesh* NewVisibleMesh) {
+	if (VisibleMesh != NewVisibleMesh) {
 		const USkeletalMesh* Prev = VisibleMesh;
 		VisibleMesh = NewVisibleMesh;
 		OnVisibleMeshChanged(Prev);
 
-		if (GetLocalRole() != ROLE_Authority)
-		{
+		if (GetLocalRole() != ROLE_Authority) {
 			Server_SetVisibleMesh(NewVisibleMesh);
 		}
 	}
 }
 
-void AALSBaseCharacter::Server_SetVisibleMesh_Implementation(USkeletalMesh* NewVisibleMesh)
-{
+void 
+AALSBaseCharacter::Server_SetVisibleMesh_Implementation(USkeletalMesh* NewVisibleMesh) {
 	SetVisibleMesh(NewVisibleMesh);
 }
 
-void AALSBaseCharacter::SetRightShoulder(bool bNewRightShoulder)
-{
+void 
+AALSBaseCharacter::SetRightShoulder(bool bNewRightShoulder) {
 	bRightShoulder = bNewRightShoulder;
-	if (CameraBehavior)
-	{
+	if (CameraBehavior) {
 		CameraBehavior->bRightShoulder = bRightShoulder;
 	}
 }
 
-ECollisionChannel AALSBaseCharacter::GetThirdPersonTraceParams(FVector& TraceOrigin, float& TraceRadius)
-{
+ECollisionChannel 
+AALSBaseCharacter::GetThirdPersonTraceParams(FVector& TraceOrigin, float& TraceRadius) {
 	TraceOrigin = GetActorLocation();
 	TraceRadius = 10.0f;
 	return ECC_Visibility;
 }
 
-FTransform AALSBaseCharacter::GetThirdPersonPivotTarget()
-{
+FTransform 
+AALSBaseCharacter::GetThirdPersonPivotTarget() {
 	return GetActorTransform();
 }
 
-FVector AALSBaseCharacter::GetFirstPersonCameraTarget()
-{
+FVector 
+AALSBaseCharacter::GetFirstPersonCameraTarget() {
+	static const FName NAME_FP_Camera(TEXT("FP_Camera"));
 	return GetMesh()->GetSocketLocation(NAME_FP_Camera);
 }
 
-void AALSBaseCharacter::GetCameraParameters(float& TPFOVOut, float& FPFOVOut, bool& bRightShoulderOut) const
-{
+void 
+AALSBaseCharacter::GetCameraParameters(float& TPFOVOut, float& FPFOVOut, bool& bRightShoulderOut) const {
 	TPFOVOut = ThirdPersonFOV;
 	FPFOVOut = FirstPersonFOV;
 	bRightShoulderOut = bRightShoulder;
 }
 
-void AALSBaseCharacter::RagdollUpdate(float DeltaTime)
-{
+void 
+AALSBaseCharacter::RagdollUpdate(float DeltaTime) {
 	GetMesh()->bOnlyAllowAutonomousTickPose = false;
 
 	// Set the Last Ragdoll Velocity.

@@ -3,13 +3,16 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "InputMappingContext.h"
 #include "Engine/LocalPlayer.h"
-#include "AI/ALSAIController.h"
-#include "Character/ALSCharacter.h"
-#include "CameraSystem/ALSPlayerCameraManager.h"
-#include "Components/ALSDebugComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "InputMappingContext.h"
+
+#include "AI/ALSAIController.h"
+#include "CameraSystem/ALSPlayerCameraManager.h"
+#include "Character/ALSCharacter.h"
+#include "Components/ALSDebugComponent.h"
+
+#include "UI/ALSGameSettings.h"
 
 void 
 AALSPlayerController::OnPossess(APawn* NewPawn) {
@@ -29,6 +32,10 @@ AALSPlayerController::OnPossess(APawn* NewPawn) {
 	UALSDebugComponent* DebugComp = Cast<UALSDebugComponent>(PossessedCharacter->GetComponentByClass(UALSDebugComponent::StaticClass()));
 	if (DebugComp) {
 		DebugComp->OnPlayerControllerInitialized(this);
+	}
+
+	if (ALSGameSettingsClass) {
+		UI_ALSGameSettings = CreateWidget<UALSGameSettings>(GetGameInstance(), ALSGameSettingsClass);
 	}
 }
 
@@ -66,6 +73,7 @@ AALSPlayerController::SetupInputComponent() {
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Aim, ETriggerEvent::Completed, this, &AALSPlayerController::IA_Aim);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_AttackHold, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_AttackHold);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_AttackTap, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_AttackTap);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Crouch, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Crouch);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Look, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Look);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Move, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Move);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Jump, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Jump);
@@ -74,8 +82,8 @@ AALSPlayerController::SetupInputComponent() {
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Rifle, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Rifle);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Roll, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Roll);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Sprint, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Sprint);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Crouch, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Crouch);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Walk, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Walk);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Settings, ETriggerEvent::Completed, this, &AALSPlayerController::IA_Settings);
 
 	EnhancedInputComponent->BindAction(DebugInputSystem.DebugFocusedCharacterCycleAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugFocusedCharacterCycleAction);
 	EnhancedInputComponent->BindAction(DebugInputSystem.DebugOpenOverlayMenuAction, ETriggerEvent::Triggered, this, &AALSPlayerController::DebugOpenOverlayMenuAction);
@@ -213,6 +221,40 @@ AALSPlayerController::IA_AttackTap() {
 	if (PossessedCharacter) {
 		PossessedCharacter->IA_AttackTap();
 	}
+}
+
+void 
+AALSPlayerController::IA_Settings() {
+	if (!UI_ALSGameSettings) {
+		return;
+	}
+
+	if (!UI_ALSGameSettings->IsInViewport()) {
+		UI_ALSGameSettings->AddToViewport();
+
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+		InputMode.SetWidgetToFocus(UI_ALSGameSettings->TakeWidget());
+		SetInputMode(InputMode);
+		SetShowMouseCursor(true);
+		return;
+	}
+
+	if (UI_ALSGameSettings->IsVisible()) {
+		UI_ALSGameSettings->SetVisibility(ESlateVisibility::Hidden);
+		SetInputMode(FInputModeGameOnly{});
+		SetShowMouseCursor(false);
+		return;
+	}
+
+	UI_ALSGameSettings->SetVisibility(ESlateVisibility::Visible);
+	FInputModeGameAndUI InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputMode.SetHideCursorDuringCapture(false);
+	InputMode.SetWidgetToFocus(UI_ALSGameSettings->TakeWidget());
+	SetInputMode(InputMode);
+	SetShowMouseCursor(true);
 }
 
 void 

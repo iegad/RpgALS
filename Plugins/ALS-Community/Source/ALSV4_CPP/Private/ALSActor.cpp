@@ -6,6 +6,7 @@
 #include "Core/ALSGameInstance.h"
 
 AALSActor::AALSActor() : Super() {
+	// PrimaryComponentTick.bCanEverTick = true;
 }
 
 void 
@@ -214,7 +215,7 @@ UALSActorPool::Init(UALSGameInstance* NewGameInstance) {
 
 void
 UALSActorPool::BeginDestroy() {
-	ALS_WARN(TEXT("--------------- BeginDestroy ---------------"));
+	ALS_WARN(TEXT("--------------- BeginDestroy ---------------: %s:%d"), __FILEW__, __LINE__);
 
 	if (GameInstance) {
 		FTimerManager& TimerManager = GameInstance->GetTimerManager();

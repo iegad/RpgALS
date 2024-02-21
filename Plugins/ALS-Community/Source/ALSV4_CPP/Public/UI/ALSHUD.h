@@ -6,15 +6,13 @@
 
 class UBorder;
 class UCanvasPanelSlot;
+class UTextBlock;
 
 UCLASS()
 class ALSV4_CPP_API UALSHUD : public UUserWidget {
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-	virtual bool Initialize() override;
-
 	void ShowCrosshair();
 	void HideCrosshair();
 	bool IsCrosshairVisiblity();
@@ -33,7 +31,20 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UBorder> RightCrosshair;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> RightTopFPS;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> RightTopFPSLable;
+
+protected:
+	virtual bool Initialize() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
 private:
+	inline void UpdateCrosshairValue(float InDeltaTime);
+	inline void UpdateShowFPS(float InDeltaTime);
+
 	// -------------------------------- 瞄准镜相关字段 --------------------------------
 	UCanvasPanelSlot* TopCrosshairSlot = nullptr;
 	UCanvasPanelSlot* BottomCrosshairSlot = nullptr;
