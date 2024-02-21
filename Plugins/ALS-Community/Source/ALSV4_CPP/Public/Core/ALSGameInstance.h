@@ -1,3 +1,6 @@
+// Copyright:       Copyright (C) 2024 iegad
+// Source Code:     https://github.com/iegad/RpgALS
+
 #pragma once
 
 #include "ALSLibrary.h"

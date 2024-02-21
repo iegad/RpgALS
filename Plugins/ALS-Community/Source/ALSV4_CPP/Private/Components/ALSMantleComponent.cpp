@@ -1,6 +1,7 @@
 ﻿// Copyright:       Copyright (C) 2022 Doğa Can Yanıkoğlu
 // Source Code:     https://github.com/dyanikoglu/ALS-Community
-
+// Copyright:       Copyright (C) 2024 iegad
+// Source Code:     https://github.com/iegad/RpgALS
 
 #include "Components/ALSMantleComponent.h"
 

@@ -1,6 +1,7 @@
 // Copyright:       Copyright (C) 2022 Doğa Can Yanıkoğlu
 // Source Code:     https://github.com/dyanikoglu/ALS-Community
-
+// Copyright:       Copyright (C) 2024 iegad
+// Source Code:     https://github.com/iegad/RpgALS
 
 #include "Character/Animation/ALSCharacterAnimInstance.h"
 #include "Character/ALSBaseCharacter.h"
@@ -14,7 +15,6 @@
 
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
 
 static const FName NAME_BasePose_CLF(TEXT("BasePose_CLF"));
 static const FName NAME_BasePose_N(TEXT("BasePose_N"));
@@ -44,13 +44,11 @@ static const FName NAME_VB___foot_target_r(TEXT("VB foot_target_r"));
 static const FName NAME_W_Gait(TEXT("W_Gait"));
 static const FName NAME__ALSCharacterAnimInstance__root(TEXT("root"));
 
-
-void UALSCharacterAnimInstance::NativeInitializeAnimation()
-{
+void 
+UALSCharacterAnimInstance::NativeInitializeAnimation() {
 	Super::NativeInitializeAnimation();
 	Character = Cast<AALSBaseCharacter>(TryGetPawnOwner());
-	if (Character)
-	{
+	if (Character) {
 		Character->OnJumpedDelegate.AddUniqueDynamic(this, &UALSCharacterAnimInstance::OnJumped);
 	}
 }

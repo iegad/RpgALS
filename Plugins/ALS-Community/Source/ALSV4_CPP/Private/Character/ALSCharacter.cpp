@@ -1,4 +1,10 @@
+// Copyright:       Copyright (C) 2022 Doğa Can Yanıkoğlu
+// Source Code:     https://github.com/dyanikoglu/ALS-Community
+// Copyright:       Copyright (C) 2024 iegad
+// Source Code:     https://github.com/iegad/RpgALS
+
 #include "Character/ALSCharacter.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ALSCharacter)
 
 #include "Props/BowAnim.h"
 
