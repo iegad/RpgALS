@@ -7,11 +7,8 @@
 
 #include "ALSLibrary.h"
 #include "ALSActor.h"
-#include "Components/ALSActorPoolComponent.h"
 
 AALSGameMode::AALSGameMode() : Super() {
-	TracerPool = CreateDefaultSubobject<UALSActorPoolComponent>(TEXT("TracerPool"));
-	MarkerPool = CreateDefaultSubobject<UALSActorPoolComponent>(TEXT("MarkerPool"));
 }
 
 void 

@@ -4,8 +4,6 @@
 #include "GameFramework/GameMode.h"
 #include "ALSGameMode.generated.h"
 
-class UALSActorPoolComponent;
-
 UENUM()
 enum class EEnvironmentPhysicalMaterials {
 	None,
@@ -41,12 +39,6 @@ public:
 		{EEnvironmentPhysicalMaterials::Glass, nullptr},
 		{EEnvironmentPhysicalMaterials::Flesh, nullptr},
 	};
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|ALSActor Pool")
-	TObjectPtr<UALSActorPoolComponent> TracerPool;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|ALSActor Pool")
-	TObjectPtr<UALSActorPoolComponent> MarkerPool;
 
 public:
 	AALSGameMode();

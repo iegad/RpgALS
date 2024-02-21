@@ -7,8 +7,8 @@
 
 #include "ALSLibrary.h"
 #include "Character/ALSCharacter.h"
+#include "Core/ALSGameInstance.h"
 #include "Core/ALSGameMode.h"
-#include "Components/ALSActorPoolComponent.h"
 #include "Props/Weapons/TracerBase.h"
 #include "Props/Weapons/MarkerBase.h"
 
@@ -44,10 +44,7 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 			break;
 		}
 
-		AALSGameMode* ALSGameMode = Cast<AALSGameMode>(UGameplayStatics::GetGameMode(World));
-		if (!ALSGameMode) {
-			break;
-		}
+		UALSGameInstance* GameInstance = UALSLibrary::Instance()->GetGameInstance(World);
 
 		WeaponAttackOptions.AttackCD = WeaponAttackOptions.AttackInterval;
 
@@ -98,12 +95,16 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 				bTracer = false;
 			}
 
-			if (MarkerBase) {
-				ALSGameMode->MarkerPool->Get(MarkerBase, End, EndRotation, 5.f);
+			if (MarkerClass && GameInstance) {
+				GameInstance->ALSActorPool->Get(World, MarkerClass, End, EndRotation, 5.f);
 			}
 
 			if (OutHitResult.PhysMaterial.IsValid()) {
 				// 播放环境特效
+				AALSGameMode* ALSGameMode = UALSLibrary::Instance()->GetGameMode(World);
+				if (!ALSGameMode) {
+					break;
+				}
 				ALSGameMode->PlayEffect(OutHitResult.PhysMaterial->SurfaceType, End, EndRotation, WeaponEffectsOptions.HittedEffects);
 			}
 
@@ -119,9 +120,9 @@ AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
 			Character->AddControllerPitchInput(-FMath::FRandRange(0, Recoil));
 		}
 		
-		if (TracerBase && bTracer) {
+		if (TracerClass && bTracer && GameInstance) {
 			const FRotator&& MuzzleRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, End);
-			ALSGameMode->TracerPool->Get(TracerBase, MuzzleLocation, MuzzleRotation, 2.f);
+			GameInstance->ALSActorPool->Get(World, TracerClass, MuzzleLocation, MuzzleRotation, 2.f);
 		}
 	} while (0);
 }

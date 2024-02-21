@@ -22,10 +22,10 @@ public:
 	TObjectPtr<USceneComponent> MuzzleScene;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<ATracerBase> TracerBase;
+	TSubclassOf<ATracerBase> TracerClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<AMarkerBase> MarkerBase;
+	TSubclassOf<AMarkerBase> MarkerClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Recoil = 0.f;
