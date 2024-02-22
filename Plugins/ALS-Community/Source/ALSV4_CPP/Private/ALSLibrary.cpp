@@ -7,96 +7,24 @@
 #include "Core/ALSGameInstance.h"
 #include "Core/ALSGameMode.h"
 
-void 
-FGameSettings::Reset() {
-    ShowFPS = false;
-    Resolution = { 1920, 1080 };
-    WindowMode = { EWindowMode::Windowed };
-    FrameRateLimit = { EFrameRateLimit::Infinite };
-}
+const FString FGraphicsSettings::GraphicsSettingsGraphicsQuality_Custom{ TEXT("Custom") };
+const FString FGraphicsSettings::GraphicsSettingsGraphicsQuality_Low{ TEXT("Low") };
+const FString FGraphicsSettings::GraphicsSettingsGraphicsQuality_Medium{ TEXT("Medium") };
+const FString FGraphicsSettings::GraphicsSettingsGraphicsQuality_High{ TEXT("High") };
+const FString FGraphicsSettings::GraphicsSettingsGraphicsQuality_Ultra{ TEXT("Ultra") };
+const FString FGraphicsSettings::GraphicsSettingsGraphicsQuality_Extreme{ TEXT("Extreme") };
 
-void 
-FGameSettings::SetResolution(const FString& Value) {
-    TArray<FString> StringArray;
-    if (Value.ParseIntoArray(StringArray, TEXT("*"), true) != 2) {
-        ALS_FATAL(TEXT("Value is invalid: %s:%d"), __FILEW__, __LINE__);
-    }
 
-    LexFromString(Resolution.X, *StringArray[0]);
-    LexFromString(Resolution.Y, *StringArray[1]);
-}
+const FString FGraphicsSettings::GraphicsSettingsWindowMode_Windowed{ TEXT("Windowed") };
+const FString FGraphicsSettings::GraphicsSettingsWindowMode_FullScreen{ TEXT("Full Screen") };
+const FString FGraphicsSettings::GraphicsSettingsWindowMode_WindowedFullScreen{ TEXT("Windowed Full Screen") };
 
-void 
-FGameSettings::SetWindowMode(const FString& Value) {
-    if (Value == GameSettingsWindowMode_Windowed) {
-        WindowMode = EWindowMode::Windowed;
-    }
-    else if (Value == GameSettingsWindowMode_FullScreen) {
-        WindowMode = EWindowMode::Fullscreen;
-    }
-    else if (Value == GameSettingsWindowMode_WindowedFullScreen) {
-        WindowMode = EWindowMode::WindowedFullscreen;
-    }
-    else {
-        ALS_FATAL(TEXT("Value is invalid: %s:%d"), __FILEW__, __LINE__);
-    }
-}
+const FString FGraphicsSettings::GraphicsSettingsFrameRateLimit_60{ TEXT("FPS 60") };
+const FString FGraphicsSettings::GraphicsSettingsFrameRateLimit_90{ TEXT("FPS 90") };
+const FString FGraphicsSettings::GraphicsSettingsFrameRateLimit_120{ TEXT("FPS 120") };
+const FString FGraphicsSettings::GraphicsSettingsFrameRateLimit_Infinite{ TEXT("Infinite") };
 
-void 
-FGameSettings::SetFrameRateLimit(const FString& Value) {
-    if (Value == GameSettingsFrameRateLimit_60) {
-        FrameRateLimit = EFrameRateLimit::FPS60;
-    }
-    else if (Value == GameSettingsFrameRateLimit_90) {
-        FrameRateLimit = EFrameRateLimit::FPS90;
-    }
-    else if (Value == GameSettingsFrameRateLimit_120) {
-        FrameRateLimit = EFrameRateLimit::FPS120;
-    }
-    else if (Value == GameSettingsFrameRateLimit_Infinite) {
-        FrameRateLimit = EFrameRateLimit::Infinite;
-    }
-    else {
-        ALS_FATAL(TEXT("Value is invalid: %s:%d"), __FILEW__, __LINE__);
-    }
-}
-
-float 
-FGameSettings::GetFrameRateLimitValue() const {
-    switch (FrameRateLimit) {
-    case EFrameRateLimit::FPS60: return 60.f;
-    case EFrameRateLimit::FPS90: return 90.f;
-    case EFrameRateLimit::FPS120: return 120.f;
-    }
-
-    return 0.f;
-}
-
-FString 
-FGameSettings::GetResolutionString() const {
-    return FString::Printf(TEXT("%d * %d"), Resolution.X, Resolution.Y);
-}
-
-FString 
-FGameSettings::GetWindowModeString() const {
-    switch (WindowMode) {
-    case EWindowMode::Fullscreen: return GameSettingsWindowMode_FullScreen;
-    case EWindowMode::WindowedFullscreen: return GameSettingsWindowMode_WindowedFullScreen;
-    }
-
-    return GameSettingsWindowMode_Windowed;
-}
-
-FString 
-FGameSettings::GetFrameRateLimitString() const {
-    switch (FrameRateLimit) {
-    case EFrameRateLimit::FPS60: return GameSettingsFrameRateLimit_60;
-    case EFrameRateLimit::FPS90: return GameSettingsFrameRateLimit_90;
-    case EFrameRateLimit::FPS120: return GameSettingsFrameRateLimit_120;
-    }
-
-    return GameSettingsFrameRateLimit_Infinite;
-}
+const FGameSettings FGameSettings::DefaultGameSettings{};
 
 UWorld* 
 UALSLibrary::GetCurrentWorld() const {

@@ -12,14 +12,6 @@
 #define ALS_ERROR(Format, ...) UE_LOG(LogTemp, Error, Format, ##__VA_ARGS__)
 #define ALS_FATAL(Format, ...) UE_LOG(LogTemp, Fatal, Format, ##__VA_ARGS__)
 
-const FString GameSettingsWindowMode_Windowed{ TEXT("Windowed") };
-const FString GameSettingsWindowMode_FullScreen{ TEXT("Full Screen") };
-const FString GameSettingsWindowMode_WindowedFullScreen{ TEXT("Windowed Full Screen") };
-const FString GameSettingsFrameRateLimit_60{ TEXT("FPS 60") };
-const FString GameSettingsFrameRateLimit_90{ TEXT("FPS 90") };
-const FString GameSettingsFrameRateLimit_120{ TEXT("FPS 120") };
-const FString GameSettingsFrameRateLimit_Infinite{ TEXT("Infinite") };
-
 class UInputAction;
 class UInputMappingContext;
 class UALSGameInstance;
@@ -129,21 +121,50 @@ struct FCharacterStateSystem {
 
 UENUM(BlueprintType)
 enum class EFrameRateLimit : uint8 {
-	Infinite = 0,
+	Infinite,
 	FPS60,
 	FPS90,
 	FPS120,
 };
 
+UENUM(BlueprintType)
+enum class EGraphicsQuality {
+	Low,
+	Medium,
+	High,
+	Ultra,
+	Extreme,
+	Custom = -1,
+};
+
 USTRUCT(BlueprintType)
-struct FGameSettings {
+struct FGraphicsSettings {
 	GENERATED_BODY()
+
+	static const FString GraphicsSettingsGraphicsQuality_Custom;
+	static const FString GraphicsSettingsGraphicsQuality_Low;
+	static const FString GraphicsSettingsGraphicsQuality_Medium;
+	static const FString GraphicsSettingsGraphicsQuality_High;
+	static const FString GraphicsSettingsGraphicsQuality_Ultra;
+	static const FString GraphicsSettingsGraphicsQuality_Extreme;
+
+	static const FString GraphicsSettingsWindowMode_Windowed;
+	static const FString GraphicsSettingsWindowMode_FullScreen;
+	static const FString GraphicsSettingsWindowMode_WindowedFullScreen;
+
+	static const FString GraphicsSettingsFrameRateLimit_60;
+	static const FString GraphicsSettingsFrameRateLimit_90;
+	static const FString GraphicsSettingsFrameRateLimit_120;
+	static const FString GraphicsSettingsFrameRateLimit_Infinite;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool VSync = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool ShowFPS = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	FIntPoint Resolution{1920, 1080};
+	FIntPoint Resolution{ 1920, 1080 };
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TEnumAsByte<EWindowMode::Type> WindowMode{ EWindowMode::Windowed };
@@ -151,16 +172,252 @@ struct FGameSettings {
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	EFrameRateLimit FrameRateLimit{ EFrameRateLimit::Infinite };
 
-	void Reset();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	EGraphicsQuality GraphicsQuality{ EGraphicsQuality::High };
 
-	void SetResolution(const FString& Value);
-	void SetWindowMode(const FString& Value);
-	void SetFrameRateLimit(const FString& Value);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	EGraphicsQuality ReflectionQuality{ EGraphicsQuality::High };
 
-	float GetFrameRateLimitValue() const;
-	FString GetResolutionString() const;
-	FString GetWindowModeString() const;
-	FString GetFrameRateLimitString() const;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	EGraphicsQuality PostProcessingQuality{ EGraphicsQuality::High };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	EGraphicsQuality AntiAliasingQuality{ EGraphicsQuality::High };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	EGraphicsQuality GlobalIlluminationQuality{ EGraphicsQuality::High };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	EGraphicsQuality VisualEffectQuality{ EGraphicsQuality::High };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	EGraphicsQuality ViewDistanceQuality{ EGraphicsQuality::High };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	EGraphicsQuality TextureQuality{ EGraphicsQuality::High };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	EGraphicsQuality ShadowQuality{ EGraphicsQuality::High };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	EGraphicsQuality ShadingQuality{ EGraphicsQuality::High };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	EGraphicsQuality FoliageQuality{ EGraphicsQuality::High };
+
+	void SetResolution(const FString& Value) {
+		TArray<FString> StringArray;
+		if (Value.ParseIntoArray(StringArray, TEXT("*"), true) != 2) {
+			ALS_FATAL(TEXT("Value is invalid: %s:%d"), __FILEW__, __LINE__);
+		}
+
+		LexFromString(Resolution.X, *StringArray[0]);
+		LexFromString(Resolution.Y, *StringArray[1]);
+	}
+
+	FString GetResolutionString() const {
+		return FString::Printf(TEXT("%d * %d"), Resolution.X, Resolution.Y);
+	}
+
+	void SetWindowMode(const FString& Value) {
+		if (Value == GraphicsSettingsWindowMode_Windowed) {
+			WindowMode = EWindowMode::Windowed;
+		}
+		else if (Value == GraphicsSettingsWindowMode_FullScreen) {
+			WindowMode = EWindowMode::Fullscreen;
+		}
+		else if (Value == GraphicsSettingsWindowMode_WindowedFullScreen) {
+			WindowMode = EWindowMode::WindowedFullscreen;
+		}
+		else {
+			ALS_FATAL(TEXT("Value is invalid: %s:%d"), __FILEW__, __LINE__);
+		}
+	}
+
+	FString GetWindowModeString() const {
+		switch (WindowMode) {
+		case EWindowMode::Fullscreen: return GraphicsSettingsWindowMode_FullScreen;
+		case EWindowMode::WindowedFullscreen: return GraphicsSettingsWindowMode_WindowedFullScreen;
+		}
+
+		return GraphicsSettingsWindowMode_Windowed;
+	}
+
+	void SetFrameRateLimit(const FString& Value) {
+		if (Value == GraphicsSettingsFrameRateLimit_60) {
+			FrameRateLimit = EFrameRateLimit::FPS60;
+		}
+		else if (Value == GraphicsSettingsFrameRateLimit_90) {
+			FrameRateLimit = EFrameRateLimit::FPS90;
+		}
+		else if (Value == GraphicsSettingsFrameRateLimit_120) {
+			FrameRateLimit = EFrameRateLimit::FPS120;
+		}
+		else if (Value == GraphicsSettingsFrameRateLimit_Infinite) {
+			FrameRateLimit = EFrameRateLimit::Infinite;
+		}
+		else {
+			ALS_FATAL(TEXT("Value is invalid: %s:%d"), __FILEW__, __LINE__);
+		}
+	}
+
+	float GetFrameRateLimitValue() const {
+		switch (FrameRateLimit) {
+		case EFrameRateLimit::FPS60: return 60.f;
+		case EFrameRateLimit::FPS90: return 90.f;
+		case EFrameRateLimit::FPS120: return 120.f;
+		}
+
+		return 0.f;
+	}
+
+	FString GetFrameRateLimitString() const {
+		switch (FrameRateLimit) {
+		case EFrameRateLimit::FPS60: return GraphicsSettingsFrameRateLimit_60;
+		case EFrameRateLimit::FPS90: return GraphicsSettingsFrameRateLimit_90;
+		case EFrameRateLimit::FPS120: return GraphicsSettingsFrameRateLimit_120;
+		}
+
+		return GraphicsSettingsFrameRateLimit_Infinite;
+	}
+
+	void SetGraphicQuality(const FString& Value) {
+		if (Value == GraphicsSettingsGraphicsQuality_Low) {
+			GraphicsQuality = EGraphicsQuality::Low;
+		}
+		else if (Value == GraphicsSettingsGraphicsQuality_Medium) {
+			GraphicsQuality = EGraphicsQuality::Medium;
+		}
+		else if (Value == GraphicsSettingsGraphicsQuality_High) {
+			GraphicsQuality = EGraphicsQuality::High;
+		}
+		else if (Value == GraphicsSettingsGraphicsQuality_Ultra) {
+			GraphicsQuality = EGraphicsQuality::Ultra;
+		}
+		else if (Value == GraphicsSettingsGraphicsQuality_Extreme) {
+			GraphicsQuality = EGraphicsQuality::Extreme;
+		}
+		else if (Value == GraphicsSettingsGraphicsQuality_Custom) {
+			GraphicsQuality = EGraphicsQuality::Custom;
+		}
+		else {
+			ALS_FATAL(TEXT("Value is invalid: %s:%d"), __FILEW__, __LINE__);
+		}
+	}
+
+	FString GetGraphicsQualityString() const {
+		switch (GraphicsQuality) {
+		case EGraphicsQuality::Low: return GraphicsSettingsGraphicsQuality_Low;
+		case EGraphicsQuality::Medium: return GraphicsSettingsGraphicsQuality_Medium;
+		case EGraphicsQuality::High: return GraphicsSettingsGraphicsQuality_High;
+		case EGraphicsQuality::Ultra: return GraphicsSettingsGraphicsQuality_Ultra;
+		case EGraphicsQuality::Extreme: return GraphicsSettingsGraphicsQuality_Extreme;
+		}
+
+		return GraphicsSettingsGraphicsQuality_Custom;
+	}
+
+	FString GetGraphicsQualityString(EGraphicsQuality Value) const {
+		switch (Value) {
+		case EGraphicsQuality::Low: return GraphicsSettingsGraphicsQuality_Low;
+		case EGraphicsQuality::Medium: return GraphicsSettingsGraphicsQuality_Medium;
+		case EGraphicsQuality::High: return GraphicsSettingsGraphicsQuality_High;
+		case EGraphicsQuality::Ultra: return GraphicsSettingsGraphicsQuality_Ultra;
+		case EGraphicsQuality::Extreme: return GraphicsSettingsGraphicsQuality_Extreme;
+		}
+
+		return GraphicsSettingsGraphicsQuality_Custom;
+	}
+
+	void SetReflectionQuality(float Value) {
+		ReflectionQuality = EGraphicsQuality((int)(Value + 0.5f));
+	}
+
+	float GetReflectionQuality() const {
+		return (float)ReflectionQuality;
+	}
+
+	void SetPostProcessingQuality(float Value) {
+		PostProcessingQuality = EGraphicsQuality((int)(Value + 0.5f));
+	}
+
+	float GetPostProcessingQuality() const {
+		return (float)PostProcessingQuality;
+	}
+
+	void SetAntiAliasingQuality(float Value) {
+		AntiAliasingQuality = EGraphicsQuality((int)(Value + 0.5f));
+	}
+
+	float GetAntiAliasingQuality() const {
+		return (float)AntiAliasingQuality;
+	}
+
+	void SetGlobalIlluminationQuality(float Value) {
+		GlobalIlluminationQuality = EGraphicsQuality((int)(Value + 0.5f));
+	}
+
+	float GetGlobalIlluminationQuality() const {
+		return (float)GlobalIlluminationQuality;
+	}
+
+	void SetVisualEffectQuality(float Value) {
+		VisualEffectQuality = EGraphicsQuality((int)(Value + 0.5f));
+	}
+
+	float GetVisualEffectQuality() const {
+		return (float)VisualEffectQuality;
+	}
+
+	void SetViewDistanceQuality(float Value) {
+		ViewDistanceQuality = EGraphicsQuality((int)(Value + 0.5f));
+	}
+
+	float GetViewDistanceQuality() const {
+		return (float)ViewDistanceQuality;
+	}
+
+	void SetTextureQuality(float Value) {
+		TextureQuality = EGraphicsQuality((int)(Value + 0.5f));
+	}
+
+	float GetTextureQuality() const {
+		return (float)TextureQuality;
+	}
+
+	void SetShadowQuality(float Value) {
+		ShadowQuality = EGraphicsQuality((int)(Value + 0.5f));
+	}
+
+	float GetShadowQuality() const {
+		return (float)ShadowQuality;
+	}
+
+	void SetShadingQuality(float Value) {
+		ShadingQuality = EGraphicsQuality((int)(Value + 0.5f));
+	}
+
+	float GetShadingQuality() const {
+		return (float)ShadingQuality;
+	}
+
+	void SetFoliageQuality(float Value) {
+		FoliageQuality = EGraphicsQuality((int)(Value + 0.5f));
+	}
+
+	float GetFoliageQuality() const {
+		return (float)FoliageQuality;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FGameSettings {
+	GENERATED_BODY()
+
+	static const FGameSettings DefaultGameSettings;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FGraphicsSettings GraphicsSettings;
 };
 
 UCLASS()

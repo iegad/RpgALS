@@ -117,7 +117,7 @@ UALSHUD::UpdateShowFPS(float InDeltaTime) {
 	static float TimerShowFPS = 0.5f;
 
 	UALSGameInstance* GameInstance = Cast<UALSGameInstance>(GetGameInstance());
-	if (GameInstance && GameInstance->PlayerGameSettings.ShowFPS) {
+	if (GameInstance && GameInstance->GetPlayerGameSettings().GraphicsSettings.ShowFPS) {
 		if (!RightTopFPS->IsVisible()) {
 			RightTopFPS->SetVisibility(ESlateVisibility::Visible);
 			RightTopFPSLable->SetVisibility(ESlateVisibility::Visible);

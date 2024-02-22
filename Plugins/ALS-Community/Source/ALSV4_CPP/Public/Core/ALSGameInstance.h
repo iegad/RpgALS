@@ -19,15 +19,45 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|ALSActor Pool")
 	TObjectPtr<UALSActorPool> ALSActorPool;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Game Settings")
-	FGameSettings DefaultGameSettings;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Game Settings")
-	FGameSettings PlayerGameSettings;
-
 	UFUNCTION(BlueprintCallable, Category = "ALS|Game Settings")
 	void QuitGame();
 	
 public:
 	UALSGameInstance();
+	const FGameSettings& GetPlayerGameSettings() { return PlayerGameSettings; }
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "ALS|Game Settings")
+	void LoadGameSettings();
+
+	UFUNCTION(BlueprintCallable, Category = "ALS|Game Settings")
+	void SaveGameSettings(const FGameSettings& NewGameSettings);
+
+	UFUNCTION(BlueprintCallable, Category = "ALS|Game Settings")
+	void ResetGameSettings();
+
+	UFUNCTION(BlueprintCallable, Category = "ALS|Game Settings")
+	void SaveGraphicsSettings(const FGraphicsSettings& NewGraphicsSettings);
+
+public:
+	void SaveGraphicsSettings(
+		bool NewVSync,
+		bool NewShowFPS, 
+		const FString& NewResolution, 
+		const FString& NewWindowMode, 
+		const FString& NewFrameRateLimit,
+		const FString& NewGraphicsQuality,
+		float ReflectionQuality,
+		float PostProcessingQuality,
+		float AntiAliasingQuality,
+		float GlobalIlluminationQuality,
+		float VisualEffectQuality,
+		float ViewDistanceQuality,
+		float TextureQuality,
+		float ShadowQuality,
+		float ShadingQuality,
+		float FoliageQuality);
+
+private:
+	FGameSettings PlayerGameSettings;
 };
