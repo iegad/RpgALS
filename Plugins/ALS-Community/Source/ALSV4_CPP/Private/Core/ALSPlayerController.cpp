@@ -77,14 +77,14 @@ AALSPlayerController::SetupInputComponent() {
 
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Aim, ETriggerEvent::Completed, this, &AALSPlayerController::IA_Aim);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_AttackHold, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_AttackHold);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_AttackTap, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_AttackTap);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_AttackTap, ETriggerEvent::Completed, this, &AALSPlayerController::IA_AttackTap);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Crouch, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Crouch);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Look, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Look);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Move, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Move);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Jump, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Jump);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Pistol, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Pistol);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Ragdoll, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Ragdoll);
-	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Reload, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Reload);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Reload, ETriggerEvent::Completed, this, &AALSPlayerController::IA_Reload);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Rifle, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Rifle);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Roll, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Roll);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Sprint, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Sprint);
@@ -196,6 +196,9 @@ AALSPlayerController::IA_Ragdoll() {
 
 void 
 AALSPlayerController::IA_Reload() {
+	if (PossessedCharacter) {
+		PossessedCharacter->IA_Reload();
+	}
 }
 
 void 

@@ -147,5 +147,17 @@ AGunBase::BeginPlay() {
 
 void 
 AGunBase::Reload(AALSBaseCharacter* Character) {
-	
+	do {
+		if (!Character) {
+			ALS_ERROR(TEXT("Character is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		if (!ReloadMontage) {
+			ALS_WARN(TEXT("ReloadMontage is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		Character->PlayAnimMontage(ReloadMontage);
+	} while (0);
 }

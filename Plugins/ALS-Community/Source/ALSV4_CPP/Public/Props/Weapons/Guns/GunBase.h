@@ -33,6 +33,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float Recoil = 0.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> ReloadMontage;
+
 public:
 	virtual void Attack(AALSBaseCharacter* Character, int DebugTrace) override;
 	void Reload(AALSBaseCharacter* Character);
