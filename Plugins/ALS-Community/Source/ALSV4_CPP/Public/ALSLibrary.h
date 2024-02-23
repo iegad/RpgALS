@@ -52,6 +52,9 @@ struct FPlayerInputSystem {
 	TObjectPtr<UInputAction> IA_Ragdoll;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UInputAction> IA_Reload;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UInputAction> IA_Rifle;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

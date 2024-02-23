@@ -24,7 +24,7 @@ class UAnimMontage;
 class UALSPlayerCameraBehavior;
 enum class EVisibilityBasedAnimTickOption : uint8;
 class APropsBase;
-class UWeaponComponent;
+class UPropsComponent;
 class UALSHUD;
 class UPhysicsConstraintComponent;
 
@@ -52,6 +52,7 @@ public:
 	void IA_Crouch();
 	void IA_Walk();
 	void IA_Ragdoll();
+	void IA_Reload();
 	void IA_Rifle();
 	void IA_Pistol();
 	void IA_Roll();
@@ -424,7 +425,7 @@ public:
 	TObjectPtr<UChildActorComponent> ChildActorPistol;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
-	TObjectPtr<UWeaponComponent> WeaponComponent;
+	TObjectPtr<UPropsComponent> PropsComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|HUD System")
 	TSubclassOf<UALSHUD> ALSHUDClass;

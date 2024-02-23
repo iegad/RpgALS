@@ -84,6 +84,7 @@ AALSPlayerController::SetupInputComponent() {
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Jump, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Jump);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Pistol, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Pistol);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Ragdoll, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Ragdoll);
+	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Reload, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Reload);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Rifle, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Rifle);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Roll, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Roll);
 	EnhancedInputComponent->BindAction(PlayerInputSystem.IA_Sprint, ETriggerEvent::Triggered, this, &AALSPlayerController::IA_Sprint);
@@ -191,6 +192,10 @@ AALSPlayerController::IA_Ragdoll() {
 	if (PossessedCharacter) {
 		PossessedCharacter->IA_Ragdoll();
 	}
+}
+
+void 
+AALSPlayerController::IA_Reload() {
 }
 
 void 

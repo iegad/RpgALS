@@ -21,7 +21,7 @@ AGunBase::AGunBase() : Super() {
 }
 
 void 
-AGunBase::Attack(AALSCharacter* Character, int DebugTrace) {
+AGunBase::Attack(AALSBaseCharacter* Character, int DebugTrace) {
 	do {
 		if (!Character) {
 			ALS_ERROR(TEXT("Character is nullptr: %s:%d"), __FILEW__, __LINE__);
@@ -143,4 +143,9 @@ AGunBase::BeginPlay() {
 	if (MuzzleSocketName.IsNone()) {
 		ALS_ERROR(TEXT("MuzzleSocketName is invalid: %s:%d"), __FILEW__, __LINE__);
 	}
+}
+
+void 
+AGunBase::Reload(AALSBaseCharacter* Character) {
+	// TODO
 }

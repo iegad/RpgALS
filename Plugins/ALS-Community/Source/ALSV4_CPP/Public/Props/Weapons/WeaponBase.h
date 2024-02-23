@@ -8,7 +8,7 @@
 #include "WeaponBase.generated.h"
 
 class UAnimMontage;
-class AALSCharacter;
+class AALSBaseCharacter;
 
 USTRUCT(BlueprintType)
 struct FWeaponAttackOptions {
@@ -73,7 +73,7 @@ public:
 	FWeaponAnimationOptions WeaponAnimationOptions;
 
 public:
-	virtual void Attack(AALSCharacter *Character, int DebugTrace) {}
+	virtual void Attack(AALSBaseCharacter *Character, int DebugTrace) {}
 
 protected:
 	virtual void BeginPlay() override;

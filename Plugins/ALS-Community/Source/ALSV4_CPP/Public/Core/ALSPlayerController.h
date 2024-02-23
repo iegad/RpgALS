@@ -43,6 +43,7 @@ protected:
 	void IA_Crouch();
 	void IA_Walk();
 	void IA_Ragdoll();
+	void IA_Reload();
 	void IA_Rifle();
 	void IA_Roll();
 	void IA_Pistol();

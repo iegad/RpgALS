@@ -24,8 +24,8 @@
 #include "Character/ALSCharacterMovementComponent.h"
 #include "Library/ALSMathLibrary.h"
 
-#include "Props/Weapons/WeaponBase.h"
-#include "Components/WeaponComponent.h"
+#include "Props/Weapons/Guns/GunBase.h"
+#include "Components/PropsComponent.h"
 #include "UI/ALSHUD.h"
 
 
@@ -199,6 +199,14 @@ AALSBaseCharacter::IA_Ragdoll() {
 	}
 }
 
+void 
+AALSBaseCharacter::IA_Reload() {
+	AGunBase* GunBase = Cast<AGunBase>(GetCurrentProps());
+	if (GunBase) {
+		GunBase->Reload(this);
+	}
+}
+
 void
 AALSBaseCharacter::IA_Rifle() {
 	do {
@@ -208,11 +216,11 @@ AALSBaseCharacter::IA_Rifle() {
 		}
 
 		if (GetOverlayState() == Props->OverlayState) {
-			WeaponComponent->UnEquip(Props);
+			PropsComponent->UnEquip(Props);
 			break;
 		}
 
-		WeaponComponent->Equip(Props);
+		PropsComponent->Equip(Props);
 	} while (0);
 }
 
@@ -225,11 +233,11 @@ AALSBaseCharacter::IA_Pistol() {
 		}
 
 		if (GetOverlayState() == Props->OverlayState) {
-			WeaponComponent->UnEquip(Props);
+			PropsComponent->UnEquip(Props);
 			break;
 		}
 
-		WeaponComponent->Equip(Props);
+		PropsComponent->Equip(Props);
 	} while (0);
 }
 
@@ -1497,7 +1505,7 @@ AALSBaseCharacter::CreatePropsSystem() {
 
 inline void 
 AALSBaseCharacter::CreateCustomComponent() {
-	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
+	PropsComponent = CreateDefaultSubobject<UPropsComponent>(TEXT("PropsComponent"));
 }
 
 inline void 
@@ -1519,7 +1527,7 @@ AALSBaseCharacter::RifleFire() {
 		GetRotationMode() == EALSRotationMode::Aiming) {
 		AWeaponBase* WeaponBase = Cast<AWeaponBase>(GetCurrentProps());
 		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::Rifle) {
-			WeaponComponent->Attack(WeaponBase, 0);
+			WeaponBase->Attack(this, 0);
 		}
 	}
 }
@@ -1530,7 +1538,7 @@ AALSBaseCharacter::PistolFire() {
 		GetRotationMode() == EALSRotationMode::Aiming) {
 		AWeaponBase* WeaponBase = Cast<AWeaponBase>(GetCurrentProps());
 		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::PistolOneHanded) {
-			WeaponComponent->Attack(WeaponBase, 0);
+			WeaponBase->Attack(this, 0);
 		}
 	}
 }

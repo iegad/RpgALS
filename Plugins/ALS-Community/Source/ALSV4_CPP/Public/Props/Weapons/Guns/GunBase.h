@@ -34,7 +34,8 @@ public:
 	float Recoil = 0.f;
 
 public:
-	virtual void Attack(AALSCharacter* Character, int DebugTrace) override;
+	virtual void Attack(AALSBaseCharacter* Character, int DebugTrace) override;
+	void Reload(AALSBaseCharacter* Character);
 
 protected:
 	virtual void BeginPlay() override;

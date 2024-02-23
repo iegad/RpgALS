@@ -5,7 +5,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(PropsUnEquipAnimNotifyState)
 
 #include "Character/ALSCharacter.h"
-#include "Components/WeaponComponent.h"
+#include "Components/PropsComponent.h"
 
 void 
 UPropsUnEquipAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, 
@@ -16,7 +16,7 @@ UPropsUnEquipAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAni
 		}
 
 		AALSCharacter* Character = Cast<AALSCharacter>(MeshComp->GetOuter());
-		if (!Character || !Character->WeaponComponent) {
+		if (!Character || !Character->PropsComponent) {
 			break;
 		}
 
@@ -25,7 +25,7 @@ UPropsUnEquipAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAni
 			break;
 		}
 
-		Character->WeaponComponent->StartUnEquip(Props);
+		Character->PropsComponent->StartUnEquip(Props);
 	} while (0);
 }
 
@@ -38,7 +38,7 @@ UPropsUnEquipAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimS
 		}
 
 		AALSCharacter* Character = Cast<AALSCharacter>(MeshComp->GetOuter());
-		if (!Character || !Character->WeaponComponent) {
+		if (!Character || !Character->PropsComponent) {
 			break;
 		}
 
@@ -47,6 +47,6 @@ UPropsUnEquipAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimS
 			break;
 		}
 
-		Character->WeaponComponent->EndUnEquip(Props);
+		Character->PropsComponent->EndUnEquip(Props);
 	} while (0);
 }
