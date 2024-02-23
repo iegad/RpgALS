@@ -202,8 +202,8 @@ AALSBaseCharacter::IA_Ragdoll() {
 void 
 AALSBaseCharacter::IA_Reload() {
 	AGunBase* GunBase = Cast<AGunBase>(GetCurrentProps());
-	if (GunBase) {
-		GunBase->Reload(this);
+	if (GunBase && PropsComponent) {
+		PropsComponent->Reload(GunBase);
 	}
 }
 
@@ -1526,8 +1526,8 @@ AALSBaseCharacter::RifleFire() {
 	if (GetOverlayState() == EALSOverlayState::Rifle &&
 		GetRotationMode() == EALSRotationMode::Aiming) {
 		AWeaponBase* WeaponBase = Cast<AWeaponBase>(GetCurrentProps());
-		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::Rifle) {
-			WeaponBase->Attack(this, 0);
+		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::Rifle && PropsComponent) {
+			PropsComponent->Attack(WeaponBase, 0);
 		}
 	}
 }
@@ -1537,8 +1537,8 @@ AALSBaseCharacter::PistolFire() {
 	if (GetOverlayState() == EALSOverlayState::PistolOneHanded &&
 		GetRotationMode() == EALSRotationMode::Aiming) {
 		AWeaponBase* WeaponBase = Cast<AWeaponBase>(GetCurrentProps());
-		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::PistolOneHanded) {
-			WeaponBase->Attack(this, 0);
+		if (WeaponBase && WeaponBase->OverlayState == EALSOverlayState::PistolOneHanded && PropsComponent) {
+			PropsComponent->Attack(WeaponBase, 0);
 		}
 	}
 }

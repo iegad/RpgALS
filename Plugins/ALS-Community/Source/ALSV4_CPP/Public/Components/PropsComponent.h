@@ -7,8 +7,10 @@
 #include "Components/ActorComponent.h"
 #include "PropsComponent.generated.h"
 
-class AALSCharacter;
+class AALSBaseCharacter;
 class APropsBase;
+class AWeaponBase;
+class AGunBase;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ALSV4_CPP_API UPropsComponent : public UActorComponent {
@@ -17,27 +19,30 @@ class ALSV4_CPP_API UPropsComponent : public UActorComponent {
 public:	
 	UPropsComponent();
 
-public:
-	UFUNCTION(BlueprintCallable)
 	void StartEquip(APropsBase* Props) const;
-
-	UFUNCTION(BlueprintCallable)
 	void EndEquip(APropsBase* Props) const;
-
-	UFUNCTION(BlueprintCallable)
+	void EndReload(AGunBase* Gun) const;
 	void StartUnEquip(APropsBase* Props) const;
-
-	UFUNCTION(BlueprintCallable)
 	void EndUnEquip(APropsBase* Props) const;
 
+public:
 	UFUNCTION(BlueprintCallable)
 	void Equip(APropsBase* Props) const;
 
 	UFUNCTION(BlueprintCallable)
 	void UnEquip(APropsBase* Props) const;
 
+	UFUNCTION(BlueprintCallable)
+	void Attack(AWeaponBase* Weapon, int DebugTrace) const;
+
+	UFUNCTION(BlueprintCallable)
+	void Reload(AGunBase* Gun) const;
+
 protected:
-	inline AALSCharacter* GetALSCharacter() const;
+	inline AALSBaseCharacter* GetALSBaseCharacter() const;
+
+	void AttackInternal(AWeaponBase* Weapon, int DebugTrace) const;
+	void AttackInternal(AGunBase* Gun, int DebugTrace) const;
 
 private:
 	mutable APropsBase* DesiredProps = nullptr;

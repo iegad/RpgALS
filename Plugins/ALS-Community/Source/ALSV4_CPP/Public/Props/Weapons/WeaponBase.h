@@ -72,9 +72,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS")
 	FWeaponAnimationOptions WeaponAnimationOptions;
 
-public:
-	virtual void Attack(AALSBaseCharacter *Character, int DebugTrace) {}
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;

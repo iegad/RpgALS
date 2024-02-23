@@ -105,6 +105,26 @@ AALSPlayerController::SetupInputComponent() {
 }
 
 void 
+AALSPlayerController::BeginPlay() {
+	Super::BeginPlay();
+
+	if (UI_ALSGameSettings) {
+		UI_ALSGameSettings->SetVisibility(ESlateVisibility::Hidden);
+		UI_ALSGameSettings->AddToViewport();
+		return;
+	}
+}
+
+void 
+AALSPlayerController::BeginDestroy() {
+	if (UI_ALSGameSettings && UI_ALSGameSettings->IsInViewport()) {
+		UI_ALSGameSettings->RemoveFromParent();
+	}
+
+	Super::BeginDestroy();
+}
+
+void 
 AALSPlayerController::SetupInputs() {
 	if (PossessedCharacter) {
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer())) {
@@ -239,18 +259,6 @@ AALSPlayerController::IA_AttackTap() {
 void 
 AALSPlayerController::IA_Settings() {
 	if (!UI_ALSGameSettings) {
-		return;
-	}
-
-	if (!UI_ALSGameSettings->IsInViewport()) {
-		UI_ALSGameSettings->AddToViewport();
-
-		FInputModeGameAndUI InputMode;
-		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		InputMode.SetHideCursorDuringCapture(false);
-		InputMode.SetWidgetToFocus(UI_ALSGameSettings->TakeWidget());
-		SetInputMode(InputMode);
-		SetShowMouseCursor(true);
 		return;
 	}
 

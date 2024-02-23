@@ -27,6 +27,8 @@ public:
 	virtual void OnPossess(APawn* NewPawn) override;
 	virtual void OnRep_Pawn() override;
 	virtual void SetupInputComponent() override;
+	virtual void BeginPlay() override;
+	virtual void BeginDestroy() override;
 
 protected:
 	void SetupInputs();

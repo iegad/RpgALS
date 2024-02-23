@@ -2,6 +2,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ReloadAnimNotifyState)
 
 #include "Character/ALSBaseCharacter.h"
+#include "Components/PropsComponent.h"
 #include "Props/Weapons/Guns/GunBase.h"
 
 void 
@@ -22,6 +23,8 @@ UReloadAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenc
 			break;
 		}
 
-		GunBase->EndReload();
+		if (Character->PropsComponent) {
+			Character->PropsComponent->EndReload(GunBase);
+		}
 	} while (0);
 }
