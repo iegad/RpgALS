@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "Library/ALSCharacterEnumLibrary.h"
+
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "PropsComponent.generated.h"
@@ -38,6 +40,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Reload(AGunBase* Gun) const;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 RifleAmmo = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 PistolAmmo = 0;
+
 protected:
 	inline AALSBaseCharacter* GetALSBaseCharacter() const;
 
@@ -45,5 +53,7 @@ protected:
 	void AttackInternal(AGunBase* Gun, int DebugTrace) const;
 
 private:
+	inline int32 GetAmmo(EALSOverlayState Overlay) const;
+
 	mutable APropsBase* DesiredProps = nullptr;
 };

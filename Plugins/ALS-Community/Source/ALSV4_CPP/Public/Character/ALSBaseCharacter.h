@@ -25,7 +25,7 @@ class UALSPlayerCameraBehavior;
 enum class EVisibilityBasedAnimTickOption : uint8;
 class APropsBase;
 class UPropsComponent;
-class UALSHUD;
+class UALSPlayerHUD;
 class UPhysicsConstraintComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FJumpPressedSignature);
@@ -63,6 +63,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void PostInitializeComponents() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	UALSPlayerHUD* GetHUD() const { return ALSPlayerHUD; }
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ALS|Movement")
@@ -428,7 +429,7 @@ public:
 	TObjectPtr<UPropsComponent> PropsComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|HUD System")
-	TSubclassOf<UALSHUD> ALSHUDClass;
+	TSubclassOf<UALSPlayerHUD> ALSPlayerHUDClass;
 
 	// --------------------------------------------------- 属性 ---------------------------------------------------
 
@@ -684,5 +685,5 @@ private:
 	UPROPERTY()
 	TObjectPtr<UALSDebugComponent> ALSDebugComponent;
 
-	UALSHUD* ALSHUD = nullptr;
+	UALSPlayerHUD* ALSPlayerHUD = nullptr;
 };

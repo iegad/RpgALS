@@ -36,6 +36,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UAnimMontage> ReloadMontage;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 Ammo = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 MaxAmmo = 0;
+
 protected:
 	virtual void BeginPlay() override;
 };

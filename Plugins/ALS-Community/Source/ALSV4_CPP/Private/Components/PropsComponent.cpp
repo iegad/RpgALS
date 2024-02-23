@@ -15,7 +15,7 @@
 #include "Props/Weapons/MarkerBase.h"
 #include "Props/Weapons/TracerBase.h"
 #include "Core/ALSGameMode.h"
-
+#include "UI/ALSPlayerHUD.h"
 
 UPropsComponent::UPropsComponent() : Super() {
 }
@@ -77,8 +77,13 @@ UPropsComponent::EndEquip(APropsBase* Props) const {
 			break;
 		}
 
-		Props->UnLock();
 		Character->SetOverlayState(Props->OverlayState);
+		Props->UnLock();
+		AGunBase* Gun = Cast<AGunBase>(Props);
+		UALSPlayerHUD* HUD = Character->GetHUD();
+		if (Gun && HUD) {
+			HUD->ShowAmmoInfo(Gun->Ammo, GetAmmo(Props->OverlayState));
+		}
 	} while (0);
 }
 
@@ -151,6 +156,12 @@ UPropsComponent::EndUnEquip(APropsBase* Props) const {
 
 		if (DesiredProps) {
 			Equip(DesiredProps);
+		}
+
+		AGunBase* Gun = Cast<AGunBase>(Props);
+		UALSPlayerHUD* HUD = Character->GetHUD();
+		if (Gun && HUD) {
+			HUD->HideAmmoInfo();
 		}
 	} while (0);
 }
@@ -391,4 +402,16 @@ UPropsComponent::AttackInternal(AGunBase* Gun, int DebugTrace) const {
 			GameInstance->ALSActorPool->Get(World, Gun->TracerClass, MuzzleLocation, MuzzleRotation, 2.f);
 		}
 	} while (0);
+}
+
+inline int32 
+UPropsComponent::GetAmmo(EALSOverlayState Overlay) const {
+	switch (Overlay) {
+	case EALSOverlayState::Rifle: return RifleAmmo;
+	case EALSOverlayState::PistolOneHanded: return PistolAmmo;
+	// case EALSOverlayState::PistolTwoHanded: break;
+	// case EALSOverlayState::Bow: break;
+	}
+
+	return -1;
 }

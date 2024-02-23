@@ -5,21 +5,25 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "ALSHUD.generated.h"
+#include "ALSPlayerHUD.generated.h"
 
 class UBorder;
 class UCanvasPanelSlot;
 class UTextBlock;
 
 UCLASS()
-class ALSV4_CPP_API UALSHUD : public UUserWidget {
+class ALSV4_CPP_API UALSPlayerHUD : public UUserWidget {
 	GENERATED_BODY()
 	
 public:
 	void ShowCrosshair();
 	void HideCrosshair();
-	bool IsCrosshairVisiblity();
+	void ShowAmmoInfo(int32 Value, int32 MaxValue);
+	void HideAmmoInfo();
+	bool IsCrosshairVisiblity() const;
 	void CalculateSpread(float Value, float DeltaTime);
+	void SetMaxAmmo(int32 Value);
+	void SetCurrentAmmo(int32 Value);
 
 protected:
 	UPROPERTY(meta = (BindWidget))
@@ -39,6 +43,12 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> RightTopFPSLable;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TXT_CurrentAmmo;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TXT_MaxAmmo;
 
 protected:
 	virtual bool Initialize() override;

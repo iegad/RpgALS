@@ -26,7 +26,7 @@
 
 #include "Props/Weapons/Guns/GunBase.h"
 #include "Components/PropsComponent.h"
-#include "UI/ALSHUD.h"
+#include "UI/ALSPlayerHUD.h"
 
 
 static const FName NAME_Pelvis(TEXT("Pelvis"));
@@ -343,13 +343,13 @@ AALSBaseCharacter::BeginPlay() {
 
 	ALSDebugComponent = FindComponentByClass<UALSDebugComponent>();
 
-	if (ALSHUDClass) {
-		ALSHUD = CreateWidget<UALSHUD>(GetGameInstance(), ALSHUDClass);
-		if (!ALSHUD) {
-			ALS_ERROR(TEXT("CreateWidget ALSHUD failed"));
+	if (ALSPlayerHUDClass) {
+		ALSPlayerHUD = CreateWidget<UALSPlayerHUD>(GetGameInstance(), ALSPlayerHUDClass);
+		if (!ALSPlayerHUD) {
+			ALS_ERROR(TEXT("CreateWidget ALSPlayerHUD failed"));
 			return;
 		}
-		ALSHUD->AddToViewport();
+		ALSPlayerHUD->AddToViewport();
 	}
 }
 
@@ -1060,16 +1060,16 @@ AALSBaseCharacter::OnRotationModeChanged(EALSRotationMode PreviousRotationMode) 
 	}
 
 	ALSCharacterMovementComponent->SetMovementSettings(GetTargetMovementSettings());
-	if (ALSHUD) {
+	if (ALSPlayerHUD) {
 		if (GetRotationMode() == EALSRotationMode::Aiming && (
 			GetOverlayState() == EALSOverlayState::Rifle ||
 			GetOverlayState() == EALSOverlayState::PistolOneHanded ||
 			GetOverlayState() == EALSOverlayState::PistolTwoHanded ||
 			GetOverlayState() == EALSOverlayState::Bow)) {
-			ALSHUD->ShowCrosshair();
+			ALSPlayerHUD->ShowCrosshair();
 		}
 		else {
-			ALSHUD->HideCrosshair();
+			ALSPlayerHUD->HideCrosshair();
 		}
 	}
 }
@@ -1545,7 +1545,7 @@ AALSBaseCharacter::PistolFire() {
 
 inline void 
 AALSBaseCharacter::UpdateALSHUD(float DeltaTime) {
-	if (!ALSHUD || !ALSHUD->IsCrosshairVisiblity()) {
+	if (!ALSPlayerHUD || !ALSPlayerHUD->IsCrosshairVisiblity()) {
 		return;
 	}
 
@@ -1555,9 +1555,9 @@ AALSBaseCharacter::UpdateALSHUD(float DeltaTime) {
 	}
 
 	if (Weapon->WeaponAttackOptions.AttackCD <= 0.f) {
-		ALSHUD->CalculateSpread(PreviousVelocity.Size(), DeltaTime);
+		ALSPlayerHUD->CalculateSpread(PreviousVelocity.Size(), DeltaTime);
 		return;
 	}
 
-	ALSHUD->CalculateSpread(Weapon->WeaponAttackOptions.AttackCD * 8500, DeltaTime);
+	ALSPlayerHUD->CalculateSpread(Weapon->WeaponAttackOptions.AttackCD * 8500, DeltaTime);
 }

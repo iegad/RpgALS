@@ -1,8 +1,8 @@
 // Copyright:       Copyright (C) 2024 iegad
 // Source Code:     https://github.com/iegad/RpgALS
 
-#include "UI/ALSHUD.h"
-#include UE_INLINE_GENERATED_CPP_BY_NAME(ALSHUD)
+#include "UI/ALSPlayerHUD.h"
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ALSPlayerHUD)
 
 #include "Components/CanvasPanel.h"
 #include "Components/Border.h"
@@ -15,7 +15,7 @@
 #include "Core/ALSGameInstance.h"
 
 void 
-UALSHUD::ShowCrosshair() {
+UALSPlayerHUD::ShowCrosshair() {
 	TopCrosshair->SetVisibility(ESlateVisibility::Visible);
 	BottomCrosshair->SetVisibility(ESlateVisibility::Visible);
 	LeftCrosshair->SetVisibility(ESlateVisibility::Visible);
@@ -23,20 +23,34 @@ UALSHUD::ShowCrosshair() {
 }
 
 void 
-UALSHUD::HideCrosshair() {
+UALSPlayerHUD::HideCrosshair() {
 	TopCrosshair->SetVisibility(ESlateVisibility::Hidden);
 	BottomCrosshair->SetVisibility(ESlateVisibility::Hidden);
 	LeftCrosshair->SetVisibility(ESlateVisibility::Hidden);
 	RightCrosshair->SetVisibility(ESlateVisibility::Hidden);
 }
 
+void 
+UALSPlayerHUD::ShowAmmoInfo(int32 Value, int32 MaxValue) {
+	TXT_CurrentAmmo->SetText(FText::AsNumber(Value));
+	TXT_MaxAmmo->SetText(FText::AsNumber(MaxValue));
+	TXT_CurrentAmmo->SetVisibility(ESlateVisibility::Visible);
+	TXT_MaxAmmo->SetVisibility(ESlateVisibility::Visible);
+}
+
+void 
+UALSPlayerHUD::HideAmmoInfo() {
+	TXT_CurrentAmmo->SetVisibility(ESlateVisibility::Hidden);
+	TXT_MaxAmmo->SetVisibility(ESlateVisibility::Hidden);
+}
+
 bool 
-UALSHUD::IsCrosshairVisiblity() {
+UALSPlayerHUD::IsCrosshairVisiblity() const {
 	return TopCrosshair->IsVisible();
 }
 
 void 
-UALSHUD::CalculateSpread(float Value, float DeltaTime) {
+UALSPlayerHUD::CalculateSpread(float Value, float DeltaTime) {
 	static const FVector2D InRange(0.f, 650.f);
 	static const FVector2D OutRange(5.f, 30.f);
 
@@ -44,10 +58,23 @@ UALSHUD::CalculateSpread(float Value, float DeltaTime) {
 	Spread = FMath::GetMappedRangeValueClamped(InRange, OutRange, CrosshairValue);
 }
 
+void 
+UALSPlayerHUD::SetMaxAmmo(int32 Value) {
+	if (Value >= 0) {
+		TXT_MaxAmmo->SetText(FText::AsNumber(Value));
+	}
+}
+
+void 
+UALSPlayerHUD::SetCurrentAmmo(int32 Value) {
+	if (Value >= 0) {
+		TXT_CurrentAmmo->SetText(FText::AsNumber(Value));
+	}
+}
+
 bool
-UALSHUD::Initialize() {
+UALSPlayerHUD::Initialize() {
 	bool bRet = Super::Initialize();
-	HideCrosshair();
 
 	if (!TopCrosshairSlot) {
 		TopCrosshairSlot = Cast<UCanvasPanelSlot>(TopCrosshair->Slot);
@@ -81,11 +108,21 @@ UALSHUD::Initialize() {
 		ALS_ERROR(TEXT("TopCrosshairSlot builded failed: %s:%d"), __FILEW__, __LINE__);
 	}
 
+	if (!TXT_CurrentAmmo) {
+		ALS_ERROR(TEXT("TXT_CurrentAmmo builded failed: %s:%d"), __FILEW__, __LINE__);
+	}
+
+	if (!TXT_MaxAmmo) {
+		ALS_ERROR(TEXT("TXT_MaxAmmo builded failed: %s:%d"), __FILEW__, __LINE__);
+	}
+
+	HideCrosshair();
+	HideAmmoInfo();
 	return bRet;
 }
 
 void
-UALSHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
+UALSPlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	UpdateCrosshairValue(InDeltaTime);
@@ -93,7 +130,7 @@ UALSHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
 }
 
 inline void
-UALSHUD::UpdateCrosshairValue(float InDeltaTime) {
+UALSPlayerHUD::UpdateCrosshairValue(float InDeltaTime) {
 	if (IsCrosshairVisiblity() && TopCrosshair && BottomCrosshair && LeftCrosshair && RightCrosshair &&
 		TopCrosshairSlot && BottomCrosshairSlot && LeftCrosshairSlot && RightCrosshairSlot) {
 		BottomCrosshairSlot->SetSize(FVector2D(Thickness, Length));
@@ -111,7 +148,7 @@ UALSHUD::UpdateCrosshairValue(float InDeltaTime) {
 }
 
 inline void 
-UALSHUD::UpdateShowFPS(float InDeltaTime) {
+UALSPlayerHUD::UpdateShowFPS(float InDeltaTime) {
 	static int32 FPSCollectTimes = 0;
 	static float FPSValue = 0.f;
 	static float TimerShowFPS = 0.5f;
