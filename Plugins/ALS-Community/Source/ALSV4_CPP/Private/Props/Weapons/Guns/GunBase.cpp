@@ -37,6 +37,10 @@ AGunBase::Attack(AALSBaseCharacter* Character, int DebugTrace) {
 			break;
 		}
 
+		if (GetLock()) {
+			break;
+		}
+
 		UWorld* World = GetWorld();
 		if (!World) {
 			ALS_ERROR(TEXT("GetWorld() called failed: %s:%d"), __FILEW__, __LINE__);
@@ -136,6 +140,11 @@ AGunBase::Attack(AALSBaseCharacter* Character, int DebugTrace) {
 	} while (0);
 }
 
+void 
+AGunBase::EndReload() {
+	UnLock();
+}
+
 void
 AGunBase::BeginPlay() {
 	Super::BeginPlay();
@@ -158,6 +167,11 @@ AGunBase::Reload(AALSBaseCharacter* Character) {
 			break;
 		}
 
+		if (GetLock()) {
+			break;
+		}
+
+		Lock();
 		Character->PlayAnimMontage(ReloadMontage);
 	} while (0);
 }

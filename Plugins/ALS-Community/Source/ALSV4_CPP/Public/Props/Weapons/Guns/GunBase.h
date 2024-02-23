@@ -39,6 +39,7 @@ public:
 public:
 	virtual void Attack(AALSBaseCharacter* Character, int DebugTrace) override;
 	void Reload(AALSBaseCharacter* Character);
+	void EndReload();
 
 protected:
 	virtual void BeginPlay() override;

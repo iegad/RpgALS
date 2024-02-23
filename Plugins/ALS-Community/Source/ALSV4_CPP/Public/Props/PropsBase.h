@@ -16,6 +16,10 @@ class ALSV4_CPP_API APropsBase : public AALSActor {
 public:
 	APropsBase();
 
+	inline void Lock() { Locked = true; }
+	inline void UnLock() { Locked = false; }
+	bool GetLock() const { return Locked; }
+
 public:
 	/// <summary>
 	/// ¸ù×é¼þ
@@ -49,4 +53,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+
+private:
+	bool Locked = false;
 };

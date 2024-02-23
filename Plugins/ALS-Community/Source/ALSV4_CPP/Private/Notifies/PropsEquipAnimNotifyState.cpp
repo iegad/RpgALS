@@ -4,7 +4,7 @@
 #include "Notifies/PropsEquipAnimNotifyState.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(PropsEquipAnimNotifyState)
 
-#include "Character/ALSCharacter.h"
+#include "Character/ALSBaseCharacter.h"
 #include "Components/PropsComponent.h"
 
 void 
@@ -15,7 +15,7 @@ UPropsEquipAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimS
 			break;
 		}
 
-		AALSCharacter* Character = Cast<AALSCharacter>(MeshComp->GetOuter());
+		AALSBaseCharacter* Character = Cast<AALSBaseCharacter>(MeshComp->GetOuter());
 		if (!Character || !Character->PropsComponent) {
 			break;
 		}
@@ -37,7 +37,7 @@ UPropsEquipAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSeq
 			break;
 		}
 
-		AALSCharacter* Character = Cast<AALSCharacter>(MeshComp->GetOuter());
+		AALSBaseCharacter* Character = Cast<AALSBaseCharacter>(MeshComp->GetOuter());
 		if (!Character || !Character->PropsComponent) {
 			break;
 		}

@@ -12,7 +12,7 @@ UPropsComponent::UPropsComponent() : Super() {
 }
 
 void 
-UPropsComponent::StartEquip(const APropsBase* Props) const {
+UPropsComponent::StartEquip(APropsBase* Props) const {
 	do {
 		if (!Props) {
 			ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
@@ -25,7 +25,7 @@ UPropsComponent::StartEquip(const APropsBase* Props) const {
 			break;
 		}
 
-		const APropsBase* CurrentProps = Character->GetCurrentProps();
+		APropsBase* CurrentProps = Character->GetCurrentProps();
 		if (CurrentProps) {
 			UnEquip(CurrentProps);
 			break;
@@ -55,7 +55,7 @@ UPropsComponent::StartEquip(const APropsBase* Props) const {
 }
 
 void 
-UPropsComponent::EndEquip(const APropsBase* Props) const {
+UPropsComponent::EndEquip(APropsBase* Props) const {
 	do {
 		if (!Props) {
 			ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
@@ -68,12 +68,13 @@ UPropsComponent::EndEquip(const APropsBase* Props) const {
 			break;
 		}
 
+		Props->UnLock();
 		Character->SetOverlayState(Props->OverlayState);
 	} while (0);
 }
 
 void 
-UPropsComponent::StartUnEquip(const APropsBase* Props) const {
+UPropsComponent::StartUnEquip(APropsBase* Props) const {
 	do {
 		if (!Props) {
 			ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
@@ -114,7 +115,7 @@ UPropsComponent::StartUnEquip(const APropsBase* Props) const {
 }
 
 void 
-UPropsComponent::EndUnEquip(const APropsBase* Props) const {
+UPropsComponent::EndUnEquip(APropsBase* Props) const {
 	do {
 		if (!Props) {
 			ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
@@ -127,6 +128,7 @@ UPropsComponent::EndUnEquip(const APropsBase* Props) const {
 			break;
 		}
 
+		Props->UnLock();
 		Character->SetOverlayState(EALSOverlayState::Default);
 
 		if (DesiredProps) {
@@ -136,7 +138,7 @@ UPropsComponent::EndUnEquip(const APropsBase* Props) const {
 }
 
 void 
-UPropsComponent::Equip(const APropsBase* Props) const {
+UPropsComponent::Equip(APropsBase* Props) const {
 	do {
 		if (!Props) {
 			ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
@@ -148,26 +150,31 @@ UPropsComponent::Equip(const APropsBase* Props) const {
 			break;
 		}
 
+		if (Props->GetLock()) {
+			break;
+		}
+
 		AALSCharacter* Character = GetALSCharacter();
 		if (!Character) {
 			ALS_ERROR(TEXT("UPropsComponent's GetOwner is not AALSCharacter: %s:%d"), __FILEW__, __LINE__);
 			break;
 		}
 
-		const APropsBase* CurrentProps = Character->GetCurrentProps();
+		APropsBase* CurrentProps = Character->GetCurrentProps();
 		if (CurrentProps) {
-			DesiredProps = const_cast<APropsBase*>(Props);
+			DesiredProps = Props;
 			UnEquip(CurrentProps);
 			break;
 		}
 
+		Props->Lock();
 		Character->PlayAnimMontage(Props->EquipMontage);
 		DesiredProps = nullptr;
 	} while (0);
 }
 
 void 
-UPropsComponent::UnEquip(const APropsBase* Props) const {
+UPropsComponent::UnEquip(APropsBase* Props) const {
 	do {
 		if (!Props) {
 			ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
@@ -179,12 +186,17 @@ UPropsComponent::UnEquip(const APropsBase* Props) const {
 			break;
 		}
 
+		if (Props->GetLock()) {
+			break;
+		}
+
 		AALSCharacter* Character = GetALSCharacter();
 		if (!Character) {
 			ALS_ERROR(TEXT("UPropsComponent's GetOwner is not AALSCharacter: %s:%d"), __FILEW__, __LINE__);
 			break;
 		}
 
+		Props->Lock();
 		Character->PlayAnimMontage(Props->UnEquipMontage);
 	} while (0);
 }
