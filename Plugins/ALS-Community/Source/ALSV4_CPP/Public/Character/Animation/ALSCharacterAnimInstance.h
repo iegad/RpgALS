@@ -32,7 +32,7 @@ public:
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	UFUNCTION(BlueprintCallable, Category = "ALS|Animation")
+	UFUNCTION(BlueprintCallable, Category = "ALS|Animation", Meta = (BlueprintProtected, BlueprintThreadSafe))
 	void PlayTransition(const FALSDynamicMontageParams& Parameters);
 
 	UFUNCTION(BlueprintCallable, Category = "ALS|Animation")
@@ -49,16 +49,21 @@ public:
 
 protected:
 
-	UFUNCTION(BlueprintCallable, Category = "ALS|Grounded")
-	void SetTrackedHipsDirection(EALSHipsDirection HipsDirection)
-	{
+	UFUNCTION(BlueprintCallable, Category = "ALS|Grounded", Meta = (BlueprintProtected, BlueprintThreadSafe))
+	void SetTrackedHipsDirection(EALSHipsDirection HipsDirection) {
 		Grounded.TrackedHipsDirection = HipsDirection;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "ALS|Grounded")
-	void SetGroundedEntryState(EALSGroundedEntryState NewState)
-	{
+	UFUNCTION(BlueprintCallable, Category = "ALS|Grounded", Meta = (BlueprintProtected, BlueprintThreadSafe))
+	void SetGroundedEntryState(EALSGroundedEntryState NewState) {
 		GroundedEntryState = NewState;
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "ALS|Grounded", Meta = (BlueprintProtected, BlueprintThreadSafe))
+	void StopTransitionHandler() {
+		StopSlotAnimation(0.2f, TEXT("Grounded Slot"));
+		StopSlotAnimation(0.2f, TEXT("(N) Turn/Rotate"));
+		StopSlotAnimation(0.2f, TEXT("(CLF) Turn/Rotate"));
 	}
 
 	/** Enable Movement Animations if IsMoving and HasMovementInput, or if the Speed is greater than 150. */

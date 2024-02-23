@@ -147,5 +147,5 @@ AGunBase::BeginPlay() {
 
 void 
 AGunBase::Reload(AALSBaseCharacter* Character) {
-	// TODO
+	
 }
