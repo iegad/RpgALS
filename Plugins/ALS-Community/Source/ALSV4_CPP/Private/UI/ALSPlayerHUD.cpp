@@ -15,35 +15,35 @@
 #include "ALSLibrary.h"
 #include "Core/ALSGameInstance.h"
 
-inline void 
+void 
 UALSPlayerHUD::ShowFPS() {
 	if (HBOX_FPS->GetVisibility() == ESlateVisibility::Hidden) {
 		HBOX_FPS->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	}
 }
 
-inline void 
+void 
 UALSPlayerHUD::HideFPS() {
 	if (HBOX_FPS->GetVisibility() != ESlateVisibility::Hidden) {
 		HBOX_FPS->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
-inline void
+void
 UALSPlayerHUD::ShowCrosshair() {
 	if (CP_Crosshair->GetVisibility() == ESlateVisibility::Hidden) {
 		CP_Crosshair->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	}
 }
 
-inline void 
+void 
 UALSPlayerHUD::HideCrosshair() {
 	if (CP_Crosshair->GetVisibility() != ESlateVisibility::Hidden) {
 		CP_Crosshair->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
-inline void
+void
 UALSPlayerHUD::ShowRifleAmmo(int32 Value, int32 MaxValue) {
 	if (HBOX_RifleAmmo->GetVisibility() == ESlateVisibility::Hidden) {
 		TXT_CurrentRifleAmmo->SetText(FText::AsNumber(Value));
@@ -52,19 +52,19 @@ UALSPlayerHUD::ShowRifleAmmo(int32 Value, int32 MaxValue) {
 	}
 }
 
-inline void
+void
 UALSPlayerHUD::HideRifleAmmo() {
 	if (HBOX_RifleAmmo->GetVisibility() != ESlateVisibility::Hidden) {
 		HBOX_RifleAmmo->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
-inline bool
+bool
 UALSPlayerHUD::IsCrosshairVisiblity() const {
 	return CP_Crosshair->GetVisibility() != ESlateVisibility::Hidden;
 }
 
-inline void
+void
 UALSPlayerHUD::CalculateSpread(float Value, float DeltaTime) {
 	static const FVector2D InRange(0.f, 650.f);
 	static const FVector2D OutRange(5.f, 30.f);
@@ -73,14 +73,14 @@ UALSPlayerHUD::CalculateSpread(float Value, float DeltaTime) {
 	Spread = FMath::GetMappedRangeValueClamped(InRange, OutRange, CrosshairValue);
 }
 
-inline void
+void
 UALSPlayerHUD::SetRifleMaxAmmo(int32 Value) {
 	if (Value >= 0) {
 		TXT_MaxRifleAmmo->SetText(FText::AsNumber(Value));
 	}
 }
 
-inline void
+void
 UALSPlayerHUD::SetRifleCurrentAmmo(int32 Value) {
 	if (Value >= 0) {
 		TXT_CurrentRifleAmmo->SetText(FText::AsNumber(Value));

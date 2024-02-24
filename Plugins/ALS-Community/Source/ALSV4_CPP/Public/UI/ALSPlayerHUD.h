@@ -18,18 +18,18 @@ class ALSV4_CPP_API UALSPlayerHUD : public UUserWidget {
 	GENERATED_BODY()
 	
 public:
-	inline void ShowFPS();
-	inline void HideFPS();
+	void ShowFPS();
+	void HideFPS();
 
-	inline void ShowCrosshair();
-	inline void HideCrosshair();
-	inline bool IsCrosshairVisiblity() const;
-	inline void ShowRifleAmmo(int32 Value, int32 MaxValue);
-	inline void HideRifleAmmo();
+	void ShowCrosshair();
+	void HideCrosshair();
+	bool IsCrosshairVisiblity() const;
+	void ShowRifleAmmo(int32 Value, int32 MaxValue);
+	void HideRifleAmmo();
 	
-	inline void CalculateSpread(float Value, float DeltaTime);
-	inline void SetRifleMaxAmmo(int32 Value);
-	inline void SetRifleCurrentAmmo(int32 Value);
+	void CalculateSpread(float Value, float DeltaTime);
+	void SetRifleMaxAmmo(int32 Value);
+	void SetRifleCurrentAmmo(int32 Value);
 
 protected:
 
