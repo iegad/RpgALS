@@ -82,7 +82,7 @@ UPropsComponent::EndEquip(APropsBase* Props) const {
 		AGunBase* Gun = Cast<AGunBase>(Props);
 		UALSPlayerHUD* HUD = Character->GetHUD();
 		if (Gun && HUD) {
-			HUD->ShowAmmoInfo(Gun->Ammo, GetAmmo(Props->OverlayState));
+			HUD->ShowRifleAmmo(35, 245/*Gun->Ammo, GetAmmo(Props->OverlayState)*/);
 		}
 	} while (0);
 }
@@ -161,7 +161,7 @@ UPropsComponent::EndUnEquip(APropsBase* Props) const {
 		AGunBase* Gun = Cast<AGunBase>(Props);
 		UALSPlayerHUD* HUD = Character->GetHUD();
 		if (Gun && HUD) {
-			HUD->HideAmmoInfo();
+			HUD->HideRifleAmmo();
 		}
 	} while (0);
 }

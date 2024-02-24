@@ -4,52 +4,67 @@
 #include "UI/ALSPlayerHUD.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ALSPlayerHUD)
 
-#include "Components/CanvasPanel.h"
 #include "Components/Border.h"
-#include "Components/TextBlock.h"
+#include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/HorizontalBox.h"
+#include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Blueprint/WidgetTree.h"
 
 #include "ALSLibrary.h"
 #include "Core/ALSGameInstance.h"
 
-void 
+inline void 
+UALSPlayerHUD::ShowFPS() {
+	if (HBOX_FPS->GetVisibility() == ESlateVisibility::Hidden) {
+		HBOX_FPS->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+}
+
+inline void 
+UALSPlayerHUD::HideFPS() {
+	if (HBOX_FPS->GetVisibility() != ESlateVisibility::Hidden) {
+		HBOX_FPS->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+inline void
 UALSPlayerHUD::ShowCrosshair() {
-	TopCrosshair->SetVisibility(ESlateVisibility::Visible);
-	BottomCrosshair->SetVisibility(ESlateVisibility::Visible);
-	LeftCrosshair->SetVisibility(ESlateVisibility::Visible);
-	RightCrosshair->SetVisibility(ESlateVisibility::Visible);
+	if (CP_Crosshair->GetVisibility() == ESlateVisibility::Hidden) {
+		CP_Crosshair->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
 }
 
-void 
+inline void 
 UALSPlayerHUD::HideCrosshair() {
-	TopCrosshair->SetVisibility(ESlateVisibility::Hidden);
-	BottomCrosshair->SetVisibility(ESlateVisibility::Hidden);
-	LeftCrosshair->SetVisibility(ESlateVisibility::Hidden);
-	RightCrosshair->SetVisibility(ESlateVisibility::Hidden);
+	if (CP_Crosshair->GetVisibility() != ESlateVisibility::Hidden) {
+		CP_Crosshair->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
-void 
-UALSPlayerHUD::ShowAmmoInfo(int32 Value, int32 MaxValue) {
-	TXT_CurrentAmmo->SetText(FText::AsNumber(Value));
-	TXT_MaxAmmo->SetText(FText::AsNumber(MaxValue));
-	TXT_CurrentAmmo->SetVisibility(ESlateVisibility::Visible);
-	TXT_MaxAmmo->SetVisibility(ESlateVisibility::Visible);
+inline void
+UALSPlayerHUD::ShowRifleAmmo(int32 Value, int32 MaxValue) {
+	if (HBOX_RifleAmmo->GetVisibility() == ESlateVisibility::Hidden) {
+		TXT_CurrentRifleAmmo->SetText(FText::AsNumber(Value));
+		TXT_MaxRifleAmmo->SetText(FText::AsNumber(MaxValue));
+		HBOX_RifleAmmo->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
 }
 
-void 
-UALSPlayerHUD::HideAmmoInfo() {
-	TXT_CurrentAmmo->SetVisibility(ESlateVisibility::Hidden);
-	TXT_MaxAmmo->SetVisibility(ESlateVisibility::Hidden);
+inline void
+UALSPlayerHUD::HideRifleAmmo() {
+	if (HBOX_RifleAmmo->GetVisibility() != ESlateVisibility::Hidden) {
+		HBOX_RifleAmmo->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
-bool 
+inline bool
 UALSPlayerHUD::IsCrosshairVisiblity() const {
-	return TopCrosshair->IsVisible();
+	return CP_Crosshair->GetVisibility() != ESlateVisibility::Hidden;
 }
 
-void 
+inline void
 UALSPlayerHUD::CalculateSpread(float Value, float DeltaTime) {
 	static const FVector2D InRange(0.f, 650.f);
 	static const FVector2D OutRange(5.f, 30.f);
@@ -58,23 +73,63 @@ UALSPlayerHUD::CalculateSpread(float Value, float DeltaTime) {
 	Spread = FMath::GetMappedRangeValueClamped(InRange, OutRange, CrosshairValue);
 }
 
-void 
-UALSPlayerHUD::SetMaxAmmo(int32 Value) {
+inline void
+UALSPlayerHUD::SetRifleMaxAmmo(int32 Value) {
 	if (Value >= 0) {
-		TXT_MaxAmmo->SetText(FText::AsNumber(Value));
+		TXT_MaxRifleAmmo->SetText(FText::AsNumber(Value));
 	}
 }
 
-void 
-UALSPlayerHUD::SetCurrentAmmo(int32 Value) {
+inline void
+UALSPlayerHUD::SetRifleCurrentAmmo(int32 Value) {
 	if (Value >= 0) {
-		TXT_CurrentAmmo->SetText(FText::AsNumber(Value));
+		TXT_CurrentRifleAmmo->SetText(FText::AsNumber(Value));
 	}
 }
 
 bool
 UALSPlayerHUD::Initialize() {
 	bool bRet = Super::Initialize();
+
+	if (!HBOX_FPS) {
+		ALS_ERROR(TEXT("HBOX_FPS is not exists: %s:%d"), __FILEW__, __LINE__);
+	}
+
+	if (!TXT_FPS) {
+		ALS_ERROR(TEXT("TXT_FPS is not exists: %s:%d"), __FILEW__, __LINE__);
+	}
+
+	if (!CP_Crosshair) {
+		ALS_ERROR(TEXT("CP_Crosshair is not exists: %s:%d"), __FILEW__, __LINE__);
+	}
+
+	if (!TopCrosshair) {
+		ALS_ERROR(TEXT("TopCrosshair is not exists: %s:%d"), __FILEW__, __LINE__);
+	}
+
+	if (!BottomCrosshair) {
+		ALS_ERROR(TEXT("BottomCrosshair is not exists: %s:%d"), __FILEW__, __LINE__);
+	}
+
+	if (!LeftCrosshair) {
+		ALS_ERROR(TEXT("LeftCrosshair is not exists: %s:%d"), __FILEW__, __LINE__);
+	}
+
+	if (!RightCrosshair) {
+		ALS_ERROR(TEXT("RightCrosshair is not exists: %s:%d"), __FILEW__, __LINE__);
+	}
+
+	if (!HBOX_RifleAmmo) {
+		ALS_ERROR(TEXT("HBOX_RifleAmmo is not exists: %s:%d"), __FILEW__, __LINE__);
+	}
+
+	if (!TXT_CurrentRifleAmmo) {
+		ALS_ERROR(TEXT("TXT_CurrentRifleAmmo is not exists: %s:%d"), __FILEW__, __LINE__);
+	}
+
+	if (!TXT_MaxRifleAmmo) {
+		ALS_ERROR(TEXT("TXT_MaxRifleAmmo is not exists: %s:%d"), __FILEW__, __LINE__);
+	}
 
 	if (!TopCrosshairSlot) {
 		TopCrosshairSlot = Cast<UCanvasPanelSlot>(TopCrosshair->Slot);
@@ -93,31 +148,32 @@ UALSPlayerHUD::Initialize() {
 	}
 
 	if (!TopCrosshairSlot) {
-		ALS_ERROR(TEXT("TopCrosshairSlot builded failed: %s:%d"), __FILEW__, __LINE__);
+		ALS_FATAL(TEXT("TopCrosshairSlot builded failed: %s:%d"), __FILEW__, __LINE__);
 	}
 
 	if (!BottomCrosshairSlot) {
-		ALS_ERROR(TEXT("TopCrosshairSlot builded failed: %s:%d"), __FILEW__, __LINE__);
+		ALS_FATAL(TEXT("TopCrosshairSlot builded failed: %s:%d"), __FILEW__, __LINE__);
 	}
 
 	if (!LeftCrosshairSlot) {
-		ALS_ERROR(TEXT("TopCrosshairSlot builded failed: %s:%d"), __FILEW__, __LINE__);
+		ALS_FATAL(TEXT("TopCrosshairSlot builded failed: %s:%d"), __FILEW__, __LINE__);
 	}
 
 	if (!RightCrosshairSlot) {
-		ALS_ERROR(TEXT("TopCrosshairSlot builded failed: %s:%d"), __FILEW__, __LINE__);
+		ALS_FATAL(TEXT("TopCrosshairSlot builded failed: %s:%d"), __FILEW__, __LINE__);
 	}
 
-	if (!TXT_CurrentAmmo) {
+	if (!TXT_CurrentRifleAmmo) {
 		ALS_ERROR(TEXT("TXT_CurrentAmmo builded failed: %s:%d"), __FILEW__, __LINE__);
 	}
 
-	if (!TXT_MaxAmmo) {
+	if (!TXT_MaxRifleAmmo) {
 		ALS_ERROR(TEXT("TXT_MaxAmmo builded failed: %s:%d"), __FILEW__, __LINE__);
 	}
 
+	HideFPS();
 	HideCrosshair();
-	HideAmmoInfo();
+	HideRifleAmmo();
 	return bRet;
 }
 
@@ -131,8 +187,7 @@ UALSPlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
 
 inline void
 UALSPlayerHUD::UpdateCrosshairValue(float InDeltaTime) {
-	if (IsCrosshairVisiblity() && TopCrosshair && BottomCrosshair && LeftCrosshair && RightCrosshair &&
-		TopCrosshairSlot && BottomCrosshairSlot && LeftCrosshairSlot && RightCrosshairSlot) {
+	if (IsCrosshairVisiblity()) {
 		BottomCrosshairSlot->SetSize(FVector2D(Thickness, Length));
 		BottomCrosshairSlot->SetPosition(FVector2D(0 - Thickness / 2, Spread));
 
@@ -154,14 +209,12 @@ UALSPlayerHUD::UpdateShowFPS(float InDeltaTime) {
 	static float TimerShowFPS = 0.5f;
 
 	UALSGameInstance* GameInstance = Cast<UALSGameInstance>(GetGameInstance());
-	if (GameInstance && GameInstance->GetPlayerGameSettings().GraphicsSettings.ShowFPS) {
-		if (!RightTopFPS->IsVisible()) {
-			RightTopFPS->SetVisibility(ESlateVisibility::Visible);
-			RightTopFPSLable->SetVisibility(ESlateVisibility::Visible);
-		}
 
+	if (GameInstance && GameInstance->GetPlayerGameSettings().GraphicsSettings.ShowFPS) {
+		ShowFPS();
+		
 		if (TimerShowFPS <= 0.f) {
-			RightTopFPS->SetText(FText::AsNumber((int32)(FPSValue / (float)FPSCollectTimes)));
+			TXT_FPS->SetText(FText::AsNumber(int32(FPSValue / (float)FPSCollectTimes)));
 			TimerShowFPS = 0.5f;
 			FPSCollectTimes = 0;
 			FPSValue = 0.f;
@@ -172,8 +225,7 @@ UALSPlayerHUD::UpdateShowFPS(float InDeltaTime) {
 			FPSCollectTimes++;
 		}
 	}
-	else if (RightTopFPS->IsVisible()) {
-		RightTopFPS->SetVisibility(ESlateVisibility::Hidden);
-		RightTopFPSLable->SetVisibility(ESlateVisibility::Hidden);
+	else {
+		HideFPS();
 	}
 }

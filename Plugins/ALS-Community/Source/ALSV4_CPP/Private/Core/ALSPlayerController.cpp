@@ -110,7 +110,7 @@ AALSPlayerController::BeginPlay() {
 
 	if (UI_ALSGameSettings) {
 		UI_ALSGameSettings->SetVisibility(ESlateVisibility::Hidden);
-		UI_ALSGameSettings->AddToViewport();
+		UI_ALSGameSettings->AddToViewport(10);
 		return;
 	}
 }

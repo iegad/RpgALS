@@ -8,7 +8,9 @@
 #include "ALSPlayerHUD.generated.h"
 
 class UBorder;
+class UCanvasPanel;
 class UCanvasPanelSlot;
+class UHorizontalBox;
 class UTextBlock;
 
 UCLASS()
@@ -16,16 +18,32 @@ class ALSV4_CPP_API UALSPlayerHUD : public UUserWidget {
 	GENERATED_BODY()
 	
 public:
-	void ShowCrosshair();
-	void HideCrosshair();
-	void ShowAmmoInfo(int32 Value, int32 MaxValue);
-	void HideAmmoInfo();
-	bool IsCrosshairVisiblity() const;
-	void CalculateSpread(float Value, float DeltaTime);
-	void SetMaxAmmo(int32 Value);
-	void SetCurrentAmmo(int32 Value);
+	inline void ShowFPS();
+	inline void HideFPS();
+
+	inline void ShowCrosshair();
+	inline void HideCrosshair();
+	inline bool IsCrosshairVisiblity() const;
+	inline void ShowRifleAmmo(int32 Value, int32 MaxValue);
+	inline void HideRifleAmmo();
+	
+	inline void CalculateSpread(float Value, float DeltaTime);
+	inline void SetRifleMaxAmmo(int32 Value);
+	inline void SetRifleCurrentAmmo(int32 Value);
 
 protected:
+
+	// FPS 相关UI
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UHorizontalBox> HBOX_FPS;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TXT_FPS;
+
+	// 准心
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCanvasPanel> CP_Crosshair;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UBorder> TopCrosshair;
 
@@ -38,17 +56,15 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UBorder> RightCrosshair;
 
+	// 弹药
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> RightTopFPS;
+	TObjectPtr<UHorizontalBox> HBOX_RifleAmmo;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> RightTopFPSLable;
+	TObjectPtr<UTextBlock> TXT_CurrentRifleAmmo;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TXT_CurrentAmmo;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TXT_MaxAmmo;
+	TObjectPtr<UTextBlock> TXT_MaxRifleAmmo;
 
 protected:
 	virtual bool Initialize() override;
