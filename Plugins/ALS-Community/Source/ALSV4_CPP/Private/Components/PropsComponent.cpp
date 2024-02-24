@@ -333,22 +333,22 @@ UPropsComponent::AttackInternal(AGunBase* Gun, int DebugTrace) const {
 		const FVector Start = CameraLocation + CameraForward * Offset;
 		FVector End = Start + CameraForward * Gun->WeaponAttackOptions.Range;
 
-		// ²¥·ÅÒôÐ§
+		// æ’­æ”¾éŸ³æ•ˆ
 		if (Gun->WeaponEffectsOptions.AttackSound) {
 			UGameplayStatics::SpawnSoundAtLocation(World, Gun->WeaponEffectsOptions.AttackSound, MuzzleLocation);
 		}
 
-		// ²¥·ÅÌØÐ§
+		// æ’­æ”¾ç‰¹æ•ˆ
 		if (Gun->WeaponEffectsOptions.AttackEffects) {
 			UGameplayStatics::SpawnEmitterAttached(Gun->WeaponEffectsOptions.AttackEffects, Gun->MuzzleScene);
 		}
 
-		// ²¥·Å¹¥»÷ÃÉÌ«Ææ
+		// æ’­æ”¾æ”»å‡»è’™å¤ªå¥‡
 		if (Gun->WeaponAnimationOptions.AttackMontage) {
 			Character->PlayAnimMontage(Gun->WeaponAnimationOptions.AttackMontage);
 		}
 
-		// ÉäÏß¼ì²â
+		// å°„çº¿æ£€æµ‹
 		FCollisionQueryParams TraceParams(TEXT("WeaponTrace"), false);
 		TraceParams.AddIgnoredActor(Character);
 		TraceParams.bReturnPhysicalMaterial = true;
@@ -368,7 +368,7 @@ UPropsComponent::AttackInternal(AGunBase* Gun, int DebugTrace) const {
 			const FRotator&& EndRotation = OutHitResult.Normal.ToOrientationRotator();
 
 			if (OutHitResult.Distance < 200) {
-				// Èç¹û¾àÀë2Ã×ÒÔÄÚ¾Í²»ÏÔÊ¾Tracer.
+				// å¦‚æžœè·ç¦»2ç±³ä»¥å†…å°±ä¸æ˜¾ç¤ºTracer.
 				bTracer = false;
 			}
 
@@ -377,7 +377,7 @@ UPropsComponent::AttackInternal(AGunBase* Gun, int DebugTrace) const {
 			}
 
 			if (OutHitResult.PhysMaterial.IsValid()) {
-				// ²¥·Å»·¾³ÌØÐ§
+				// æ’­æ”¾çŽ¯å¢ƒç‰¹æ•ˆ
 				AALSGameMode* ALSGameMode = UALSLibrary::Instance()->GetGameMode(World);
 				if (!ALSGameMode) {
 					break;
@@ -386,13 +386,13 @@ UPropsComponent::AttackInternal(AGunBase* Gun, int DebugTrace) const {
 			}
 
 			AALSBaseCharacter* HitCharacter = Cast<AALSBaseCharacter>(OutHitResult.GetActor());
-			// TODO: ÕâÀïÐèÒªÎª AALSBaseCharacter Ìí¼ÓÕóÓª, ²»Í¬ÕóÓª²Å»áÊÜµ½ÉËº¦
+			// TODO: è¿™é‡Œéœ€è¦ä¸º AALSBaseCharacter æ·»åŠ é˜µè¥, ä¸åŒé˜µè¥æ‰ä¼šå—åˆ°ä¼¤å®³
 			if (HitCharacter/* && HitCharacter->ActorHasTag(TEXT("Enemy"))*/) {
 				HitCharacter->Hit(Gun->WeaponAttackOptions.Damage);
 			}
 		}
 
-		// ºó×øÁ¦
+		// åŽååŠ›
 		if (Gun->Recoil) {
 			Character->AddControllerPitchInput(-FMath::FRandRange(0, Gun->Recoil));
 		}
