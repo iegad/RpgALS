@@ -10,6 +10,20 @@
 class ATracerBase;
 class AMarkerBase;
 
+USTRUCT(BlueprintType)
+struct FALSAmmoInfo {
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 CurrentAmmo = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 MaxAmmo = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 ClipAmmo = 0;
+};
+
 UCLASS()
 class ALSV4_CPP_API AGunBase : public AWeaponBase {
 	GENERATED_BODY()
@@ -36,11 +50,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UAnimMontage> ReloadMontage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	int32 Ammo = 0;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<USoundBase> EmptySound;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	int32 MaxAmmo = 0;
+	FALSAmmoInfo AmmoInfo;
 
 protected:
 	virtual void BeginPlay() override;

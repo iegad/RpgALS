@@ -78,12 +78,16 @@ UPropsComponent::EndEquip(APropsBase* Props) const {
 		}
 
 		Character->SetOverlayState(Props->OverlayState);
-		Props->UnLock();
-		AGunBase* Gun = Cast<AGunBase>(Props);
+
 		UALSPlayerHUD* HUD = Character->GetHUD();
-		if (Gun && HUD) {
-			HUD->ShowRifleAmmo(35, 245/*Gun->Ammo, GetAmmo(Props->OverlayState)*/);
+		if (HUD) {
+			AGunBase* Gun = Cast<AGunBase>(Props);
+			if (Gun) {
+				HUD->SetGun(Gun);
+			}
 		}
+
+		Props->UnLock();
 	} while (0);
 }
 
@@ -91,6 +95,23 @@ void
 UPropsComponent::EndReload(AGunBase* Gun) const {
 	if (!Gun) {
 		return;
+	}
+
+	AALSBaseCharacter* Character = GetALSBaseCharacter();
+	if (!Character) {
+		return;
+	}
+
+	FALSAmmoInfo& AmmoInfo = Gun->AmmoInfo;
+	int32 ReloadValue = AmmoInfo.MaxAmmo > AmmoInfo.ClipAmmo ? AmmoInfo.ClipAmmo - AmmoInfo.CurrentAmmo : AmmoInfo.MaxAmmo - AmmoInfo.CurrentAmmo;
+
+	AmmoInfo.MaxAmmo -= ReloadValue;
+	AmmoInfo.CurrentAmmo += ReloadValue;
+
+	UALSPlayerHUD* HUD = Character->GetHUD();
+	if (HUD) {
+		HUD->SetCurrentAmmo(AmmoInfo.CurrentAmmo);
+		HUD->SetMaxAmmo(AmmoInfo.MaxAmmo);
 	}
 
 	Gun->UnLock();
@@ -151,17 +172,16 @@ UPropsComponent::EndUnEquip(APropsBase* Props) const {
 			break;
 		}
 
+		UALSPlayerHUD* HUD = Character->GetHUD();
+		if (HUD) {
+			HUD->ResetGun();
+		}
+
 		Props->UnLock();
 		Character->SetOverlayState(EALSOverlayState::Default);
 
 		if (DesiredProps) {
 			Equip(DesiredProps);
-		}
-
-		AGunBase* Gun = Cast<AGunBase>(Props);
-		UALSPlayerHUD* HUD = Character->GetHUD();
-		if (Gun && HUD) {
-			HUD->HideRifleAmmo();
 		}
 	} while (0);
 }
@@ -264,6 +284,11 @@ UPropsComponent::Reload(AGunBase* Gun) const {
 			break;
 		}
 
+		FALSAmmoInfo& AmmoInfo = Gun->AmmoInfo;
+		if (AmmoInfo.CurrentAmmo >= AmmoInfo.MaxAmmo) {
+			break;
+		}
+
 		if (Gun->GetLock()) {
 			break;
 		}
@@ -333,6 +358,21 @@ UPropsComponent::AttackInternal(AGunBase* Gun, int DebugTrace) const {
 		const FVector Start = CameraLocation + CameraForward * Offset;
 		FVector End = Start + CameraForward * Gun->WeaponAttackOptions.Range;
 
+		// 子弹计算和屏显
+		FALSAmmoInfo& AmmoInfo = Gun->AmmoInfo;
+		if (AmmoInfo.CurrentAmmo <= 0) {
+			if (Gun->EmptySound) {
+				UGameplayStatics::SpawnSoundAtLocation(World, Gun->EmptySound, MuzzleLocation);
+			}
+			break;
+		}
+
+		AmmoInfo.CurrentAmmo--;
+		UALSPlayerHUD* HUD = Character->GetHUD();
+		if (HUD) {
+			HUD->SetCurrentAmmo(AmmoInfo.CurrentAmmo);
+		}
+
 		// 播放音效
 		if (Gun->WeaponEffectsOptions.AttackSound) {
 			UGameplayStatics::SpawnSoundAtLocation(World, Gun->WeaponEffectsOptions.AttackSound, MuzzleLocation);
@@ -397,21 +437,27 @@ UPropsComponent::AttackInternal(AGunBase* Gun, int DebugTrace) const {
 			Character->AddControllerPitchInput(-FMath::FRandRange(0, Gun->Recoil));
 		}
 
+		// 子弹拖尾
 		if (Gun->TracerClass && bTracer) {
 			const FRotator&& MuzzleRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, End);
 			GameInstance->ALSActorPool->Get(World, Gun->TracerClass, MuzzleLocation, MuzzleRotation, 2.f);
 		}
+
+		// 装弹
+		if (AmmoInfo.CurrentAmmo == 0 && AmmoInfo.MaxAmmo > 0) {
+			Reload(Gun);
+		}
 	} while (0);
 }
 
-inline int32 
-UPropsComponent::GetAmmo(EALSOverlayState Overlay) const {
+inline AWeaponBase*
+UPropsComponent::GetCurrentWeapon(EALSOverlayState Overlay) const {
 	switch (Overlay) {
-	case EALSOverlayState::Rifle: return RifleAmmo;
-	case EALSOverlayState::PistolOneHanded: return PistolAmmo;
+	case EALSOverlayState::Rifle: return Rifle;
+	case EALSOverlayState::PistolOneHanded: return Pistol;
 	// case EALSOverlayState::PistolTwoHanded: break;
 	// case EALSOverlayState::Bow: break;
 	}
 
-	return -1;
+	return nullptr;
 }

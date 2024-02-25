@@ -12,6 +12,7 @@ class UCanvasPanel;
 class UCanvasPanelSlot;
 class UHorizontalBox;
 class UTextBlock;
+class AGunBase;
 
 UCLASS()
 class ALSV4_CPP_API UALSPlayerHUD : public UUserWidget {
@@ -24,15 +25,14 @@ public:
 	void ShowCrosshair();
 	void HideCrosshair();
 	bool IsCrosshairVisiblity() const;
-	void ShowRifleAmmo(int32 Value, int32 MaxValue);
-	void HideRifleAmmo();
+	void SetGun(AGunBase *Gun);
+	void ResetGun();
 	
 	void CalculateSpread(float Value, float DeltaTime);
-	void SetRifleMaxAmmo(int32 Value);
-	void SetRifleCurrentAmmo(int32 Value);
+	void SetMaxAmmo(int32 Value);
+	void SetCurrentAmmo(int32 Value);
 
 protected:
-
 	// FPS 相关UI
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> HBOX_FPS;

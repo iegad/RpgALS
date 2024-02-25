@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Library/ALSCharacterEnumLibrary.h"
+#include "Props/Weapons/Guns/GunBase.h"
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -41,19 +42,18 @@ public:
 	void Reload(AGunBase* Gun) const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	int32 RifleAmmo = 0;
+	TObjectPtr<AGunBase> Rifle;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	int32 PistolAmmo = 0;
+	TObjectPtr<AGunBase> Pistol;
 
 protected:
-	inline AALSBaseCharacter* GetALSBaseCharacter() const;
-
 	void AttackInternal(AWeaponBase* Weapon, int DebugTrace) const;
 	void AttackInternal(AGunBase* Gun, int DebugTrace) const;
 
 private:
-	inline int32 GetAmmo(EALSOverlayState Overlay) const;
+	inline AWeaponBase* GetCurrentWeapon(EALSOverlayState Overlay) const;
+	inline AALSBaseCharacter* GetALSBaseCharacter() const;
 
 	mutable APropsBase* DesiredProps = nullptr;
 };

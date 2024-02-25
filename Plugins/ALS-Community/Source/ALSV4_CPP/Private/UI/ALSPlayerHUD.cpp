@@ -14,6 +14,7 @@
 
 #include "ALSLibrary.h"
 #include "Core/ALSGameInstance.h"
+#include "Props/Weapons/Guns/GunBase.h"
 
 void 
 UALSPlayerHUD::ShowFPS() {
@@ -43,25 +44,26 @@ UALSPlayerHUD::HideCrosshair() {
 	}
 }
 
-void
-UALSPlayerHUD::ShowRifleAmmo(int32 Value, int32 MaxValue) {
-	if (HBOX_RifleAmmo->GetVisibility() == ESlateVisibility::Hidden) {
-		TXT_CurrentRifleAmmo->SetText(FText::AsNumber(Value));
-		TXT_MaxRifleAmmo->SetText(FText::AsNumber(MaxValue));
-		HBOX_RifleAmmo->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	}
-}
-
-void
-UALSPlayerHUD::HideRifleAmmo() {
-	if (HBOX_RifleAmmo->GetVisibility() != ESlateVisibility::Hidden) {
-		HBOX_RifleAmmo->SetVisibility(ESlateVisibility::Hidden);
-	}
-}
-
 bool
 UALSPlayerHUD::IsCrosshairVisiblity() const {
 	return CP_Crosshair->GetVisibility() != ESlateVisibility::Hidden;
+}
+
+void 
+UALSPlayerHUD::SetGun(AGunBase* Gun) {
+	if (HBOX_RifleAmmo->GetVisibility() == ESlateVisibility::Hidden) {
+		HBOX_RifleAmmo->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+
+	TXT_CurrentRifleAmmo->SetText(FText::AsNumber(Gun->AmmoInfo.CurrentAmmo));
+	TXT_MaxRifleAmmo->SetText(FText::AsNumber(Gun->AmmoInfo.MaxAmmo));
+}
+
+void 
+UALSPlayerHUD::ResetGun() {
+	if (HBOX_RifleAmmo->GetVisibility() != ESlateVisibility::Hidden) {
+		HBOX_RifleAmmo->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 void
@@ -74,14 +76,14 @@ UALSPlayerHUD::CalculateSpread(float Value, float DeltaTime) {
 }
 
 void
-UALSPlayerHUD::SetRifleMaxAmmo(int32 Value) {
+UALSPlayerHUD::SetMaxAmmo(int32 Value) {
 	if (Value >= 0) {
 		TXT_MaxRifleAmmo->SetText(FText::AsNumber(Value));
 	}
 }
 
 void
-UALSPlayerHUD::SetRifleCurrentAmmo(int32 Value) {
+UALSPlayerHUD::SetCurrentAmmo(int32 Value) {
 	if (Value >= 0) {
 		TXT_CurrentRifleAmmo->SetText(FText::AsNumber(Value));
 	}
@@ -173,7 +175,6 @@ UALSPlayerHUD::Initialize() {
 
 	HideFPS();
 	HideCrosshair();
-	HideRifleAmmo();
 	return bRet;
 }
 
