@@ -16,7 +16,7 @@ UPropsUnEquipAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAni
 		}
 
 		AALSCharacter* Character = Cast<AALSCharacter>(MeshComp->GetOuter());
-		if (!Character || !Character->PropsComponent) {
+		if (!Character || !Character->GetPropsComponent()) {
 			break;
 		}
 
@@ -25,7 +25,7 @@ UPropsUnEquipAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAni
 			break;
 		}
 
-		Character->PropsComponent->StartUnEquip(Props);
+		Character->GetPropsComponent()->StartUnEquip(Props);
 	} while (0);
 }
 
@@ -38,7 +38,7 @@ UPropsUnEquipAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimS
 		}
 
 		AALSCharacter* Character = Cast<AALSCharacter>(MeshComp->GetOuter());
-		if (!Character || !Character->PropsComponent) {
+		if (!Character || !Character->GetPropsComponent()) {
 			break;
 		}
 
@@ -47,6 +47,6 @@ UPropsUnEquipAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimS
 			break;
 		}
 
-		Character->PropsComponent->EndUnEquip(Props);
+		Character->GetPropsComponent()->EndUnEquip(Props);
 	} while (0);
 }

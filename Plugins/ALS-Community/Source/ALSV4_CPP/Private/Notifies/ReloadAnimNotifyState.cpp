@@ -14,7 +14,7 @@ UReloadAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenc
 		}
 
 		AALSBaseCharacter* Character = Cast<AALSBaseCharacter>(MeshComp->GetOuter());
-		if (!Character || !Character->PropsComponent) {
+		if (!Character || !Character->GetPropsComponent()) {
 			break;
 		}
 
@@ -23,8 +23,8 @@ UReloadAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenc
 			break;
 		}
 
-		if (Character->PropsComponent) {
-			Character->PropsComponent->EndReload(GunBase);
+		if (Character->GetPropsComponent()) {
+			Character->GetPropsComponent()->EndReload(GunBase);
 		}
 	} while (0);
 }

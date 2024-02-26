@@ -285,7 +285,7 @@ UPropsComponent::Reload(AGunBase* Gun) const {
 		}
 
 		FALSAmmoInfo& AmmoInfo = Gun->AmmoInfo;
-		if (AmmoInfo.CurrentAmmo >= AmmoInfo.MaxAmmo) {
+		if (AmmoInfo.CurrentAmmo >= AmmoInfo.ClipAmmo) {
 			break;
 		}
 

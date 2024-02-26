@@ -35,12 +35,12 @@ AALSActor::GetExpireTime() const {
 }
 
 
-ALSActorPoolInfo::~ALSActorPoolInfo() {
+UALSActorPool::ALSActorPoolItem::~ALSActorPoolItem() {
 	Release();
 }
 
 AALSActor*
-ALSActorPoolInfo::Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector& Location, const FRotator& Rotation, const float LifeSpan) {
+UALSActorPool::ALSActorPoolItem::Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector& Location, const FRotator& Rotation, const float LifeSpan) {
 	AALSActor* Actor = nullptr;
 
 	do {
@@ -69,8 +69,8 @@ ALSActorPoolInfo::Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector
 	return Actor;
 }
 
-void
-ALSActorPoolInfo::Put(AALSActor* Actor) {
+inline void
+UALSActorPool::ALSActorPoolItem::Put(AALSActor* Actor) {
 	if (Actor) {
 		Actor->SetActive(false);
 		UnactivePool.PushLast(Actor);
@@ -78,7 +78,7 @@ ALSActorPoolInfo::Put(AALSActor* Actor) {
 }
 
 void
-ALSActorPoolInfo::CheckActorLifeSpan() {
+UALSActorPool::ALSActorPoolItem::CheckActorLifeSpan() {
 	double TimeNow = 0.;
 
 	auto* Node = ActivePool.GetHead();
@@ -115,7 +115,7 @@ ALSActorPoolInfo::CheckActorLifeSpan() {
 }
 
 void
-ALSActorPoolInfo::Release() {
+UALSActorPool::ALSActorPoolItem::Release() {
 	while (!UnactivePool.IsEmpty()) {
 		AALSActor* Actor = nullptr;
 		if (UnactivePool.TryPopFirst(Actor) && Actor) {
@@ -163,10 +163,10 @@ UALSActorPool::Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector& L
 
 		FString ClassName = Class->GetName();
 		if (!Pool.Contains(ClassName)) {
-			Pool.Add(ClassName, new ALSActorPoolInfo);
+			Pool.Add(ClassName, new ALSActorPoolItem);
 		}
 
-		ALSActorPoolInfo* PoolInfo = Pool.FindRef(ClassName);
+		ALSActorPoolItem* PoolInfo = Pool.FindRef(ClassName);
 		if (!PoolInfo) {
 			ALS_ERROR(TEXT("ClassName[%s] is not exists: %s:%d"), *ClassName, __FILEW__, __LINE__);
 			break;
@@ -193,14 +193,14 @@ UALSActorPool::Put(AALSActor* Actor) {
 }
 
 void
-UALSActorPool::Init(UALSGameInstance* NewGameInstance) {
+UALSActorPool::PostInitProperties() {
+	Super::PostInitProperties();
+
 	do {
-		if (!GameInstance || GameInstance != NewGameInstance) {
-			GameInstance = NewGameInstance;
-		}
+		GameInstance = Cast<UALSGameInstance>(GetOuter());
 
 		if (!GameInstance) {
-			ALS_ERROR(TEXT("GameInstance is invalid: %s:%d"), __FILEW__, __LINE__);
+			ALS_WARN(TEXT("UALSActorPool must mount ALSGameInstance: %s:%d"), __FILEW__, __LINE__);
 			break;
 		}
 

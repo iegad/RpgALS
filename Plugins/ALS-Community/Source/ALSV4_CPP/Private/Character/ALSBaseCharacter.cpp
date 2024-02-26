@@ -47,9 +47,6 @@ AALSBaseCharacter::AALSBaseCharacter(const FObjectInitializer& ObjectInitializer
 	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
 	SkeletalMesh->SetupAttachment(GetMesh());
 
-	//StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	//StaticMesh->SetupAttachment(HeldObjectRoot);
-
 	AIControllerClass = AALSAIController::StaticClass();
 
 	CreatePropsSystem();
@@ -59,25 +56,7 @@ AALSBaseCharacter::AALSBaseCharacter(const FObjectInitializer& ObjectInitializer
 
 APropsBase* 
 AALSBaseCharacter::GetCurrentProps() const {
-	APropsBase* CurrentProps = nullptr;
-
-	switch (GetOverlayState()) {
-	case EALSOverlayState::Rifle:
-		CurrentProps = Cast<APropsBase>(ChildActorRifle->GetChildActor());
-		break;
-
-	case EALSOverlayState::PistolOneHanded:
-		CurrentProps = Cast<APropsBase>(ChildActorPistol->GetChildActor());
-		break;
-
-	case EALSOverlayState::PistolTwoHanded:
-		CurrentProps = Cast<APropsBase>(ChildActorPistol->GetChildActor());
-		break;
-
-	default: break;
-	}
-
-	return CurrentProps;
+	return GetPropsFromOverlayState(GetOverlayState());
 }
 
 APropsBase*

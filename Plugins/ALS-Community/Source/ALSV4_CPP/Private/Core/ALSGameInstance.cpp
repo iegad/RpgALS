@@ -18,7 +18,6 @@ UALSGameInstance::QuitGame() {
 
 UALSGameInstance::UALSGameInstance() : Super() {
 	ALSActorPool = CreateDefaultSubobject<UALSActorPool>(TEXT("ALSActorPool"));
-	ALSActorPool->Init(this);
 }
 
 void 
