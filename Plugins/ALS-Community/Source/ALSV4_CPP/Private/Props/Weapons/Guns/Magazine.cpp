@@ -8,7 +8,8 @@ AMagazine::AMagazine() : Super() {
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(Root);
 
-	Mesh->SetMassOverrideInKg();
+	Mesh->BodyInstance.bOverrideMass = true;
+	Mesh->BodyInstance.SetMassOverride(1.f);
 }
 
 void 
