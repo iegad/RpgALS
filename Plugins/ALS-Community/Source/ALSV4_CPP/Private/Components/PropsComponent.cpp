@@ -224,8 +224,13 @@ UPropsComponent::EjectMagazine(AGunBase* Gun) const {
 		}
 
 		// 隐藏枪的弹匣
+		FRotator Rotation = Gun->Mesh->GetComponentRotation();
+		Rotation.Yaw = 0;
+		Rotation.Pitch = 0;
+		FVector Location = Gun->Mesh->GetSocketLocation(Gun->MagazineSock);
+		Location.Z -= 10;
 		Gun->Mesh->HideBoneByName(Gun->MagazineSock, EPhysBodyOp::PBO_None);
-		MagazineEmpty = GameInstance->ALSActorPool->Get<AMagazine>(World, Gun->MagazineEmpty, 5.f, Character->GetMesh(), MagazineSocketName);
+		MagazineEmpty = GameInstance->ALSActorPool->Get<AMagazine>(World, Gun->MagazineEmpty, FTransform(Rotation, Location), 5.f, Gun->Mesh, Gun->MagazineSock);
 		check(MagazineEmpty);
 	} while (0);
 }
@@ -286,7 +291,8 @@ UPropsComponent::StartInsertMagazine(AGunBase* Gun) const {
 			break;
 		}
 
-		MagazineFull = GameInstance->ALSActorPool->Get<AMagazine>(World, Gun->MagazineFull, 0.f, Character->GetMesh(), MagazineSocketName);
+		MagazineFull = GameInstance->ALSActorPool->Get<AMagazine>(World, Gun->MagazineFull, 
+			Character->GetMesh()->GetSocketTransform(MagazineSocketName), 0.f, Character->GetMesh(), MagazineSocketName);
 		check(MagazineFull);
 	} while (0);
 }
@@ -550,7 +556,7 @@ UPropsComponent::AttackInternal(AGunBase* Gun, int DebugTrace) const {
 			}
 
 			if (Gun->MarkerClass) {
-				GameInstance->ALSActorPool->Get(World, Gun->MarkerClass, End, EndRotation, 5.f);
+				GameInstance->ALSActorPool->Get(World, Gun->MarkerClass, FTransform(EndRotation, End), 5.f);
 			}
 
 			if (OutHitResult.PhysMaterial.IsValid()) {
@@ -577,7 +583,7 @@ UPropsComponent::AttackInternal(AGunBase* Gun, int DebugTrace) const {
 		// 子弹拖尾
 		if (Gun->TracerClass && bTracer) {
 			const FRotator&& MuzzleRotation = UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, End);
-			GameInstance->ALSActorPool->Get(World, Gun->TracerClass, MuzzleLocation, MuzzleRotation, 2.f);
+			GameInstance->ALSActorPool->Get(World, Gun->TracerClass, FTransform(MuzzleRotation, MuzzleLocation) , 2.f);
 		}
 
 		// 装弹

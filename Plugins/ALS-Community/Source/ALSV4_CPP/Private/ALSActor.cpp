@@ -40,15 +40,15 @@ UALSActorPool::ALSActorPoolItem::~ALSActorPoolItem() {
 }
 
 AALSActor*
-UALSActorPool::ALSActorPoolItem::Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector& Location, const FRotator& Rotation, const float LifeSpan) {
+UALSActorPool::ALSActorPoolItem::Get(UWorld* World, TSubclassOf<AALSActor> Class, FTransform Transform, float LifeSpan) {
 	AALSActor* Actor = nullptr;
 
 	do {
 		if (!UnactivePool.IsEmpty() && UnactivePool.TryPopFirst(Actor) && Actor) {
-			Actor->SetActorTransform(FTransform(Rotation, Location));
+			Actor->SetActorTransform(Transform);
 		}
 		else {
-			AActor* actor = World->SpawnActor(Class, &Location, &Rotation);
+			AActor* actor = World->SpawnActor(Class, &Transform);
 			if (!IsValid(actor)) {
 				break;
 			}
@@ -70,23 +70,20 @@ UALSActorPool::ALSActorPoolItem::Get(UWorld* World, TSubclassOf<AALSActor> Class
 }
 
 AALSActor* 
-UALSActorPool::ALSActorPoolItem::Get(UWorld* World, TSubclassOf<AALSActor> Class, const float LifeSpan, USceneComponent* Attachment, FName SocketName) {
+UALSActorPool::ALSActorPoolItem::Get(UWorld* World, TSubclassOf<AALSActor> Class, FTransform Transform, float LifeSpan, USceneComponent* Attachment, FName SocketName) {
 	AALSActor* Actor = nullptr;
 
 	do {
 		if (!Attachment || SocketName.IsNone()) {
 			break;
 		}
-		auto tmp = Attachment->GetSocketTransform(SocketName);
-		const FVector&& Location = tmp.GetLocation();
-		const FRotator && Rotation = tmp.GetRotation().Rotator();
 
 		if (!UnactivePool.IsEmpty() && UnactivePool.TryPopFirst(Actor) && Actor) {
 			Actor->AttachToComponent(Attachment, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
-			Actor->SetActorTransform(FTransform(Rotation, Location));
+			Actor->SetActorTransform(Transform);
 		}
 		else {
-			AActor* actor = World->SpawnActor(Class, &Location, &Rotation);
+			AActor* actor = World->SpawnActor(Class, &Transform);
 			if (!IsValid(actor)) {
 				break;
 			}
@@ -182,7 +179,7 @@ UALSActorPool::UALSActorPool() : Super() {
 }
 
 AALSActor* 
-UALSActorPool::Get(UWorld* World, TSubclassOf<AALSActor> Class, const float LifeSpan, USceneComponent* Attachment, FName SocketName) {
+UALSActorPool::Get(UWorld* World, TSubclassOf<AALSActor> Class, FTransform Transform, float LifeSpan, USceneComponent* Attachment, FName SocketName) {
 	AALSActor* Actor = nullptr;
 
 	do {
@@ -207,14 +204,14 @@ UALSActorPool::Get(UWorld* World, TSubclassOf<AALSActor> Class, const float Life
 			break;
 		}
 
-		Actor = PoolInfo->Get(World, Class, LifeSpan, Attachment, SocketName);
+		Actor = PoolInfo->Get(World, Class, Transform, LifeSpan, Attachment, SocketName);
 	} while (0);
 
 	return Actor;
 }
 
 AALSActor*
-UALSActorPool::Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector& Location, const FRotator& Rotation, const float LifeSpan) {
+UALSActorPool::Get(UWorld* World, TSubclassOf<AALSActor> Class, FTransform Transform, float LifeSpan) {
 	AALSActor* Actor = nullptr;
 
 	do {
@@ -239,7 +236,7 @@ UALSActorPool::Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector& L
 			break;
 		}
 
-		Actor = PoolInfo->Get(World, Class, Location, Rotation, LifeSpan);
+		Actor = PoolInfo->Get(World, Class, Transform, LifeSpan);
 	} while (0);
 
 	return Actor;

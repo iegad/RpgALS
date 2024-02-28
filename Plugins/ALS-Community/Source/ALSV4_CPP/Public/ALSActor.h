@@ -59,8 +59,8 @@ class ALSV4_CPP_API UALSActorPool : public UObject {
 		~ALSActorPoolItem();
 
 		// 获取一个ALSActor对象
-		AALSActor* Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector& Location, const FRotator& Rotation, const float LifeSpan);
-		AALSActor* Get(UWorld* World, TSubclassOf<AALSActor> Class, const float LifeSpan, USceneComponent* Attachment, FName SocketName);
+		AALSActor* Get(UWorld* World, TSubclassOf<AALSActor> Class, FTransform Transform, float LifeSpan);
+		AALSActor* Get(UWorld* World, TSubclassOf<AALSActor> Class, FTransform Transform, float LifeSpan, USceneComponent* Attachment, FName SocketName);
 
 		// 释放一个ALSActor对象到池中
 		inline void Put(AALSActor* Actor);
@@ -77,16 +77,15 @@ public:
 
 	// 获取一个对象
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	AALSActor* Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector& Location, const FRotator& Rotation, const float LifeSpan);
+	AALSActor* Get(UWorld* World, TSubclassOf<AALSActor> Class, FTransform Transform, float LifeSpan);
+	AALSActor* Get(UWorld* World, TSubclassOf<AALSActor> Class, FTransform Transform, float LifeSpan, USceneComponent* Attachment, FName SocketName);
 
-	AALSActor* Get(UWorld* World, TSubclassOf<AALSActor> Class, const float LifeSpan, USceneComponent* Attachment, FName SocketName);
-
-	template<typename T>T* Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector& Location, const FRotator& Rotation, const float LifeSpan) {
-		return Cast<T>(Get(World, Class, Location, Rotation, LifeSpan));
+	template<typename T>T* Get(UWorld* World, TSubclassOf<AALSActor> Class, FTransform Transform, float LifeSpan) {
+		return Cast<T>(Get(World, Class, Transform, LifeSpan));
 	}
 
-	template<typename T>T* Get(UWorld* World, TSubclassOf<AALSActor> Class, const float LifeSpan, USceneComponent* Attachment, FName SocketName) {
-		return Cast<T>(Get(World, Class, LifeSpan, Attachment, SocketName));
+	template<typename T>T* Get(UWorld* World, TSubclassOf<AALSActor> Class, FTransform Transform, float LifeSpan, USceneComponent* Attachment, FName SocketName) {
+		return Cast<T>(Get(World, Class, Transform, LifeSpan, Attachment, SocketName));
 	}
 
 	// 将一个对象放中对象池中
