@@ -225,13 +225,8 @@ UPropsComponent::EjectMagazine(AGunBase* Gun) const {
 
 		// 隐藏枪的弹匣
 		Gun->Mesh->HideBoneByName(Gun->MagazineSock, EPhysBodyOp::PBO_None);
-
-		const FVector&& Location = Character->GetMesh()->GetSocketLocation(MagazineSocketName);
-		const FRotator&& Rotation = Character->GetMesh()->GetSocketRotation(MagazineSocketName);
-		MagazineEmpty = GameInstance->ALSActorPool->Get<AMagazine>(World, Gun->MagazineEmpty, Location, Rotation, 8.f);
-
+		MagazineEmpty = GameInstance->ALSActorPool->Get<AMagazine>(World, Gun->MagazineEmpty, 5.f, Character->GetMesh(), MagazineSocketName);
 		check(MagazineEmpty);
-		MagazineEmpty->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, MagazineSocketName);
 	} while (0);
 }
 
@@ -254,7 +249,6 @@ UPropsComponent::DropMagazine(AGunBase* Gun) const {
 			break;
 		}
 
-		MagazineEmpty->AttachToComponent(nullptr, FAttachmentTransformRules::SnapToTargetIncludingScale);
 		MagazineEmpty->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		MagazineEmpty->Mesh->SetSimulatePhysics(true);
 		MagazineEmpty = nullptr;
@@ -292,11 +286,8 @@ UPropsComponent::StartInsertMagazine(AGunBase* Gun) const {
 			break;
 		}
 
-		const FTransform&& Transform = Character->GetMesh()->GetSocketTransform(MagazineSocketName);
-		MagazineFull = GameInstance->ALSActorPool->Get<AMagazine>(World, Gun->MagazineFull,
-			Transform.GetLocation(), Transform.GetRotation().Rotator(), 0.f);
+		MagazineFull = GameInstance->ALSActorPool->Get<AMagazine>(World, Gun->MagazineFull, 0.f, Character->GetMesh(), MagazineSocketName);
 		check(MagazineFull);
-		MagazineFull->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, MagazineSocketName);
 	} while (0);
 }
 

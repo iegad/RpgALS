@@ -69,6 +69,46 @@ UALSActorPool::ALSActorPoolItem::Get(UWorld* World, TSubclassOf<AALSActor> Class
 	return Actor;
 }
 
+AALSActor* 
+UALSActorPool::ALSActorPoolItem::Get(UWorld* World, TSubclassOf<AALSActor> Class, const float LifeSpan, USceneComponent* Attachment, FName SocketName) {
+	AALSActor* Actor = nullptr;
+
+	do {
+		if (!Attachment || SocketName.IsNone()) {
+			break;
+		}
+		auto tmp = Attachment->GetSocketTransform(SocketName);
+		const FVector&& Location = tmp.GetLocation();
+		const FRotator && Rotation = tmp.GetRotation().Rotator();
+
+		if (!UnactivePool.IsEmpty() && UnactivePool.TryPopFirst(Actor) && Actor) {
+			Actor->AttachToComponent(Attachment, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
+			Actor->SetActorTransform(FTransform(Rotation, Location));
+		}
+		else {
+			AActor* actor = World->SpawnActor(Class, &Location, &Rotation);
+			if (!IsValid(actor)) {
+				break;
+			}
+
+			actor->AttachToComponent(Attachment, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
+
+			Actor = Cast<AALSActor>(actor);
+			if (!IsValid(Actor)) {
+				actor->Destroy();
+				break;
+			}
+		}
+
+		Actor->SetActive(true);
+		Actor->SetLifeSpan(LifeSpan);
+		ActivePool.AddTail(Actor);
+
+	} while (0);
+
+	return Actor;
+}
+
 inline void
 UALSActorPool::ALSActorPoolItem::Put(AALSActor* Actor) {
 	if (Actor) {
@@ -139,6 +179,38 @@ UALSActorPool::ALSActorPoolItem::Release() {
 
 UALSActorPool::UALSActorPool() : Super() {
 	// PrimaryComponentTick.bCanEverTick = true;
+}
+
+AALSActor* 
+UALSActorPool::Get(UWorld* World, TSubclassOf<AALSActor> Class, const float LifeSpan, USceneComponent* Attachment, FName SocketName) {
+	AALSActor* Actor = nullptr;
+
+	do {
+		if (!World) {
+			ALS_ERROR(TEXT("World is invalid: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		if (!Class) {
+			ALS_ERROR(TEXT("Class is invalid: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		FString ClassName = Class->GetName();
+		if (!Pool.Contains(ClassName)) {
+			Pool.Add(ClassName, new ALSActorPoolItem);
+		}
+
+		ALSActorPoolItem* PoolInfo = Pool.FindRef(ClassName);
+		if (!PoolInfo) {
+			ALS_ERROR(TEXT("ClassName[%s] is not exists: %s:%d"), *ClassName, __FILEW__, __LINE__);
+			break;
+		}
+
+		Actor = PoolInfo->Get(World, Class, LifeSpan, Attachment, SocketName);
+	} while (0);
+
+	return Actor;
 }
 
 AALSActor*

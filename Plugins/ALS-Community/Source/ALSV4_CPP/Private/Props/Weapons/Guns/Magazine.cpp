@@ -7,6 +7,8 @@ AMagazine::AMagazine() : Super() {
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(Root);
+
+	Mesh->SetMassOverrideInKg();
 }
 
 void 
@@ -17,5 +19,8 @@ AMagazine::OnActiveChanged(bool Value) {
 	else {
 		Mesh->SetSimulatePhysics(false);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		TArray<AActor*> OutActors;
+		GetAttachedActors(OutActors);
+		DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
 	}
 }
