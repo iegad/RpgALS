@@ -12,10 +12,13 @@
 #include "Character/ALSBaseCharacter.h"
 #include "Core/ALSGameInstance.h"
 #include "Props/Weapons/Guns/GunBase.h"
+#include "Props/Weapons/Guns/Magazine.h"
 #include "Props/Weapons/MarkerBase.h"
 #include "Props/Weapons/TracerBase.h"
 #include "Core/ALSGameMode.h"
 #include "UI/ALSPlayerHUD.h"
+
+static const FName MagazineSocketName{ TEXT("Slot_Magazine") };
 
 UPropsComponent::UPropsComponent() : Super() {
 }
@@ -103,7 +106,10 @@ UPropsComponent::EndReload(AGunBase* Gun) const {
 	}
 
 	FALSAmmoInfo& AmmoInfo = Gun->AmmoInfo;
-	int32 ReloadValue = AmmoInfo.MaxAmmo > AmmoInfo.ClipAmmo ? AmmoInfo.ClipAmmo - AmmoInfo.CurrentAmmo : AmmoInfo.MaxAmmo - AmmoInfo.CurrentAmmo;
+	int32 ReloadValue = AmmoInfo.ClipAmmo - AmmoInfo.CurrentAmmo;
+	if (ReloadValue > AmmoInfo.MaxAmmo) {
+		ReloadValue = AmmoInfo.MaxAmmo;
+	}
 
 	AmmoInfo.MaxAmmo -= ReloadValue;
 	AmmoInfo.CurrentAmmo += ReloadValue;
@@ -163,7 +169,7 @@ UPropsComponent::EndUnEquip(APropsBase* Props) const {
 	do {
 		if (!Props) {
 			ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
-			break;;
+			break;
 		}
 
 		AALSBaseCharacter* Character = GetALSBaseCharacter();
@@ -183,6 +189,146 @@ UPropsComponent::EndUnEquip(APropsBase* Props) const {
 		if (DesiredProps) {
 			Equip(DesiredProps);
 		}
+	} while (0);
+}
+
+void 
+UPropsComponent::EjectMagazine(AGunBase* Gun) const {
+	do {
+		if (!Gun) {
+			ALS_ERROR(TEXT("Gun is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		if (!Gun->MagazineEmpty) {
+			ALS_ERROR(TEXT("Gun->MagazineEmpty is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		UWorld* World = GetWorld();
+		if (!World) {
+			ALS_ERROR(TEXT("World is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		UALSGameInstance* GameInstance = Cast<UALSGameInstance>(World->GetGameInstance());
+		if (!GameInstance) {
+			ALS_ERROR(TEXT("GameInstance is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		AALSBaseCharacter* Character = GetALSBaseCharacter();
+		if (!Character) {
+			ALS_ERROR(TEXT("Character is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		// 隐藏枪的弹匣
+		Gun->Mesh->HideBoneByName(Gun->MagazineSock, EPhysBodyOp::PBO_None);
+
+		const FVector&& Location = Character->GetMesh()->GetSocketLocation(MagazineSocketName);
+		const FRotator&& Rotation = Character->GetMesh()->GetSocketRotation(MagazineSocketName);
+		MagazineEmpty = GameInstance->ALSActorPool->Get<AMagazine>(World, Gun->MagazineEmpty, Location, Rotation, 8.f);
+
+		check(MagazineEmpty);
+		MagazineEmpty->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, MagazineSocketName);
+	} while (0);
+}
+
+void 
+UPropsComponent::DropMagazine(AGunBase* Gun) const {
+	do {
+		if (!Gun) {
+			ALS_ERROR(TEXT("Gun is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		if (!MagazineEmpty) {
+			ALS_ERROR(TEXT("MagazineEmpty is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		UWorld* World = GetWorld();
+		if (!World) {
+			ALS_ERROR(TEXT("World is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		MagazineEmpty->AttachToComponent(nullptr, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		MagazineEmpty->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		MagazineEmpty->Mesh->SetSimulatePhysics(true);
+		MagazineEmpty = nullptr;
+	} while (0);
+}
+
+void 
+UPropsComponent::StartInsertMagazine(AGunBase* Gun) const {
+	do {
+		if (!Gun) {
+			ALS_ERROR(TEXT("Gun is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		if (!Gun->MagazineFull) {
+			ALS_ERROR(TEXT("Gun->MagazineFull is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		UWorld* World = GetWorld();
+		if (!World) {
+			ALS_ERROR(TEXT("World is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		UALSGameInstance* GameInstance = Cast<UALSGameInstance>(World->GetGameInstance());
+		if (!GameInstance) {
+			ALS_ERROR(TEXT("GameInstance is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		AALSBaseCharacter* Character = GetALSBaseCharacter();
+		if (!Character) {
+			ALS_ERROR(TEXT("Character is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		const FTransform&& Transform = Character->GetMesh()->GetSocketTransform(MagazineSocketName);
+		MagazineFull = GameInstance->ALSActorPool->Get<AMagazine>(World, Gun->MagazineFull,
+			Transform.GetLocation(), Transform.GetRotation().Rotator(), 0.f);
+		check(MagazineFull);
+		MagazineFull->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, MagazineSocketName);
+	} while (0);
+}
+
+void 
+UPropsComponent::EndInsertMagazine(AGunBase* Gun) const {
+	do {
+		if (!Gun) {
+			ALS_ERROR(TEXT("Gun is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		if (!MagazineFull) {
+			ALS_ERROR(TEXT("MagazineFull is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		UWorld* World = GetWorld();
+		if (!World) {
+			ALS_ERROR(TEXT("World is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		UALSGameInstance* GameInstance = Cast<UALSGameInstance>(World->GetGameInstance());
+		if (!GameInstance) {
+			ALS_ERROR(TEXT("GameInstance is nullptr: %s:%d"), __FILEW__, __LINE__);
+			break;
+		}
+
+		GameInstance->ALSActorPool->Put(MagazineFull);
+		MagazineFull = nullptr;
+
+		Gun->Mesh->UnHideBoneByName(Gun->MagazineSock);
 	} while (0);
 }
 
@@ -280,12 +426,12 @@ UPropsComponent::Reload(AGunBase* Gun) const {
 		}
 
 		if (!Gun->ReloadMontage) {
-			ALS_WARN(TEXT("ReloadMontage is nullptr: %s:%d"), __FILEW__, __LINE__);
+			ALS_ERROR(TEXT("ReloadMontage is nullptr: %s:%d"), __FILEW__, __LINE__);
 			break;
 		}
 
 		FALSAmmoInfo& AmmoInfo = Gun->AmmoInfo;
-		if (AmmoInfo.CurrentAmmo >= AmmoInfo.ClipAmmo) {
+		if (AmmoInfo.CurrentAmmo >= AmmoInfo.ClipAmmo || AmmoInfo.MaxAmmo == 0) {
 			break;
 		}
 
@@ -350,7 +496,7 @@ UPropsComponent::AttackInternal(AGunBase* Gun, int DebugTrace) const {
 
 		Gun->WeaponAttackOptions.AttackCD = Gun->WeaponAttackOptions.AttackInterval;
 
-		const FVector&& MuzzleLocation = Gun->Mesh->GetSocketLocation(Gun->MuzzleSocketName);
+		const FVector&& MuzzleLocation = Gun->MuzzleScene->GetComponentLocation();
 		const FVector&& CameraLocation = PlayerCameraManager->GetCameraLocation();
 		const FRotator&& CameraRotation = PlayerCameraManager->GetCameraRotation();
 		const FVector&& CameraForward = CameraRotation.Vector();

@@ -21,7 +21,7 @@ AALSActor::SetActive(bool Value) {
 
 void 
 AALSActor::SetLifeSpan(float LifeSpan) {
-	ExpireTime = LifeSpan ? GetWorld()->TimeSeconds + LifeSpan : 0;
+	ExpireTime = LifeSpan > 0.f ? GetWorld()->TimeSeconds + LifeSpan : 0.;
 }
 
 bool 
@@ -156,11 +156,6 @@ UALSActorPool::Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector& L
 			break;
 		}
 
-		if (!LifeSpan) {
-			ALS_ERROR(TEXT("LifeSpan[%f] is invalid: %s:%d"), LifeSpan, __FILEW__, __LINE__);
-			break;
-		}
-
 		FString ClassName = Class->GetName();
 		if (!Pool.Contains(ClassName)) {
 			Pool.Add(ClassName, new ALSActorPoolItem);
@@ -187,8 +182,12 @@ UALSActorPool::Put(AALSActor* Actor) {
 
 		FString ClassName = Actor->GetClass()->GetName();
 		if (!Pool.Contains(ClassName)) {
-
+			Actor->Destroy();
+			break;
 		}
+
+		ALSActorPoolItem* PoolInfo = Pool.FindRef(ClassName);
+		PoolInfo->Put(Actor);
 	} while (0);
 }
 

@@ -63,13 +63,13 @@ public:
 	AWeaponBase();
 
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FWeaponAttackOptions WeaponAttackOptions;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FWeaponEffectsOptions WeaponEffectsOptions;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FWeaponAnimationOptions WeaponAnimationOptions;
 
 protected:

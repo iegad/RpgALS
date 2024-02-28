@@ -9,6 +9,7 @@
 
 class ATracerBase;
 class AMarkerBase;
+class AMagazine;
 
 USTRUCT(BlueprintType)
 struct FALSAmmoInfo {
@@ -32,9 +33,6 @@ public:
 	AGunBase();
 
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS")
-	FName MuzzleSocketName;
-
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USceneComponent> MuzzleScene;
 
@@ -56,6 +54,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FALSAmmoInfo AmmoInfo;
 
-protected:
-	virtual void BeginPlay() override;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName MagazineSock;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AMagazine> MagazineEmpty;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<AMagazine> MagazineFull;
 };

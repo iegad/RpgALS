@@ -27,6 +27,10 @@ public:
 	void EndReload(AGunBase* Gun) const;
 	void StartUnEquip(APropsBase* Props) const;
 	void EndUnEquip(APropsBase* Props) const;
+	void EjectMagazine(AGunBase* Gun) const;
+	void DropMagazine(AGunBase* Gun) const;
+	void StartInsertMagazine(AGunBase* Gun) const;
+	void EndInsertMagazine(AGunBase* Gun) const;
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -56,4 +60,6 @@ private:
 	inline AALSBaseCharacter* GetALSBaseCharacter() const;
 
 	mutable APropsBase* DesiredProps = nullptr;
+	mutable AMagazine* MagazineEmpty = nullptr;
+	mutable AMagazine* MagazineFull = nullptr;
 };

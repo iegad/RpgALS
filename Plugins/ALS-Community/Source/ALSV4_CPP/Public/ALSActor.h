@@ -78,6 +78,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	AALSActor* Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector& Location, const FRotator& Rotation, const float LifeSpan);
 
+	template<typename T>T* Get(UWorld* World, TSubclassOf<AALSActor> Class, const FVector& Location, const FRotator& Rotation, const float LifeSpan) {
+		return Cast<T>(Get(World, Class, Location, Rotation, LifeSpan));
+	}
+
 	// 将一个对象放中对象池中
 	UFUNCTION(BlueprintCallable)
 	void Put(AALSActor* Actor);

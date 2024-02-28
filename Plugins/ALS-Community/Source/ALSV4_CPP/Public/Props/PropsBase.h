@@ -22,33 +22,33 @@ public:
 
 public:
 	/// <summary>
-	/// ¸ù×é¼ş
+	/// æ ¹ç»„ä»¶
 	/// </summary>
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USceneComponent> Root;
 
 	/// <summary>
-	/// µÀ¾ß¹Ç÷ÀÍø¸ñÌå
+	/// é“å…·éª¨éª¼ç½‘æ ¼ä½“
 	/// </summary>
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<USkeletalMeshComponent> Mesh;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Montage")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UAnimMontage> EquipMontage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|Montage")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UAnimMontage> UnEquipMontage;
 
 	/// <summary>
-	/// µÀ¾ßµÄµş¼ÓÌ¬Tag
+	/// é“å…·çš„å åŠ æ€Tag
 	/// </summary>
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EALSOverlayState OverlayState;
 
 	/// <summary>
-	/// ×°±¸µÀ¾ßµÄ¹Ç÷ÀÃû³Æ
+	/// è£…å¤‡é“å…·çš„éª¨éª¼åç§°
 	/// </summary>
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FName EquipSocketName;
 
 protected:
