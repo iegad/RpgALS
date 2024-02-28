@@ -249,7 +249,7 @@ UPropsComponent::DropMagazine(AGunBase* Gun) const {
 			break;
 		}
 
-		MagazineEmpty->Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		MagazineEmpty->Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		MagazineEmpty->Mesh->SetSimulatePhysics(true);
 		MagazineEmpty = nullptr;
 	} while (0);
