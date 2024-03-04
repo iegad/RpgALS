@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Bases/XLibrary.h"
 #include "Weapons/Guns/XGunData.h"
 
 #include "CoreMinimal.h"
@@ -28,7 +29,10 @@ public:
 	void UnLock();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE FXGunData& GetData() const { return *Data; }
+	FORCEINLINE USkeletalMeshComponent* GetMesh() const { return SkeletalMesh; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE FXGunData& GetData() { if (!Data) XASSERT(LoadData(), "LoadData failed"); return *Data; }
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Xrs|DataTable")
 	FName RowID;
@@ -45,13 +49,11 @@ protected:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 
-	virtual void BeginPlay() override;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Xrs|Components")
 	TObjectPtr<UBoxComponent> BoxCollision;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Xrs|Components")
-	TObjectPtr<UStaticMeshComponent> StaticMesh;
+	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 
 private:
 	UFUNCTION()

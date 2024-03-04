@@ -13,7 +13,8 @@ enum class EXGunType {
 
 UENUM(BlueprintType)
 enum class EXBulletType {
-	Rifle,
-	Pistol,
-	Sniper,
+	EBT_Invalid,
+	EBT_Rifle,
+	EBT_Pistol,
+	EBT_Sniper,
 };

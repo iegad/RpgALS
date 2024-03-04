@@ -20,6 +20,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUnequipDeletegate, AXBaseGun*, Gun)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFocusGunDelegate, AXBaseGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUnfocusGunDelegate, AXBaseGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReloadDelegate, AXBaseGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FObstacleDelegate, AActor*, HitActor);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class XRS_API UXGunSystemComponent : public UActorComponent {
@@ -27,6 +28,9 @@ class XRS_API UXGunSystemComponent : public UActorComponent {
 
 public:	
 	UXGunSystemComponent();
+
+	UFUNCTION(BlueprintCallable)
+	void CheckObstacle(float Limit = 10.f);
 
 	UFUNCTION(BlueprintCallable)
 	void Pickup(AXBaseGun* Gun);
@@ -54,6 +58,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE AXBaseGun* GetGun(int32 index = 0) const { check(index >= 0 && index < Guns.Num());  return Guns.IsEmpty() ? nullptr : Guns[index]; }
+
+	UPROPERTY(BlueprintAssignable)
+	FObstacleDelegate OnObstacle;
 
 	UPROPERTY(BlueprintAssignable)
 	FPickupDeletegate OnPickup;

@@ -23,9 +23,19 @@ UXLibrary::GetGameInstance(UObject* WorldContextObject) {
 	return XGameInstance;
 }
 
+APlayerController* 
+UXLibrary::GetPlayerController(UObject* WorldContextObject) {
+	return UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+}
+
+APlayerCameraManager* 
+UXLibrary::GetPlayerCameraManager(UObject* WorldContextObject) {
+	return UGameplayStatics::GetPlayerCameraManager(WorldContextObject, 0);
+}
+
 AXActor* 
 UXLibrary::GetActor(UObject* WorldContextObject, TSubclassOf<AXActor> Class, const FTransform& Transform, float LifeSpan) {
 	UXGameInstance* GameInstance = GetGameInstance(WorldContextObject);
-	check(GameInstance);
+	XASSERT(GameInstance, "GetGameInstance() called failed");
 	return GameInstance->GetActorPool()->Get(Class, Transform, LifeSpan);
 }

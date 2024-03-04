@@ -33,14 +33,14 @@ UXActorPoolComponent::Item::Get(UWorld* World, TSubclassOf<AXActor> Class, const
 	do {
 		if (UnactiveStack.empty()) {
 			AActor* Actor = World->SpawnActor(Class, &Transform);
-			check(Actor);
+			XASSERT(Actor, "World->SpawnActor called failed");
 
 			Ret = Cast<AXActor>(Actor);
-			check(Ret);
+			XASSERT(Ret, "%s is not a XActor", *Class->GetName());
 		}
 		else {
 			Ret = UnactiveStack.top();
-			check(Ret);
+			XASSERT(Ret, "UnactiveStack has nullptr Item");
 			Ret->SetActorTransform(Transform);
 			Ret->SetLifeSpan(LifeSpan);
 		}
@@ -99,7 +99,7 @@ void
 UXActorPoolComponent::Put(AXActor* XActor) {
 	if (XActor) {
 		Item* itr = Pool.FindRef(XActor->StaticClass()->GetFName());
-		check(itr);
+		XASSERT(itr, "There is no Class[%s] in pool", *XActor->StaticClass()->GetFName().ToString());
 		itr->Put(XActor);
 	}
 }
@@ -127,10 +127,10 @@ UXActorPoolComponent::Get(UWorld* World, TSubclassOf<AXActor> Class, const FTran
 		Item* itr = Pool.FindRef(ClassName);
 		if (!itr) {
 			itr = Pool.Add(ClassName, new Item);
-			check(itr);
+			XASSERT(itr, "Pool Add Item failed");
 		}
 
-		check(itr);
+		XASSERT(itr, "itr is invalid");
 		return itr->Get(World, Class, Transform, LifeSpan, Attachment, AttachRules, SocketName);
 	} while (0);
 	return nullptr;
@@ -158,7 +158,7 @@ UXActorPoolComponent::BeginPlay() {
 	XINFO("%s's outer has been changed to: %s", *this->GetName(), *GetOuter()->GetName());
 	
 	FTimerManager& TimerManager = GameInstance->GetTimerManager();
-	check(!TimerManager.IsTimerActive(TimerLifeSpan));
+	XASSERT(!TimerManager.IsTimerActive(TimerLifeSpan), "TimerLifeSpan is Actived");
 	TimerManager.SetTimer(TimerLifeSpan, this, &UXActorPoolComponent::TimerLifeSpanHandler, 1.f, true, 1.f);
 }
 
@@ -168,7 +168,7 @@ UXActorPoolComponent::BeginDestroy() {
 
 	if (GameInstance) {
 		FTimerManager& TimerManager = GameInstance->GetTimerManager();
-		check(TimerManager.IsTimerActive(TimerLifeSpan));
+		XASSERT(TimerManager.IsTimerActive(TimerLifeSpan), "TimerLifeSpan is not active");
 		TimerManager.ClearTimer(TimerLifeSpan);
 
 		for (auto& itr : Pool) {

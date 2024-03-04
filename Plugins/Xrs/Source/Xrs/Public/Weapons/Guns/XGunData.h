@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Bases/XEnum.h"
+
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "XGunData.generated.h"
@@ -14,10 +15,10 @@ struct FXGunData : public FTableRowBase {
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Xrs|Information")
-	TObjectPtr<UStaticMesh> Mesh;
+	TObjectPtr<USkeletalMesh> Mesh;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Xrs|Information")
-	EXGunType GunType;
+	EXGunType GunType{ EXGunType::EGT_Invalid };
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Xrs|Information")
 	FString GunName;
@@ -62,7 +63,7 @@ struct FXGunData : public FTableRowBase {
 
 	// 子弹类型
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Xrs|Ammo")
-	EXBulletType BulletType;
+	EXBulletType BulletType{ EXBulletType::EBT_Invalid };
 
 	// 空弹匣
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Xrs|Ammo")

@@ -3,7 +3,7 @@
 #include "Components/XGunSystemComponent.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(XGunSystemComponent)
 
-#include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 
@@ -15,39 +15,80 @@ UXGunSystemComponent::UXGunSystemComponent() : Super() {
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 }
 
+void 
+UXGunSystemComponent::CheckObstacle(float Limit) {
+	if (CurrentGunIndex < 0) {
+		return;
+	}
+
+	auto& Gun = Guns[CurrentGunIndex];
+	if (!Gun) {
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World) {
+		return;
+	}
+
+	const FVector&& MuzzleLocation = Gun->GetMesh()->GetSocketLocation(Gun->GetData().MuzzleSocket);
+	const FVector&& CharacterLocation = Character->GetActorLocation();
+	const FVector&& Forward = Character->GetActorForwardVector();
+	const FVector&& Start = CharacterLocation + Forward * Character->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const FVector&& End = MuzzleLocation + Forward * 150;
+
+	DrawDebugLine(World, Start, End, FColor::Green, false, 10);
+
+	FHitResult HitResult;
+	World->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility, FCollisionQueryParams(TEXT(""), false, Character));
+
+	if (!HitResult.bBlockingHit) {
+		return;
+	}
+
+	AActor* HitActor = HitResult.GetActor();
+	if (HitActor) {
+		auto Distance1 = FMath::Abs(FVector::Dist2D(MuzzleLocation, HitResult.ImpactPoint));
+		auto Distance2 = FMath::Abs(FVector::Dist2D(MuzzleLocation, CharacterLocation));
+		auto Distance3 = FMath::Abs(FVector::Dist2D(HitResult.ImpactPoint, CharacterLocation));
+		if (Distance1 <= Limit || Distance1 >= Distance3) {
+			OnObstacle.Broadcast(HitActor);
+		}
+	}
+}
+
 void
 UXGunSystemComponent::Pickup(AXBaseGun* Gun) {
-	do {
-		if (!Gun) {
-			XERROR("Gun is invalid");
-			break;
-		}
+	if (!Gun) {
+		XERROR("Gun is invalid");
+		return;
+	}
 
-		if (CurrentGunIndex >= 0) {
-			Drop(CurrentGunIndex);
-		}
+	if (CurrentGunIndex >= 0) {
+		Drop(CurrentGunIndex);
+	}
 
-		int32 index = (int32)EXGunType::EGT_Rifle - 1;
-		if (Guns[index]) {
-			Drop(index);
-		}
+	int32 index = (int32)EXGunType::EGT_Rifle - 1;
+	if (Guns[index]) {
+		Drop(index);
+	}
 
-		CurrentGunIndex = index;
-		Guns[CurrentGunIndex] = Gun;
+	CurrentGunIndex = index;
+	Guns[CurrentGunIndex] = Gun;
 
-		Gun->DisableCollision();
-		if (!Gun->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, Gun->GetData().EquipSocket)) {
-			XERROR("Pickup failed");
-			break;
-		}
+	Gun->DisableCollision();
+	if (!Gun->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, Gun->GetData().EquipSocket)) {
+		XERROR("Pickup failed");
+		return;
+	}
 
-		OnPickup.Broadcast(Gun);
-	} while (0);
+	OnPickup.Broadcast(Gun);
+	OnEquip.Broadcast(Gun);
 }
 
 void 
 UXGunSystemComponent::Drop(int32 index){
-	check(index >= 0 && index < Guns.Num());
+	XASSERT(index >= 0 && index < Guns.Num(), "index is invalid");
 
 	auto& CurrentGun = Guns[index];
 	CurrentGun->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
@@ -63,7 +104,7 @@ UXGunSystemComponent::Drop(int32 index){
 
 void 
 UXGunSystemComponent::Equip(int32 index) {
-	 check(index >= 0 && index < Guns.Num());
+	XASSERT(index >= 0 && index < Guns.Num(), "index is invalid");
 
 	if (CurrentGunIndex >= 0) {
 		DesiredEquipGunIndex = index;
@@ -83,14 +124,15 @@ UXGunSystemComponent::Equip(int32 index) {
 
 void 
 UXGunSystemComponent::ANS_StartEquip(int32 index) {
-	check(index >= 0 && index < Guns.Num() && CurrentGunIndex < 0);
+	XASSERT(index >= 0 && index < Guns.Num() && CurrentGunIndex < 0, "index or CurrentGunIndex is invalid");
 	auto& Gun = Guns[index] = Guns[index];
-	check(Gun->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, Gun->GetData().EquipSocket));
+	XASSERT(Gun->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, Gun->GetData().EquipSocket),
+		"AttachToComponent failed");
 }
 
 void 
 UXGunSystemComponent::ANS_EndEquip(int32 index) {
-	check(index >= 0 && index < Guns.Num() && CurrentGunIndex < 0);
+	XASSERT(index >= 0 && index < Guns.Num() && CurrentGunIndex < 0, "index or CurrentGunIndex is invalid");
 	CurrentGunIndex = index;
 	auto& Gun = Guns[index];
 	Gun->UnLock();
@@ -104,7 +146,7 @@ UXGunSystemComponent::Unequip() {
 	}
 
 	auto& Gun = Guns[CurrentGunIndex];
-	check(Gun);
+	XASSERT(Gun, "Gun is nullptr");
 	if (Gun->Lock()) {
 		Character->PlayAnimMontage(Gun->GetData().UnequipMontage);
 	}
@@ -112,17 +154,17 @@ UXGunSystemComponent::Unequip() {
 
 void 
 UXGunSystemComponent::ANS_StartUnequip() {
-	check(CurrentGunIndex >= 0);
+	XASSERT(CurrentGunIndex >= 0, "CurrentGunIndex is invalid");
 	auto& Gun = Guns[CurrentGunIndex];
-	check(Gun);
+	XASSERT(Gun, "Gun is invalid");
 	Gun->AttachToComponent(RifleAttachMesh, FAttachmentTransformRules::SnapToTargetIncludingScale);
 }
 
 void 
 UXGunSystemComponent::ANS_EndUnequip() {
-	check(CurrentGunIndex >= 0);
+	XASSERT(CurrentGunIndex >= 0, "CurrentGunIndex is invalid");
 	auto& Gun = Guns[CurrentGunIndex];
-	check(Gun);
+	XASSERT(Gun, "Gun is nullptr");
 	Gun->UnLock();
 
 	OnUnequip.Broadcast(Gun);

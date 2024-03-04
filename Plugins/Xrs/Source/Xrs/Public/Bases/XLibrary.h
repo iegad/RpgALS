@@ -1,7 +1,8 @@
 // Copyright:	Copyright (C) 2024 iegad
 
 #pragma once
-// #pragma warning(disable: 5103)
+
+#include <fstream>
 
 #include "Bases/XGameInstance.h"
 #include "Components/XActorPoolComponent.h"
@@ -20,6 +21,8 @@
 #define XERROR(Format, ...) __XLOG_(Error, Format, ##__VA_ARGS__)
 #define XFATAL(Format, ...) __XLOG_(Fatal, Format, ##__VA_ARGS__)
 
+#define XASSERT(expr, Format, ...) if (!(expr)) XFATAL(Format, ##__VA_ARGS__)
+
 /**
  * 
  */
@@ -31,6 +34,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Xrs|Core")
 	static UXGameInstance* GetGameInstance(UObject* WorldContextObject);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Xrs|Core")
+	static APlayerController* GetPlayerController(UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Xrs|Core")
+	static APlayerCameraManager* GetPlayerCameraManager(UObject* WorldContextObject);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Xrs|XActor")
 	static AXActor* GetActor(UObject* WorldContextObject, TSubclassOf<AXActor> Class, const FTransform& Transform, float LifeSpan);
 
@@ -41,6 +50,6 @@ public:
 template<typename T> T* 
 UXLibrary::GetActor(UWorld* World, TSubclassOf<AXActor> Class, const FTransform& Transform, float LifeSpan, USceneComponent* Attachment, const FAttachmentTransformRules& AttachRules, const FName& SocketName) {
 	UXGameInstance* GameInstance = GetGameInstance();
-	check(GameInstance);
+	XASSERT(GameInstance, "GetGameInstance failed");
 	return GameInstance->GetActorPool()->Get<T>(World, Class, TransformCast, LifeSpan, Attachment, AttachRules, SocketName);
 }

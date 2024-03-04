@@ -7,34 +7,33 @@
 #include "Components/WidgetComponent.h"
 #include "GameFramework/Character.h"
 
-#include "Bases/XLibrary.h"
 #include "Components/XGunSystemComponent.h"
 
 AXBaseGun::AXBaseGun() : Super() {
-	// Create StaticMesh
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName{ TEXTVIEW("StaticMesh") });
-	check(StaticMesh);
-	SetRootComponent(StaticMesh);
+	// Create SkeletalMesh
+	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(FName{ TEXTVIEW("StaticMesh") });
+	XASSERT(SkeletalMesh, "CreateDefaultSubobject UStaticMeshComponent failed");
+	SetRootComponent(SkeletalMesh);
 
-	StaticMesh->SetSimulatePhysics(true);
-	StaticMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-	StaticMesh->SetCollisionObjectType(ECollisionChannel::ECC_PhysicsBody);
+	SkeletalMesh->SetSimulatePhysics(true);
+	SkeletalMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	SkeletalMesh->SetCollisionObjectType(ECollisionChannel::ECC_PhysicsBody);
 
-	FCollisionResponseContainer StaticMeshCRC;
-	StaticMeshCRC.SetResponse(ECC_WorldStatic, ECR_Block);
-	StaticMeshCRC.SetResponse(ECC_WorldDynamic, ECR_Block);
-	StaticMeshCRC.SetResponse(ECC_Pawn, ECR_Ignore);
-	StaticMeshCRC.SetResponse(ECC_Visibility, ECR_Ignore);
-	StaticMeshCRC.SetResponse(ECC_Camera, ECR_Ignore);
-	StaticMeshCRC.SetResponse(ECC_PhysicsBody, ECR_Block);
-	StaticMeshCRC.SetResponse(ECC_Vehicle, ECR_Ignore);
-	StaticMeshCRC.SetResponse(ECC_Destructible, ECR_Block);
-	StaticMesh->SetCollisionResponseToChannels(StaticMeshCRC);
+	FCollisionResponseContainer SkeletalMeshCRC;
+	SkeletalMeshCRC.SetResponse(ECC_WorldStatic, ECR_Block);
+	SkeletalMeshCRC.SetResponse(ECC_WorldDynamic, ECR_Block);
+	SkeletalMeshCRC.SetResponse(ECC_Pawn, ECR_Ignore);
+	SkeletalMeshCRC.SetResponse(ECC_Visibility, ECR_Ignore);
+	SkeletalMeshCRC.SetResponse(ECC_Camera, ECR_Ignore);
+	SkeletalMeshCRC.SetResponse(ECC_PhysicsBody, ECR_Block);
+	SkeletalMeshCRC.SetResponse(ECC_Vehicle, ECR_Ignore);
+	SkeletalMeshCRC.SetResponse(ECC_Destructible, ECR_Block);
+	SkeletalMesh->SetCollisionResponseToChannels(SkeletalMeshCRC);
 
 	// Create BoxCollision
 	BoxCollision = CreateDefaultSubobject<UBoxComponent>(FName{ TEXTVIEW("BoxCollision") });
-	check(BoxCollision);
-	BoxCollision->SetupAttachment(StaticMesh);
+	XASSERT(BoxCollision, "CreateDefaultSubobject UBoxComponent failed");
+	BoxCollision->SetupAttachment(SkeletalMesh);
 	OnActorBeginOverlap.AddDynamic(this, &AXBaseGun::OnActorBeginOverlapHandler);
 	OnActorEndOverlap.AddDynamic(this, &AXBaseGun::OnActorEndOverlapHandler);
 }
@@ -56,15 +55,15 @@ AXBaseGun::UnLock() {
 
 void 
 AXBaseGun::DisableCollision() {
-	StaticMesh->SetSimulatePhysics(false);
-	StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SkeletalMesh->SetSimulatePhysics(false);
+	SkeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BoxCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void 
 AXBaseGun::EnableCollision() {
-	StaticMesh->SetSimulatePhysics(true);
-	StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	SkeletalMesh->SetSimulatePhysics(true);
+	SkeletalMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	BoxCollision->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
@@ -75,12 +74,6 @@ AXBaseGun::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {
 	LoadData();
 }
 #endif
-
-void
-AXBaseGun::BeginPlay() {
-	Super::BeginPlay();
-	check(LoadData());
-}
 
 void
 AXBaseGun::OnActorBeginOverlapHandler(AActor* OverlappedActor, AActor* OtherActor) {
@@ -110,8 +103,8 @@ AXBaseGun::LoadData() {
 
 	if (RowID.IsNone()) {
 		Data = nullptr;
-		StaticMesh->SetStaticMesh(nullptr);
-		StaticMesh->BodyInstance.SetMassOverride(0.f, false);
+		SkeletalMesh->SetSkeletalMesh(nullptr);
+		SkeletalMesh->BodyInstance.SetMassOverride(0.f, false);
 		return false;
 	}
 	
@@ -121,7 +114,7 @@ AXBaseGun::LoadData() {
 		return false;
 	}
 
-	StaticMesh->SetStaticMesh(Data->Mesh);
-	StaticMesh->BodyInstance.SetMassOverride(Data->Mass);
+	SkeletalMesh->SetSkeletalMesh(Data->Mesh);
+	SkeletalMesh->BodyInstance.SetMassOverride(Data->Mass);
 	return true;
 }
