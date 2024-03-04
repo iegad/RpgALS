@@ -37,8 +37,6 @@ UXGunSystemComponent::CheckObstacle(float Limit) {
 	const FVector&& Start = CharacterLocation + Forward * Character->GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector&& End = MuzzleLocation + Forward * 150;
 
-	DrawDebugLine(World, Start, End, FColor::Green, false, 10);
-
 	FHitResult HitResult;
 	World->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility, FCollisionQueryParams(TEXT(""), false, Character));
 
@@ -48,10 +46,9 @@ UXGunSystemComponent::CheckObstacle(float Limit) {
 
 	AActor* HitActor = HitResult.GetActor();
 	if (HitActor) {
-		auto Distance1 = FMath::Abs(FVector::Dist2D(MuzzleLocation, HitResult.ImpactPoint));
-		auto Distance2 = FMath::Abs(FVector::Dist2D(MuzzleLocation, CharacterLocation));
-		auto Distance3 = FMath::Abs(FVector::Dist2D(HitResult.ImpactPoint, CharacterLocation));
-		if (Distance1 <= Limit || Distance1 >= Distance3) {
+		auto M2I = FMath::Abs(FVector::Dist2D(MuzzleLocation, HitResult.ImpactPoint));
+		auto C2I = FMath::Abs(FVector::Dist2D(HitResult.ImpactPoint, CharacterLocation));
+		if (M2I <= Limit || M2I >= C2I) {
 			OnObstacle.Broadcast(HitActor);
 		}
 	}
