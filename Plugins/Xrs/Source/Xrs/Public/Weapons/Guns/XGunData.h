@@ -1,25 +1,18 @@
-// Copyright:	Copyright (C) 2024 iegad
-
 #pragma once
 
 #include "Bases/XEnum.h"
-
 #include "CoreMinimal.h"
-#include "Engine/DataAsset.h"
-#include "XGunDataAsset.generated.h"
+#include "Engine/DataTable.h"
+#include "XGunData.generated.h"
 
-class AXMarker;
 class AXMagazine;
+class AXMarker;
 class AXTracer;
 
-/**
- * 
- */
-UCLASS()
-class XRS_API UXGunDataAsset : public UDataAsset {
+USTRUCT(BlueprintType)
+struct FXGunData : public FTableRowBase {
 	GENERATED_BODY()
-	
-public:
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Xrs|Information")
 	TObjectPtr<UStaticMesh> Mesh;
 
@@ -60,8 +53,12 @@ public:
 	int32 ClipAmmo = 0;
 
 	// 当前弹药数
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "Xrs|Ammo")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Xrs|Ammo")
 	int32 CurrentAmmo = 0;
+
+	// 备用弹药数
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Xrs|Ammo")
+	int32 ReserveAmmo = 0;
 
 	// 子弹类型
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Xrs|Ammo")

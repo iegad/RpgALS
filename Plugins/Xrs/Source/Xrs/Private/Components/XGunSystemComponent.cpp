@@ -8,7 +8,6 @@
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 
 #include "Bases/XLibrary.h"
-#include "DataAssets/XGunDataAsset.h"
 #include "Weapons/Guns/XBaseGun.h"
 
 UXGunSystemComponent::UXGunSystemComponent() : Super() {
@@ -37,7 +36,7 @@ UXGunSystemComponent::Pickup(AXBaseGun* Gun) {
 		Guns[CurrentGunIndex] = Gun;
 
 		Gun->DisableCollision();
-		if (!Gun->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, Gun->DataAsset->EquipSocket)) {
+		if (!Gun->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, Gun->GetData().EquipSocket)) {
 			XERROR("Pickup failed");
 			break;
 		}
@@ -75,7 +74,7 @@ UXGunSystemComponent::Equip(int32 index) {
 	auto& Gun = Guns[index];
 
 	if (Gun && Gun->Lock()) {
-		Character->PlayAnimMontage(Gun->DataAsset->EquipMontage);
+		Character->PlayAnimMontage(Gun->GetData().EquipMontage);
 		if (DesiredEquipGunIndex >= 0) {
 			DesiredEquipGunIndex = -1;
 		}
@@ -86,7 +85,7 @@ void
 UXGunSystemComponent::ANS_StartEquip(int32 index) {
 	check(index >= 0 && index < Guns.Num() && CurrentGunIndex < 0);
 	auto& Gun = Guns[index] = Guns[index];
-	check(Gun->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, Gun->DataAsset->EquipSocket));
+	check(Gun->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, Gun->GetData().EquipSocket));
 }
 
 void 
@@ -107,7 +106,7 @@ UXGunSystemComponent::Unequip() {
 	auto& Gun = Guns[CurrentGunIndex];
 	check(Gun);
 	if (Gun->Lock()) {
-		Character->PlayAnimMontage(Gun->DataAsset->UnequipMontage);
+		Character->PlayAnimMontage(Gun->GetData().UnequipMontage);
 	}
 }
 
@@ -140,6 +139,54 @@ UXGunSystemComponent::Fire() {
 
 void 
 UXGunSystemComponent::Reload() {
+	if (CurrentGunIndex < 0) {
+		return;
+	}
+
+	auto& Gun = Guns[CurrentGunIndex];
+	if (!Gun) {
+		return;
+	}
+
+	auto& Data = Gun->GetData();
+	if (Data.CurrentAmmo >= Data.ClipAmmo || Data.ReserveAmmo == 0) {
+		return;
+	}
+
+	if (!Gun->Lock()) {
+		return;
+	}
+
+	Character->PlayAnimMontage(Data.ReloadMontage);
+}
+
+void 
+UXGunSystemComponent::ANS_StartRealod() {
+	// TODO
+}
+
+void 
+UXGunSystemComponent::ANS_EndReload() {
+	if (CurrentGunIndex < 0) {
+		return;
+	}
+
+	auto& Gun = Guns[CurrentGunIndex];
+	if (!Gun) {
+		return;
+	}
+
+	auto& Data = Gun->GetData();
+	int32 ReloadValue = Data.ClipAmmo - Data.CurrentAmmo;
+	if (ReloadValue > Data.ReserveAmmo) {
+		ReloadValue = Data.ReserveAmmo;
+	}
+
+	Data.ReserveAmmo -= ReloadValue;
+	Data.CurrentAmmo += ReloadValue;
+
+	Gun->UnLock();
+	OnReload.Broadcast(Gun);
 }
 
 void

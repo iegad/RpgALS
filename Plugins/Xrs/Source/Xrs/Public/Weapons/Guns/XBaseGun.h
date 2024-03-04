@@ -2,12 +2,13 @@
 
 #pragma once
 
+#include "Weapons/Guns/XGunData.h"
+
 #include "CoreMinimal.h"
 #include "Bases/XActor.h"
 #include "XBaseGun.generated.h"
 
 class UBoxComponent;
-class UXGunDataAsset;
 class UWidgetComponent;
 
 /**
@@ -20,23 +21,32 @@ class XRS_API AXBaseGun : public AXActor {
 public:
 	AXBaseGun();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Xrs|DataAssets")
-	TObjectPtr<UXGunDataAsset> DataAsset;
-
 	UFUNCTION(BlueprintCallable)
 	bool Lock();
 
 	UFUNCTION(BlueprintCallable)
 	void UnLock();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE FXGunData& GetData() const { return *Data; }
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Xrs|DataTable")
+	FName RowID;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Xrs|DataTable")
+	TObjectPtr<UDataTable> XGunDataTable;
+
 	void DisableCollision();
 	void EnableCollision();
+
+protected:
 
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 
-protected:
+	virtual void BeginPlay() override;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Xrs|Components")
 	TObjectPtr<UBoxComponent> BoxCollision;
 
@@ -50,7 +60,8 @@ private:
 	UFUNCTION()
 	void OnActorEndOverlapHandler(AActor* OverlappedActor, AActor* OtherActor);
 
-	void LoadData();
+	inline bool LoadData();
 
 	bool bLock = false;
+	FXGunData* Data = nullptr;
 };

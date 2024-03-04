@@ -19,6 +19,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEquipDeletegate, AXBaseGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUnequipDeletegate, AXBaseGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFocusGunDelegate, AXBaseGun*, Gun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUnfocusGunDelegate, AXBaseGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReloadDelegate, AXBaseGun*, Gun);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class XRS_API UXGunSystemComponent : public UActorComponent {
@@ -48,6 +49,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Reload();
+	void ANS_StartRealod();
+	void ANS_EndReload();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE AXBaseGun* GetGun(int32 index = 0) const { check(index >= 0 && index < Guns.Num());  return Guns.IsEmpty() ? nullptr : Guns[index]; }
@@ -69,6 +72,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable);
 	FUnfocusGunDelegate OnUnfocusGun;
+
+	UPROPERTY(BlueprintAssignable);
+	FReloadDelegate OnReload;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Xrs|Names")
 	FName NameRifleAttachMesh;

@@ -9,7 +9,6 @@
 
 #include "Bases/XLibrary.h"
 #include "Components/XGunSystemComponent.h"
-#include "DataAssets/XGunDataAsset.h"
 
 AXBaseGun::AXBaseGun() : Super() {
 	// Create StaticMesh
@@ -73,8 +72,15 @@ AXBaseGun::EnableCollision() {
 void 
 AXBaseGun::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
+	LoadData();
 }
 #endif
+
+void
+AXBaseGun::BeginPlay() {
+	Super::BeginPlay();
+	check(LoadData());
+}
 
 void
 AXBaseGun::OnActorBeginOverlapHandler(AActor* OverlappedActor, AActor* OtherActor) {
@@ -96,14 +102,26 @@ AXBaseGun::OnActorEndOverlapHandler(AActor* OverlappedActor, AActor* OtherActor)
 	}
 }
 
-void
+bool 
 AXBaseGun::LoadData() {
-	if (DataAsset) {
-		StaticMesh->SetStaticMesh(DataAsset->Mesh);
-		StaticMesh->BodyInstance.SetMassOverride(DataAsset->Mass);
+	if (!XGunDataTable) {
+		return false;
 	}
-	else {
+
+	if (RowID.IsNone()) {
+		Data = nullptr;
 		StaticMesh->SetStaticMesh(nullptr);
 		StaticMesh->BodyInstance.SetMassOverride(0.f, false);
+		return false;
 	}
+	
+	Data = XGunDataTable->FindRow<FXGunData>(RowID, "");
+	if (!Data) {
+		XWARN("%s has no data: %s", *XGunDataTable->GetName(), *RowID.ToString());
+		return false;
+	}
+
+	StaticMesh->SetStaticMesh(Data->Mesh);
+	StaticMesh->BodyInstance.SetMassOverride(Data->Mass);
+	return true;
 }
