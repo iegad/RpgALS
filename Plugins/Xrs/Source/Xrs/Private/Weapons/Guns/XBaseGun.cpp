@@ -5,6 +5,7 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/Character.h"
 
 #include "Bases/XLibrary.h"
 #include "Components/XGunSystemComponent.h"
@@ -68,11 +69,12 @@ AXBaseGun::EnableCollision() {
 	BoxCollision->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
+#if WITH_EDITOR
 void 
 AXBaseGun::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-	LoadData();
 }
+#endif
 
 void
 AXBaseGun::OnActorBeginOverlapHandler(AActor* OverlappedActor, AActor* OtherActor) {

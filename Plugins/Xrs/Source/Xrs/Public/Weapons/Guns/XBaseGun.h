@@ -32,14 +32,16 @@ public:
 	void DisableCollision();
 	void EnableCollision();
 
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Xrs|Components")
 	TObjectPtr<UBoxComponent> BoxCollision;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Xrs|Components")
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
-
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 private:
 	UFUNCTION()
