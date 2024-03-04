@@ -10,43 +10,43 @@
 void 
 UPropsUnEquipAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, 
 	const FAnimNotifyEventReference& EventReference) {
-	do {
-		if (!MeshComp) {
-			break;
-		}
+	//do {
+	//	if (!MeshComp) {
+	//		break;
+	//	}
 
-		AALSCharacter* Character = Cast<AALSCharacter>(MeshComp->GetOuter());
-		if (!Character || !Character->GetPropsComponent()) {
-			break;
-		}
+	//	AALSCharacter* Character = Cast<AALSCharacter>(MeshComp->GetOuter());
+	//	if (!Character || !Character->GetPropsComponent()) {
+	//		break;
+	//	}
 
-		APropsBase* Props = Character->GetPropsFromOverlayState(OverlayState);
-		if (!Props) {
-			break;
-		}
+	//	APropsBase* Props = Character->GetPropsFromOverlayState(OverlayState);
+	//	if (!Props) {
+	//		break;
+	//	}
 
-		Character->GetPropsComponent()->StartUnEquip(Props);
-	} while (0);
+	//	Character->GetPropsComponent()->StartUnEquip(Props);
+	//} while (0);
 }
 
 void 
 UPropsUnEquipAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, 
 	const FAnimNotifyEventReference& EventReference) {
-	do {
-		if (!MeshComp) {
-			break;
-		}
+	//do {
+	//	if (!MeshComp) {
+	//		break;
+	//	}
 
-		AALSCharacter* Character = Cast<AALSCharacter>(MeshComp->GetOuter());
-		if (!Character || !Character->GetPropsComponent()) {
-			break;
-		}
+	//	AALSCharacter* Character = Cast<AALSCharacter>(MeshComp->GetOuter());
+	//	if (!Character || !Character->GetPropsComponent()) {
+	//		break;
+	//	}
 
-		APropsBase* Props = Character->GetPropsFromOverlayState(OverlayState);
-		if (!Props) {
-			break;
-		}
+	//	APropsBase* Props = Character->GetPropsFromOverlayState(OverlayState);
+	//	if (!Props) {
+	//		break;
+	//	}
 
-		Character->GetPropsComponent()->EndUnEquip(Props);
-	} while (0);
+	//	Character->GetPropsComponent()->EndUnEquip(Props);
+	//} while (0);
 }

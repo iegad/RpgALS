@@ -37,8 +37,8 @@ AALSCharacter::UpdateHeldObject() {
 void 
 AALSCharacter::ClearHeldObject() {
 	// StaticMesh->SetStaticMesh(nullptr);
-	SkeletalMesh->SetSkeletalMesh(nullptr);
-	SkeletalMesh->SetAnimInstanceClass(nullptr);
+	//SkeletalMesh->SetSkeletalMesh(nullptr);
+	//SkeletalMesh->SetAnimInstanceClass(nullptr);
 }
 
 void 
@@ -126,9 +126,9 @@ AALSCharacter::OnOverlayStateChanged(EALSOverlayState PreviousState) {
 void 
 AALSCharacter::UpdateHeldObjectAnimations() {
 	if (GetOverlayState() == EALSOverlayState::Bow) {
-		UBowAnim* BowAnim = Cast<UBowAnim>(SkeletalMesh->GetAnimInstance());
-		if (BowAnim) {
-			BowAnim->Draw = GetAnimCurveValue(TEXT("Enable_SpineRotation"));
-		}
+		//UBowAnim* BowAnim = Cast<UBowAnim>(SkeletalMesh->GetAnimInstance());
+		//if (BowAnim) {
+		//	BowAnim->Draw = GetAnimCurveValue(TEXT("Enable_SpineRotation"));
+		//}
 	}
 }

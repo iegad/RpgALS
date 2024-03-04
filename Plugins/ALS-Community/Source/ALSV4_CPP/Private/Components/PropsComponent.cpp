@@ -25,45 +25,45 @@ UPropsComponent::UPropsComponent() : Super() {
 
 void 
 UPropsComponent::StartEquip(APropsBase* Props) const {
-	do {
-		if (!Props) {
-			ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
-			break;
-		}
+	//do {
+	//	if (!Props) {
+	//		ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
+	//		break;
+	//	}
 
-		AALSBaseCharacter* Character = GetALSBaseCharacter();
-		if (!Character) {
-			ALS_ERROR(TEXT("UPropsComponent's GetOwner is not AALSCharacter: %s:%d"), __FILEW__, __LINE__);
-			break;
-		}
+	//	AALSBaseCharacter* Character = GetALSBaseCharacter();
+	//	if (!Character) {
+	//		ALS_ERROR(TEXT("UPropsComponent's GetOwner is not AALSCharacter: %s:%d"), __FILEW__, __LINE__);
+	//		break;
+	//	}
 
-		APropsBase* CurrentProps = Character->GetCurrentProps();
-		if (CurrentProps) {
-			UnEquip(CurrentProps);
-			break;
-		}
+	//	APropsBase* CurrentProps = Character->GetCurrentProps();
+	//	if (CurrentProps) {
+	//		UnEquip(CurrentProps);
+	//		break;
+	//	}
 
-		UChildActorComponent* ChildActor = nullptr;
-		switch (Props->OverlayState) {
-		case EALSOverlayState::Rifle:
-			ChildActor = Character->ChildActorRifle;
-			break;
+	//	UChildActorComponent* ChildActor = nullptr;
+	//	switch (Props->OverlayState) {
+	//	case EALSOverlayState::Rifle:
+	//		ChildActor = Character->ChildActorRifle;
+	//		break;
 
-		case EALSOverlayState::PistolOneHanded:
-			ChildActor = Character->ChildActorPistol;
-			break;
+	//	case EALSOverlayState::PistolOneHanded:
+	//		ChildActor = Character->ChildActorPistol;
+	//		break;
 
-		default: 
-			break;
-		}
+	//	default: 
+	//		break;
+	//	}
 
-		if (!ChildActor) {
-			ALS_ERROR(TEXT("ChildActor is nullptr: %s:%d"), __FILEW__, __LINE__);
-			break;
-		}
+	//	if (!ChildActor) {
+	//		ALS_ERROR(TEXT("ChildActor is nullptr: %s:%d"), __FILEW__, __LINE__);
+	//		break;
+	//	}
 
-		ChildActor->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, Props->EquipSocketName);
-	} while (0);
+	//	ChildActor->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, Props->EquipSocketName);
+	//} while (0);
 }
 
 void 
@@ -125,43 +125,43 @@ UPropsComponent::EndReload(AGunBase* Gun) const {
 
 void 
 UPropsComponent::StartUnEquip(APropsBase* Props) const {
-	do {
-		if (!Props) {
-			ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
-			break;
-		}
+	//do {
+	//	if (!Props) {
+	//		ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
+	//		break;
+	//	}
 
-		AALSBaseCharacter* Character = GetALSBaseCharacter();
-		if (!Character) {
-			ALS_ERROR(TEXT("UPropsComponent's GetOwner is not AALSCharacter: %s:%d"), __FILEW__, __LINE__);
-			break;
-		}
+	//	AALSBaseCharacter* Character = GetALSBaseCharacter();
+	//	if (!Character) {
+	//		ALS_ERROR(TEXT("UPropsComponent's GetOwner is not AALSCharacter: %s:%d"), __FILEW__, __LINE__);
+	//		break;
+	//	}
 
-		UChildActorComponent* ChildActor = nullptr;
-		USceneComponent* Scene = nullptr;
+	//	UChildActorComponent* ChildActor = nullptr;
+	//	USceneComponent* Scene = nullptr;
 
-		switch (Character->GetOverlayState()) {
-		case EALSOverlayState::Rifle:
-			ChildActor = Character->ChildActorRifle;
-			Scene = Character->SceneRifle;
-			break;
+	//	switch (Character->GetOverlayState()) {
+	//	case EALSOverlayState::Rifle:
+	//		ChildActor = Character->ChildActorRifle;
+	//		Scene = Character->SceneRifle;
+	//		break;
 
-		case EALSOverlayState::PistolOneHanded:
-			ChildActor = Character->ChildActorPistol;
-			Scene = Character->ScenePistol;
-			break;
+	//	case EALSOverlayState::PistolOneHanded:
+	//		ChildActor = Character->ChildActorPistol;
+	//		Scene = Character->ScenePistol;
+	//		break;
 
-		default:
-			break;
-		}
+	//	default:
+	//		break;
+	//	}
 
-		if (!ChildActor || !Scene) {
-			ALS_ERROR(TEXT("ChildActor or Scene is nullptr: %s:%d"), __FILEW__, __LINE__);
-			break;
-		}
+	//	if (!ChildActor || !Scene) {
+	//		ALS_ERROR(TEXT("ChildActor or Scene is nullptr: %s:%d"), __FILEW__, __LINE__);
+	//		break;
+	//	}
 
-		ChildActor->AttachToComponent(Scene, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	} while (0);
+	//	ChildActor->AttachToComponent(Scene, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	//} while (0);
 }
 
 void 
@@ -331,38 +331,38 @@ UPropsComponent::EndInsertMagazine(AGunBase* Gun) const {
 
 void 
 UPropsComponent::Equip(APropsBase* Props) const {
-	do {
-		if (!Props) {
-			ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
-			break;
-		}
+	//do {
+	//	if (!Props) {
+	//		ALS_ERROR(TEXT("Props is nullptr: %s:%d"), __FILEW__, __LINE__);
+	//		break;
+	//	}
 
-		if (!Props->EquipMontage) {
-			ALS_ERROR(TEXT("Props->EquipMontage is nullptr: %s:%d"), __FILEW__, __LINE__);
-			break;
-		}
+	//	if (!Props->EquipMontage) {
+	//		ALS_ERROR(TEXT("Props->EquipMontage is nullptr: %s:%d"), __FILEW__, __LINE__);
+	//		break;
+	//	}
 
-		if (Props->GetLock()) {
-			break;
-		}
+	//	if (Props->GetLock()) {
+	//		break;
+	//	}
 
-		AALSBaseCharacter* Character = GetALSBaseCharacter();
-		if (!Character) {
-			ALS_ERROR(TEXT("UPropsComponent's GetOwner is not AALSCharacter: %s:%d"), __FILEW__, __LINE__);
-			break;
-		}
+	//	AALSBaseCharacter* Character = GetALSBaseCharacter();
+	//	if (!Character) {
+	//		ALS_ERROR(TEXT("UPropsComponent's GetOwner is not AALSCharacter: %s:%d"), __FILEW__, __LINE__);
+	//		break;
+	//	}
 
-		APropsBase* CurrentProps = Character->GetCurrentProps();
-		if (CurrentProps) {
-			DesiredProps = Props;
-			UnEquip(CurrentProps);
-			break;
-		}
+	//	APropsBase* CurrentProps = Character->GetCurrentProps();
+	//	if (CurrentProps) {
+	//		DesiredProps = Props;
+	//		UnEquip(CurrentProps);
+	//		break;
+	//	}
 
-		Props->Lock();
-		Character->PlayAnimMontage(Props->EquipMontage);
-		DesiredProps = nullptr;
-	} while (0);
+	//	Props->Lock();
+	//	Character->PlayAnimMontage(Props->EquipMontage);
+	//	DesiredProps = nullptr;
+	//} while (0);
 }
 
 void 

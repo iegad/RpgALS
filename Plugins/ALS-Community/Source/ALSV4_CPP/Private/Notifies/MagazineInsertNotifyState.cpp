@@ -8,47 +8,47 @@
 void
 UMagazineInsertNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, 
 	const FAnimNotifyEventReference& EventReference) {
-	do {
-		if (!MeshComp) {
-			break;
-		}
+	//do {
+	//	if (!MeshComp) {
+	//		break;
+	//	}
 
-		AALSBaseCharacter* Character = Cast<AALSBaseCharacter>(MeshComp->GetOuter());
-		if (!Character || !Character->GetPropsComponent()) {
-			break;
-		}
+	//	AALSBaseCharacter* Character = Cast<AALSBaseCharacter>(MeshComp->GetOuter());
+	//	if (!Character || !Character->GetPropsComponent()) {
+	//		break;
+	//	}
 
-		AGunBase* GunBase = Cast<AGunBase>(Character->GetCurrentProps());
-		if (!GunBase) {
-			break;
-		}
+	//	AGunBase* GunBase = Cast<AGunBase>(Character->GetCurrentProps());
+	//	if (!GunBase) {
+	//		break;
+	//	}
 
-		if (Character->GetPropsComponent()) {
-			Character->GetPropsComponent()->StartInsertMagazine(GunBase);
-		}
-	} while (0);
+	//	if (Character->GetPropsComponent()) {
+	//		Character->GetPropsComponent()->StartInsertMagazine(GunBase);
+	//	}
+	//} while (0);
 }
 
 void 
 UMagazineInsertNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, 
 	const FAnimNotifyEventReference& EventReference) {
-	do {
-		if (!MeshComp) {
-			break;
-		}
+	//do {
+	//	if (!MeshComp) {
+	//		break;
+	//	}
 
-		AALSBaseCharacter* Character = Cast<AALSBaseCharacter>(MeshComp->GetOuter());
-		if (!Character || !Character->GetPropsComponent()) {
-			break;
-		}
+	//	AALSBaseCharacter* Character = Cast<AALSBaseCharacter>(MeshComp->GetOuter());
+	//	if (!Character || !Character->GetPropsComponent()) {
+	//		break;
+	//	}
 
-		AGunBase* GunBase = Cast<AGunBase>(Character->GetCurrentProps());
-		if (!GunBase) {
-			break;
-		}
+	//	AGunBase* GunBase = Cast<AGunBase>(Character->GetCurrentProps());
+	//	if (!GunBase) {
+	//		break;
+	//	}
 
-		if (Character->GetPropsComponent()) {
-			Character->GetPropsComponent()->EndInsertMagazine(GunBase);
-		}
-	} while (0);
+	//	if (Character->GetPropsComponent()) {
+	//		Character->GetPropsComponent()->EndInsertMagazine(GunBase);
+	//	}
+	//} while (0);
 }

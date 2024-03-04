@@ -27,6 +27,9 @@ class APropsBase;
 class UPropsComponent;
 class UALSPlayerHUD;
 class UPhysicsConstraintComponent;
+class UXGunSystemComponent;
+
+class AXBaseGun;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FJumpPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJumpedSignature);
@@ -41,8 +44,15 @@ class ALSV4_CPP_API AALSBaseCharacter : public ACharacter {
 
 public:
 	AALSBaseCharacter(const FObjectInitializer& ObjectInitializer);
-	APropsBase* GetCurrentProps() const;
-	APropsBase* GetPropsFromOverlayState(EALSOverlayState Overlay) const;
+
+	UFUNCTION()
+	void OnUnequipHandler(AXBaseGun* Gun);
+
+	UFUNCTION()
+	void OnEquipHandler(AXBaseGun* Gun);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UXGunSystemComponent> XGunSystemComponent;
 
 	void IA_Move(const FInputActionValue& Value);
 	void IA_Look(const FInputActionValue& Value);
@@ -68,9 +78,6 @@ public:
 public:
 	UFUNCTION(BlueprintCallable, Category = "ALS|Movement")
 	FORCEINLINE class UALSCharacterMovementComponent* GetMyMovementComponent() const { return ALSCharacterMovementComponent; }
-
-	UFUNCTION(BlueprintCallable, Category = "ALS|Props System")
-	FORCEINLINE class UPropsComponent* GetPropsComponent() const { return PropsComponent; }
 
 	UFUNCTION(BlueprintCallable, Category = "ALS|Character State System")
 	void Hit(float Damage);
@@ -401,29 +408,8 @@ public:
 	FRagdollStateChangedSignature RagdollStateChangedDelegate;
 
 	// --------------------------------------------------- 组件 ---------------------------------------------------
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "ALS|Components")
-	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
-	TObjectPtr<UPhysicsConstraintComponent> PhysicsRifle;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
-	TObjectPtr<UStaticMeshComponent> StaticMeshRifle1;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
-	TObjectPtr<UStaticMeshComponent> StaticMeshRifle2;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
-	TObjectPtr<USceneComponent> SceneRifle;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
-	TObjectPtr<UChildActorComponent> ChildActorRifle;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
-	TObjectPtr<USceneComponent> ScenePistol;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "ALS|Props Components")
-	TObjectPtr<UChildActorComponent> ChildActorPistol;
+	//UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "ALS|Components")
+	//TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ALS|HUD System")
 	TSubclassOf<UALSPlayerHUD> ALSPlayerHUDClass;
@@ -488,9 +474,6 @@ protected:
 	// --------------------------------------------------- 组件 ---------------------------------------------------
 	UPROPERTY()
 	TObjectPtr<UALSCharacterMovementComponent> ALSCharacterMovementComponent; // 自定义移动组件
-
-	UPROPERTY()
-	TObjectPtr<UPropsComponent> PropsComponent;
 	
 	// --------------------------------------------------- 属性 ---------------------------------------------------
 	UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category = "ALS|Input System")
